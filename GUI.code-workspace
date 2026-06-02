@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "Teensy"
+		},
+		{
+			"path": "Pedal"
+		}
+	],
+	"settings": {
+		"platformio.ignored_packages": [
+			"Daisy",
+			"Pedal"
+		]
+	}
+}
