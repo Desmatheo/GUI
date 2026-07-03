@@ -1,0 +1,564 @@
+ARM GAS  /tmp/cc4X5O1H.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"ValueTables.cpp"
+  15              		.text
+  16              		.section	.text._ZN8AudioLib11ValueTables4InitEv,"ax",%progbits
+  17              		.align	1
+  18              		.p2align 2,,3
+  19              		.global	_ZN8AudioLib11ValueTables4InitEv
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	_ZN8AudioLib11ValueTables4InitEv:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  28 0004 4FF0000A 		mov	r10, #0
+  29 0008 DFF8C0B3 		ldr	fp, .L13+164
+  30 000c DFF8C083 		ldr	r8, .L13+168
+  31 0010 D94F     		ldr	r7, .L13+80
+  32 0012 D146     		mov	r9, r10
+  33 0014 D94E     		ldr	r6, .L13+84
+  34 0016 DA4D     		ldr	r5, .L13+88
+  35 0018 DA4C     		ldr	r4, .L13+92
+  36 001a 2DED108B 		vpush.64	{d8, d9, d10, d11, d12, d13, d14, d15}
+  37 001e 9FEDC2CB 		vldr.64	d12, .L13
+  38 0022 9FEDC3DB 		vldr.64	d13, .L13+8
+  39 0026 9FEDC4BB 		vldr.64	d11, .L13+16
+  40 002a 9FEDC5EB 		vldr.64	d14, .L13+24
+  41 002e 9FEDC6AB 		vldr.64	d10, .L13+32
+  42 0032 9FEDC7FB 		vldr.64	d15, .L13+40
+  43              	.L5:
+  44 0036 07EE909A 		vmov	s15, r9	@ int
+  45 003a B8EEE77B 		vcvt.f64.s32	d7, s15
+  46 003e 87EE0C9B 		vdiv.f64	d9, d7, d12
+  47 0042 B7EEC99B 		vcvt.f32.f64	s18, d9
+  48 0046 B5EE409A 		vcmp.f32	s18, #0
+  49 004a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  50 004e 00F16381 		bmi	.L10
+  51 0052 F1EEC97A 		vsqrt.f32	s15, s18
+  52              	.L4:
+  53 0056 EBEC017A 		vstmia.32	fp!, {s15}
+  54 005a 09F10109 		add	r9, r9, #1
+  55 005e B7EEC98A 		vcvt.f64.f32	d8, s18
+  56 0062 B0EE4D1B 		vmov.f64	d1, d13
+  57 0066 B0EE480B 		vmov.f64	d0, d8
+  58 006a FFF7FEFF 		bl	pow
+ARM GAS  /tmp/cc4X5O1H.s 			page 2
+
+
+  59 006e F7EEC07B 		vcvt.f32.f64	s15, d0
+  60 0072 B7EE081B 		vmov.f64	d1, #1.5e+0
+  61 0076 B0EE480B 		vmov.f64	d0, d8
+  62 007a E8EC017A 		vstmia.32	r8!, {s15}
+  63 007e FFF7FEFF 		bl	pow
+  64 0082 29EE097A 		vmul.f32	s14, s18, s18
+  65 0086 F7EEC07B 		vcvt.f32.f64	s15, d0
+  66 008a B0EE081B 		vmov.f64	d1, #3.0e+0
+  67 008e A6EC017A 		vstmia.32	r6!, {s14}
+  68 0092 B0EE480B 		vmov.f64	d0, d8
+  69 0096 E7EC017A 		vstmia.32	r7!, {s15}
+  70 009a FFF7FEFF 		bl	pow
+  71 009e F7EEC07B 		vcvt.f32.f64	s15, d0
+  72 00a2 B1EE001B 		vmov.f64	d1, #4.0e+0
+  73 00a6 B0EE480B 		vmov.f64	d0, d8
+  74 00aa E5EC017A 		vstmia.32	r5!, {s15}
+  75 00ae FFF7FEFF 		bl	pow
+  76 00b2 39EE099A 		vadd.f32	s18, s18, s18
+  77 00b6 F7EEC07B 		vcvt.f32.f64	s15, d0
+  78 00ba B0EE081B 		vmov.f64	d1, #3.0e+0
+  79 00be B7EEC90A 		vcvt.f64.f32	d0, s18
+  80 00c2 E4EC017A 		vstmia.32	r4!, {s15}
+  81 00c6 B7EE009B 		vmov.f64	d9, #1.0e+0
+  82 00ca FFF7FEFF 		bl	pow
+  83 00ce AE4B     		ldr	r3, .L13+96
+  84 00d0 F7EEC07B 		vcvt.f32.f64	s15, d0
+  85 00d4 5344     		add	r3, r3, r10
+  86 00d6 B0EE481B 		vmov.f64	d1, d8
+  87 00da B1EE000B 		vmov.f64	d0, #4.0e+0
+  88 00de C3ED007A 		vstr.32	s15, [r3]
+  89 00e2 FFF7FEFF 		bl	pow
+  90 00e6 B0EE406B 		vmov.f64	d6, d0
+  91 00ea B5EE007B 		vmov.f64	d7, #2.5e-1
+  92 00ee A74B     		ldr	r3, .L13+100
+  93 00f0 B0EE481B 		vmov.f64	d1, d8
+  94 00f4 36EE496B 		vsub.f64	d6, d6, d9
+  95 00f8 5344     		add	r3, r3, r10
+  96 00fa B2EE000B 		vmov.f64	d0, #8.0e+0
+  97 00fe A6EE077B 		vfma.f64	d7, d6, d7
+  98 0102 B7EEC77B 		vcvt.f32.f64	s14, d7
+  99 0106 83ED007A 		vstr.32	s14, [r3]
+ 100 010a FFF7FEFF 		bl	pow
+ 101 010e B4EE007B 		vmov.f64	d7, #1.25e-1
+ 102 0112 30EE496B 		vsub.f64	d6, d0, d9
+ 103 0116 9E4B     		ldr	r3, .L13+104
+ 104 0118 B0EE481B 		vmov.f64	d1, d8
+ 105 011c 5344     		add	r3, r3, r10
+ 106 011e B3EE000B 		vmov.f64	d0, #1.6e+1
+ 107 0122 A6EE077B 		vfma.f64	d7, d6, d7
+ 108 0126 B7EEC77B 		vcvt.f32.f64	s14, d7
+ 109 012a 83ED007A 		vstr.32	s14, [r3]
+ 110 012e FFF7FEFF 		bl	pow
+ 111 0132 B0EE4B7B 		vmov.f64	d7, d11
+ 112 0136 30EE496B 		vsub.f64	d6, d0, d9
+ 113 013a 964B     		ldr	r3, .L13+108
+ 114 013c B0EE481B 		vmov.f64	d1, d8
+ 115 0140 5344     		add	r3, r3, r10
+ARM GAS  /tmp/cc4X5O1H.s 			page 3
+
+
+ 116 0142 B0EE4E0B 		vmov.f64	d0, d14
+ 117 0146 A6EE0B7B 		vfma.f64	d7, d6, d11
+ 118 014a B7EEC77B 		vcvt.f32.f64	s14, d7
+ 119 014e 83ED007A 		vstr.32	s14, [r3]
+ 120 0152 FFF7FEFF 		bl	pow
+ 121 0156 B0EE4A7B 		vmov.f64	d7, d10
+ 122 015a 30EE496B 		vsub.f64	d6, d0, d9
+ 123 015e 8E4B     		ldr	r3, .L13+112
+ 124 0160 B0EE481B 		vmov.f64	d1, d8
+ 125 0164 5344     		add	r3, r3, r10
+ 126 0166 B0EE4F0B 		vmov.f64	d0, d15
+ 127 016a A6EE0A7B 		vfma.f64	d7, d6, d10
+ 128 016e B7EEC77B 		vcvt.f32.f64	s14, d7
+ 129 0172 83ED007A 		vstr.32	s14, [r3]
+ 130 0176 FFF7FEFF 		bl	pow
+ 131 017a 30EE490B 		vsub.f64	d0, d0, d9
+ 132 017e 874B     		ldr	r3, .L13+116
+ 133 0180 B0EE481B 		vmov.f64	d1, d8
+ 134 0184 9FED747B 		vldr.64	d7, .L13+48
+ 135 0188 9FED759B 		vldr.64	d9, .L13+56
+ 136 018c 5344     		add	r3, r3, r10
+ 137 018e A0EE077B 		vfma.f64	d7, d0, d7
+ 138 0192 B0EE490B 		vmov.f64	d0, d9
+ 139 0196 B7EEC77B 		vcvt.f32.f64	s14, d7
+ 140 019a 83ED007A 		vstr.32	s14, [r3]
+ 141 019e FFF7FEFF 		bl	pow
+ 142 01a2 80EE097B 		vdiv.f64	d7, d0, d9
+ 143 01a6 7E4B     		ldr	r3, .L13+120
+ 144 01a8 5344     		add	r3, r3, r10
+ 145 01aa B0EE481B 		vmov.f64	d1, d8
+ 146 01ae 9FED6E9B 		vldr.64	d9, .L13+64
+ 147 01b2 B0EE490B 		vmov.f64	d0, d9
+ 148 01b6 B7EEC77B 		vcvt.f32.f64	s14, d7
+ 149 01ba 83ED007A 		vstr.32	s14, [r3]
+ 150 01be FFF7FEFF 		bl	pow
+ 151 01c2 80EE097B 		vdiv.f64	d7, d0, d9
+ 152 01c6 774B     		ldr	r3, .L13+124
+ 153 01c8 5344     		add	r3, r3, r10
+ 154 01ca B0EE481B 		vmov.f64	d1, d8
+ 155 01ce 9FED689B 		vldr.64	d9, .L13+72
+ 156 01d2 B0EE490B 		vmov.f64	d0, d9
+ 157 01d6 B7EEC77B 		vcvt.f32.f64	s14, d7
+ 158 01da 83ED007A 		vstr.32	s14, [r3]
+ 159 01de FFF7FEFF 		bl	pow
+ 160 01e2 80EE097B 		vdiv.f64	d7, d0, d9
+ 161 01e6 704B     		ldr	r3, .L13+128
+ 162 01e8 03EB0A02 		add	r2, r3, r10
+ 163 01ec 40F6A173 		movw	r3, #4001
+ 164 01f0 0AF1040A 		add	r10, r10, #4
+ 165 01f4 9945     		cmp	r9, r3
+ 166 01f6 B7EEC77B 		vcvt.f32.f64	s14, d7
+ 167 01fa 82ED007A 		vstr.32	s14, [r2]
+ 168 01fe 7FF41AAF 		bne	.L5
+ 169 0202 624B     		ldr	r3, .L13+100
+ 170 0204 F7EE003A 		vmov.f32	s7, #1.0e+0
+ 171 0208 684F     		ldr	r7, .L13+132
+ 172 020a 93ED008A 		vldr.32	s16, [r3]
+ARM GAS  /tmp/cc4X5O1H.s 			page 4
+
+
+ 173 020e 604B     		ldr	r3, .L13+104
+ 174 0210 73EEC8BA 		vsub.f32	s23, s7, s16
+ 175 0214 664E     		ldr	r6, .L13+136
+ 176 0216 93ED000A 		vldr.32	s0, [r3]
+ 177 021a 5E4B     		ldr	r3, .L13+108
+ 178 021c 33EEC0BA 		vsub.f32	s22, s7, s0
+ 179 0220 644D     		ldr	r5, .L13+140
+ 180 0222 D3ED000A 		vldr.32	s1, [r3]
+ 181 0226 5C4B     		ldr	r3, .L13+112
+ 182 0228 73EEE0AA 		vsub.f32	s21, s7, s1
+ 183 022c 624C     		ldr	r4, .L13+144
+ 184 022e 93ED001A 		vldr.32	s2, [r3]
+ 185 0232 5A4B     		ldr	r3, .L13+116
+ 186 0234 33EEC1AA 		vsub.f32	s20, s7, s2
+ 187 0238 6048     		ldr	r0, .L13+148
+ 188 023a D3ED001A 		vldr.32	s3, [r3]
+ 189 023e 584B     		ldr	r3, .L13+120
+ 190 0240 73EEE19A 		vsub.f32	s19, s7, s3
+ 191 0244 5E49     		ldr	r1, .L13+152
+ 192 0246 93ED002A 		vldr.32	s4, [r3]
+ 193 024a 564B     		ldr	r3, .L13+124
+ 194 024c 33EEC29A 		vsub.f32	s18, s7, s4
+ 195 0250 5C4A     		ldr	r2, .L13+156
+ 196 0252 D3ED002A 		vldr.32	s5, [r3]
+ 197 0256 544B     		ldr	r3, .L13+128
+ 198 0258 73EEE28A 		vsub.f32	s17, s7, s5
+ 199 025c 93ED003A 		vldr.32	s6, [r3]
+ 200 0260 594B     		ldr	r3, .L13+160
+ 201 0262 73EEC33A 		vsub.f32	s7, s7, s6
+ 202 0266 03F57A5C 		add	ip, r3, #16000
+ 203              	.L6:
+ 204 026a 93ED004A 		vldr.32	s8, [r3]
+ 205 026e D7ED004A 		vldr.32	s9, [r7]
+ 206 0272 34EE484A 		vsub.f32	s8, s8, s16
+ 207 0276 96ED005A 		vldr.32	s10, [r6]
+ 208 027a D5ED005A 		vldr.32	s11, [r5]
+ 209 027e 74EEC04A 		vsub.f32	s9, s9, s0
+ 210 0282 94ED006A 		vldr.32	s12, [r4]
+ 211 0286 35EE605A 		vsub.f32	s10, s10, s1
+ 212 028a D0ED006A 		vldr.32	s13, [r0]
+ 213 028e 75EEC15A 		vsub.f32	s11, s11, s2
+ 214 0292 91ED007A 		vldr.32	s14, [r1]
+ 215 0296 36EE616A 		vsub.f32	s12, s12, s3
+ 216 029a D2ED007A 		vldr.32	s15, [r2]
+ 217 029e 76EEC26A 		vsub.f32	s13, s13, s4
+ 218 02a2 37EE627A 		vsub.f32	s14, s14, s5
+ 219 02a6 77EEC37A 		vsub.f32	s15, s15, s6
+ 220 02aa 84EE2BCA 		vdiv.f32	s24, s8, s23
+ 221 02ae 84EE8B4A 		vdiv.f32	s8, s9, s22
+ 222 02b2 C5EE2A4A 		vdiv.f32	s9, s10, s21
+ 223 02b6 85EE8A5A 		vdiv.f32	s10, s11, s20
+ 224 02ba A3EC01CA 		vstmia.32	r3!, {s24}
+ 225 02be 6345     		cmp	r3, ip
+ 226 02c0 C6EE295A 		vdiv.f32	s11, s12, s19
+ 227 02c4 A7EC014A 		vstmia.32	r7!, {s8}
+ 228 02c8 86EE896A 		vdiv.f32	s12, s13, s18
+ 229 02cc E6EC014A 		vstmia.32	r6!, {s9}
+ARM GAS  /tmp/cc4X5O1H.s 			page 5
+
+
+ 230 02d0 C7EE286A 		vdiv.f32	s13, s14, s17
+ 231 02d4 A5EC015A 		vstmia.32	r5!, {s10}
+ 232 02d8 87EEA37A 		vdiv.f32	s14, s15, s7
+ 233 02dc E4EC015A 		vstmia.32	r4!, {s11}
+ 234 02e0 A0EC016A 		vstmia.32	r0!, {s12}
+ 235 02e4 E1EC016A 		vstmia.32	r1!, {s13}
+ 236 02e8 A2EC017A 		vstmia.32	r2!, {s14}
+ 237 02ec BDD1     		bne	.L6
+ 238 02ee 0023     		movs	r3, #0
+ 239 02f0 264A     		ldr	r2, .L13+100
+ 240 02f2 1360     		str	r3, [r2]	@ float
+ 241 02f4 264A     		ldr	r2, .L13+104
+ 242 02f6 1360     		str	r3, [r2]	@ float
+ 243 02f8 264A     		ldr	r2, .L13+108
+ 244 02fa 1360     		str	r3, [r2]	@ float
+ 245 02fc 264A     		ldr	r2, .L13+112
+ 246 02fe 1360     		str	r3, [r2]	@ float
+ 247 0300 264A     		ldr	r2, .L13+116
+ 248 0302 1360     		str	r3, [r2]	@ float
+ 249 0304 264A     		ldr	r2, .L13+120
+ 250 0306 1360     		str	r3, [r2]	@ float
+ 251 0308 264A     		ldr	r2, .L13+124
+ 252 030a BDEC108B 		vldm	sp!, {d8-d15}
+ 253 030e 1360     		str	r3, [r2]	@ float
+ 254 0310 254A     		ldr	r2, .L13+128
+ 255 0312 1360     		str	r3, [r2]	@ float
+ 256 0314 BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 257              	.L10:
+ 258 0318 B0EE490A 		vmov.f32	s0, s18
+ 259 031c FFF7FEFF 		bl	sqrtf
+ 260 0320 F0EE407A 		vmov.f32	s15, s0
+ 261 0324 97E6     		b	.L4
+ 262              	.L14:
+ 263 0326 00BF     		.align	3
+ 264              	.L13:
+ 265 0328 00000000 		.word	0
+ 266 032c 0040AF40 		.word	1085227008
+ 267 0330 55555555 		.word	1431655765
+ 268 0334 5555D53F 		.word	1070945621
+ 269 0338 00000000 		.word	0
+ 270 033c 0000B03F 		.word	1068498944
+ 271 0340 00000000 		.word	0
+ 272 0344 00004040 		.word	1077936128
+ 273 0348 00000000 		.word	0
+ 274 034c 0000A03F 		.word	1067450368
+ 275 0350 00000000 		.word	0
+ 276 0354 00005040 		.word	1078984704
+ 277 0358 00000000 		.word	0
+ 278 035c 0000903F 		.word	1066401792
+ 279 0360 00000000 		.word	0
+ 280 0364 00005940 		.word	1079574528
+ 281 0368 00000000 		.word	0
+ 282 036c 00408F40 		.word	1083129856
+ 283 0370 00000000 		.word	0
+ 284 0374 0088C340 		.word	1086556160
+ 285 0378 00000000 		.word	_ZN8AudioLib11ValueTables6Pow1_5E
+ 286 037c 00000000 		.word	_ZN8AudioLib11ValueTables4Pow2E
+ARM GAS  /tmp/cc4X5O1H.s 			page 6
+
+
+ 287 0380 00000000 		.word	_ZN8AudioLib11ValueTables4Pow3E
+ 288 0384 00000000 		.word	_ZN8AudioLib11ValueTables4Pow4E
+ 289 0388 00000000 		.word	_ZN8AudioLib11ValueTables6x2Pow3E
+ 290 038c 00000000 		.word	_ZN8AudioLib11ValueTables12Response2OctE
+ 291 0390 00000000 		.word	_ZN8AudioLib11ValueTables12Response3OctE
+ 292 0394 00000000 		.word	_ZN8AudioLib11ValueTables12Response4OctE
+ 293 0398 00000000 		.word	_ZN8AudioLib11ValueTables12Response5OctE
+ 294 039c 00000000 		.word	_ZN8AudioLib11ValueTables12Response6OctE
+ 295 03a0 00000000 		.word	_ZN8AudioLib11ValueTables12Response2DecE
+ 296 03a4 00000000 		.word	_ZN8AudioLib11ValueTables12Response3DecE
+ 297 03a8 00000000 		.word	_ZN8AudioLib11ValueTables12Response4DecE
+ 298 03ac 04000000 		.word	_ZN8AudioLib11ValueTables12Response3OctE+4
+ 299 03b0 04000000 		.word	_ZN8AudioLib11ValueTables12Response4OctE+4
+ 300 03b4 04000000 		.word	_ZN8AudioLib11ValueTables12Response5OctE+4
+ 301 03b8 04000000 		.word	_ZN8AudioLib11ValueTables12Response6OctE+4
+ 302 03bc 04000000 		.word	_ZN8AudioLib11ValueTables12Response2DecE+4
+ 303 03c0 04000000 		.word	_ZN8AudioLib11ValueTables12Response3DecE+4
+ 304 03c4 04000000 		.word	_ZN8AudioLib11ValueTables12Response4DecE+4
+ 305 03c8 04000000 		.word	_ZN8AudioLib11ValueTables12Response2OctE+4
+ 306 03cc 00000000 		.word	_ZN8AudioLib11ValueTables4SqrtE
+ 307 03d0 00000000 		.word	_ZN8AudioLib11ValueTables5Sqrt3E
+ 309              		.section	.rodata._ZN8AudioLib11ValueTables3GetEfPf.str1.4,"aMS",%progbits,1
+ 310              		.align	2
+ 311              	.LC0:
+ 312 0000 69647820 		.ascii	"idx >= 0\000"
+ 312      3E3D2030 
+ 312      00
+ 313 0009 000000   		.align	2
+ 314              	.LC1:
+ 315 000c 73746174 		.ascii	"static float AudioLib::ValueTables::Get(float, floa"
+ 315      69632066 
+ 315      6C6F6174 
+ 315      20417564 
+ 315      696F4C69 
+ 316 003f 742A2900 		.ascii	"t*)\000"
+ 317 0043 00       		.align	2
+ 318              	.LC2:
+ 319 0044 41756469 		.ascii	"AudioLib/ValueTables.cpp\000"
+ 319      6F4C6962 
+ 319      2F56616C 
+ 319      75655461 
+ 319      626C6573 
+ 320 005d 000000   		.align	2
+ 321              	.LC3:
+ 322 0060 69647820 		.ascii	"idx < AudioLib::ValueTables::TableSize\000"
+ 322      3C204175 
+ 322      64696F4C 
+ 322      69623A3A 
+ 322      56616C75 
+ 323              		.section	.text._ZN8AudioLib11ValueTables3GetEfPf,"ax",%progbits
+ 324              		.align	1
+ 325              		.p2align 2,,3
+ 326              		.global	_ZN8AudioLib11ValueTables3GetEfPf
+ 327              		.syntax unified
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	_ZN8AudioLib11ValueTables3GetEfPf:
+ARM GAS  /tmp/cc4X5O1H.s 			page 7
+
+
+ 332              		@ args = 0, pretend = 0, frame = 0
+ 333              		@ frame_needed = 0, uses_anonymous_args = 0
+ 334 0000 A8B1     		cbz	r0, .L21
+ 335 0002 B7EEC00A 		vcvt.f64.f32	d0, s0
+ 336 0006 9FED107B 		vldr.64	d7, .L26
+ 337 000a 08B5     		push	{r3, lr}
+ 338 000c 20EE070B 		vmul.f64	d0, d0, d7
+ 339 0010 FDEEC07B 		vcvt.s32.f64	s15, d0
+ 340 0014 17EE903A 		vmov	r3, s15	@ int
+ 341 0018 002B     		cmp	r3, #0
+ 342 001a 09DB     		blt	.L24
+ 343 001c 49F64042 		movw	r2, #40000
+ 344 0020 9342     		cmp	r3, r2
+ 345 0022 0BDC     		bgt	.L25
+ 346 0024 00EB8300 		add	r0, r0, r3, lsl #2
+ 347 0028 90ED000A 		vldr.32	s0, [r0]
+ 348 002c 08BD     		pop	{r3, pc}
+ 349              	.L21:
+ 350 002e 7047     		bx	lr
+ 351              	.L24:
+ 352 0030 074B     		ldr	r3, .L26+8
+ 353 0032 5421     		movs	r1, #84
+ 354 0034 074A     		ldr	r2, .L26+12
+ 355 0036 0848     		ldr	r0, .L26+16
+ 356 0038 FFF7FEFF 		bl	__assert_func
+ 357              	.L25:
+ 358 003c 074B     		ldr	r3, .L26+20
+ 359 003e 5521     		movs	r1, #85
+ 360 0040 044A     		ldr	r2, .L26+12
+ 361 0042 0548     		ldr	r0, .L26+16
+ 362 0044 FFF7FEFF 		bl	__assert_func
+ 363              	.L27:
+ 364              		.align	3
+ 365              	.L26:
+ 366 0048 6891ED7C 		.word	2095944040
+ 367 004c FF41AF40 		.word	1085227519
+ 368 0050 00000000 		.word	.LC0
+ 369 0054 0C000000 		.word	.LC1
+ 370 0058 44000000 		.word	.LC2
+ 371 005c 60000000 		.word	.LC3
+ 373              		.global	_ZN8AudioLib11ValueTables12Response4DecE
+ 374              		.section	.sdram_bss,"aw"
+ 375              		.align	2
+ 378              	_ZN8AudioLib11ValueTables12Response4DecE:
+ 379 0000 00000000 		.space	160004
+ 379      00000000 
+ 379      00000000 
+ 379      00000000 
+ 379      00000000 
+ 380              		.global	_ZN8AudioLib11ValueTables12Response3DecE
+ 381              		.align	2
+ 384              	_ZN8AudioLib11ValueTables12Response3DecE:
+ 385 27104 00000000 		.space	160004
+ 385      00000000 
+ 385      00000000 
+ 385      00000000 
+ 385      00000000 
+ARM GAS  /tmp/cc4X5O1H.s 			page 8
+
+
+ 386              		.global	_ZN8AudioLib11ValueTables12Response2DecE
+ 387              		.align	2
+ 390              	_ZN8AudioLib11ValueTables12Response2DecE:
+ 391 4e208 00000000 		.space	160004
+ 391      00000000 
+ 391      00000000 
+ 391      00000000 
+ 391      00000000 
+ 392              		.global	_ZN8AudioLib11ValueTables12Response6OctE
+ 393              		.align	2
+ 396              	_ZN8AudioLib11ValueTables12Response6OctE:
+ 397 7530c 00000000 		.space	160004
+ 397      00000000 
+ 397      00000000 
+ 397      00000000 
+ 397      00000000 
+ 398              		.global	_ZN8AudioLib11ValueTables12Response5OctE
+ 399              		.align	2
+ 402              	_ZN8AudioLib11ValueTables12Response5OctE:
+ 403 9c410 00000000 		.space	160004
+ 403      00000000 
+ 403      00000000 
+ 403      00000000 
+ 403      00000000 
+ 404              		.global	_ZN8AudioLib11ValueTables12Response4OctE
+ 405              		.align	2
+ 408              	_ZN8AudioLib11ValueTables12Response4OctE:
+ 409 c3514 00000000 		.space	160004
+ 409      00000000 
+ 409      00000000 
+ 409      00000000 
+ 409      00000000 
+ 410              		.global	_ZN8AudioLib11ValueTables12Response3OctE
+ 411              		.align	2
+ 414              	_ZN8AudioLib11ValueTables12Response3OctE:
+ 415 ea618 00000000 		.space	160004
+ 415      00000000 
+ 415      00000000 
+ 415      00000000 
+ 415      00000000 
+ 416              		.global	_ZN8AudioLib11ValueTables12Response2OctE
+ 417              		.align	2
+ 420              	_ZN8AudioLib11ValueTables12Response2OctE:
+ 421 11171c 00000000 		.space	160004
+ 421      00000000 
+ 421      00000000 
+ 421      00000000 
+ 421      00000000 
+ 422              		.global	_ZN8AudioLib11ValueTables6x2Pow3E
+ 423              		.align	2
+ 426              	_ZN8AudioLib11ValueTables6x2Pow3E:
+ 427 138820 00000000 		.space	160004
+ 427      00000000 
+ 427      00000000 
+ 427      00000000 
+ 427      00000000 
+ 428              		.global	_ZN8AudioLib11ValueTables4Pow4E
+ARM GAS  /tmp/cc4X5O1H.s 			page 9
+
+
+ 429              		.align	2
+ 432              	_ZN8AudioLib11ValueTables4Pow4E:
+ 433 15f924 00000000 		.space	160004
+ 433      00000000 
+ 433      00000000 
+ 433      00000000 
+ 433      00000000 
+ 434              		.global	_ZN8AudioLib11ValueTables4Pow3E
+ 435              		.align	2
+ 438              	_ZN8AudioLib11ValueTables4Pow3E:
+ 439 186a28 00000000 		.space	160004
+ 439      00000000 
+ 439      00000000 
+ 439      00000000 
+ 439      00000000 
+ 440              		.global	_ZN8AudioLib11ValueTables4Pow2E
+ 441              		.align	2
+ 444              	_ZN8AudioLib11ValueTables4Pow2E:
+ 445 1adb2c 00000000 		.space	160004
+ 445      00000000 
+ 445      00000000 
+ 445      00000000 
+ 445      00000000 
+ 446              		.global	_ZN8AudioLib11ValueTables6Pow1_5E
+ 447              		.align	2
+ 450              	_ZN8AudioLib11ValueTables6Pow1_5E:
+ 451 1d4c30 00000000 		.space	160004
+ 451      00000000 
+ 451      00000000 
+ 451      00000000 
+ 451      00000000 
+ 452              		.global	_ZN8AudioLib11ValueTables5Sqrt3E
+ 453              		.align	2
+ 456              	_ZN8AudioLib11ValueTables5Sqrt3E:
+ 457 1fbd34 00000000 		.space	160004
+ 457      00000000 
+ 457      00000000 
+ 457      00000000 
+ 457      00000000 
+ 458              		.global	_ZN8AudioLib11ValueTables4SqrtE
+ 459              		.align	2
+ 462              	_ZN8AudioLib11ValueTables4SqrtE:
+ 463 222e38 00000000 		.space	160004
+ 463      00000000 
+ 463      00000000 
+ 463      00000000 
+ 463      00000000 
+ 464              		.ident	"GCC: (Fedora 15.2.0-1.fc43) 15.2.0"
+ARM GAS  /tmp/cc4X5O1H.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ValueTables.cpp
+     /tmp/cc4X5O1H.s:17     .text._ZN8AudioLib11ValueTables4InitEv:00000000 $t
+     /tmp/cc4X5O1H.s:24     .text._ZN8AudioLib11ValueTables4InitEv:00000000 _ZN8AudioLib11ValueTables4InitEv
+     /tmp/cc4X5O1H.s:265    .text._ZN8AudioLib11ValueTables4InitEv:00000328 $d
+     /tmp/cc4X5O1H.s:450    .sdram_bss:001d4c30 _ZN8AudioLib11ValueTables6Pow1_5E
+     /tmp/cc4X5O1H.s:444    .sdram_bss:001adb2c _ZN8AudioLib11ValueTables4Pow2E
+     /tmp/cc4X5O1H.s:438    .sdram_bss:00186a28 _ZN8AudioLib11ValueTables4Pow3E
+     /tmp/cc4X5O1H.s:432    .sdram_bss:0015f924 _ZN8AudioLib11ValueTables4Pow4E
+     /tmp/cc4X5O1H.s:426    .sdram_bss:00138820 _ZN8AudioLib11ValueTables6x2Pow3E
+     /tmp/cc4X5O1H.s:420    .sdram_bss:0011171c _ZN8AudioLib11ValueTables12Response2OctE
+     /tmp/cc4X5O1H.s:414    .sdram_bss:000ea618 _ZN8AudioLib11ValueTables12Response3OctE
+     /tmp/cc4X5O1H.s:408    .sdram_bss:000c3514 _ZN8AudioLib11ValueTables12Response4OctE
+     /tmp/cc4X5O1H.s:402    .sdram_bss:0009c410 _ZN8AudioLib11ValueTables12Response5OctE
+     /tmp/cc4X5O1H.s:396    .sdram_bss:0007530c _ZN8AudioLib11ValueTables12Response6OctE
+     /tmp/cc4X5O1H.s:390    .sdram_bss:0004e208 _ZN8AudioLib11ValueTables12Response2DecE
+     /tmp/cc4X5O1H.s:384    .sdram_bss:00027104 _ZN8AudioLib11ValueTables12Response3DecE
+     /tmp/cc4X5O1H.s:378    .sdram_bss:00000000 _ZN8AudioLib11ValueTables12Response4DecE
+     /tmp/cc4X5O1H.s:462    .sdram_bss:00222e38 _ZN8AudioLib11ValueTables4SqrtE
+     /tmp/cc4X5O1H.s:456    .sdram_bss:001fbd34 _ZN8AudioLib11ValueTables5Sqrt3E
+     /tmp/cc4X5O1H.s:310    .rodata._ZN8AudioLib11ValueTables3GetEfPf.str1.4:00000000 $d
+     /tmp/cc4X5O1H.s:324    .text._ZN8AudioLib11ValueTables3GetEfPf:00000000 $t
+     /tmp/cc4X5O1H.s:331    .text._ZN8AudioLib11ValueTables3GetEfPf:00000000 _ZN8AudioLib11ValueTables3GetEfPf
+     /tmp/cc4X5O1H.s:366    .text._ZN8AudioLib11ValueTables3GetEfPf:00000048 $d
+     /tmp/cc4X5O1H.s:375    .sdram_bss:00000000 $d
+
+UNDEFINED SYMBOLS
+pow
+sqrtf
+__assert_func

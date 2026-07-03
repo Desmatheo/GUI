@@ -1,0 +1,1642 @@
+ARM GAS  /tmp/cckduCwq.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 23, 1
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"Uranus.cpp"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.file 1 "Uranus.cpp"
+  17              		.section	.text._ZN12UranusEffectC2ERN5daisy9DaisySeedEf,"ax",%progbits
+  18              		.align	1
+  19              		.p2align 2,,3
+  20              		.global	_ZN12UranusEffectC2ERN5daisy9DaisySeedEf
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	_ZN12UranusEffectC2ERN5daisy9DaisySeedEf:
+  26              	.LVL0:
+  27              	.LFB6056:
+   1:Uranus.cpp    **** #include "Uranus.h"
+   2:Uranus.cpp    **** #include <cstring>
+   3:Uranus.cpp    **** 
+   4:Uranus.cpp    **** using namespace daisy;
+   5:Uranus.cpp    **** using namespace daisysp;
+   6:Uranus.cpp    **** 
+   7:Uranus.cpp    **** UranusEffect::UranusEffect(daisy::DaisySeed& hw, float sampleRate) : hardware(hw) {
+  28              		.loc 1 7 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 7 1 is_stmt 0 view .LVU1
+  33 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+  34              		.cfi_def_cfa_offset 28
+  35              		.cfi_offset 4, -28
+  36              		.cfi_offset 5, -24
+  37              		.cfi_offset 6, -20
+  38              		.cfi_offset 7, -16
+  39              		.cfi_offset 8, -12
+  40              		.cfi_offset 9, -8
+  41              		.cfi_offset 14, -4
+  42 0004 0446     		mov	r4, r0
+  43              	.LBB42:
+  44              		.loc 1 7 81 view .LVU2
+  45 0006 6348     		ldr	r0, .L4
+  46              	.LVL1:
+  47              		.loc 1 7 81 view .LVU3
+  48 0008 634B     		ldr	r3, .L4+4
+  49 000a 0025     		movs	r5, #0
+  50 000c 634A     		ldr	r2, .L4+8
+  51              	.LBB43:
+ARM GAS  /tmp/cckduCwq.s 			page 2
+
+
+  52              	.LBB44:
+  53              	.LBB45:
+  54              		.file 2 "granularplayermod.h"
+   1:granularplayermod.h **** /*
+   2:granularplayermod.h **** Copyright (c) 2020 Electrosmith, Corp, Vinícius Fernandes
+   3:granularplayermod.h **** 
+   4:granularplayermod.h **** Use of this source code is governed by an MIT-style
+   5:granularplayermod.h **** license that can be found in the LICENSE file or at
+   6:granularplayermod.h **** https://opensource.org/licenses/MIT.
+   7:granularplayermod.h **** 
+   8:granularplayermod.h ****  GranularPlayer class modified by K. Bloemer 2025 (renamed to GranularPlayerMod)
+   9:granularplayermod.h ****   Changes:
+  10:granularplayermod.h ****   - Applies the envelope to the individual grains instead of the whole audio sample
+  11:granularplayermod.h ****   - Adds two additional envelopes (fast attack and slow attack, linear), and envelopes now use 512 
+  12:granularplayermod.h ****   - Adds a stereo spread for each grain and left/right output getter functions
+  13:granularplayermod.h ****   - Adds the ability to change the effective audio sample size 
+  14:granularplayermod.h ****   - Adds "width" parameter that starts grains at a random point within the timeframe set by width p
+  15:granularplayermod.h **** */ 
+  16:granularplayermod.h **** 
+  17:granularplayermod.h **** #pragma once
+  18:granularplayermod.h **** #ifndef DSY_GRANULARPLAYERMOD_H
+  19:granularplayermod.h **** #define DSY_GRANULARPLAYERMOD_H
+  20:granularplayermod.h **** 
+  21:granularplayermod.h **** #include <stdint.h>
+  22:granularplayermod.h **** #include <cmath>
+  23:granularplayermod.h **** #include "daisysp.h"
+  24:granularplayermod.h **** //#include "Control/phasor.h"
+  25:granularplayermod.h **** #ifdef __cplusplus
+  26:granularplayermod.h **** #ifndef M_PI
+  27:granularplayermod.h **** #define M_PI 3.14159265358979323846 /* pi */
+  28:granularplayermod.h **** #endif
+  29:granularplayermod.h **** 
+  30:granularplayermod.h **** 
+  31:granularplayermod.h **** 
+  32:granularplayermod.h **** //namespace daisysp_modified
+  33:granularplayermod.h **** //{
+  34:granularplayermod.h **** /** GranularPlayerMod Module
+  35:granularplayermod.h **** 
+  36:granularplayermod.h ****     Date: November, 2023
+  37:granularplayermod.h **** 
+  38:granularplayermod.h ****     Author: Vinícius Fernandes
+  39:granularplayermod.h **** 
+  40:granularplayermod.h ****     GranularPlayerMod is a lookup table player that provides independent time stretching and pitch 
+  41:granularplayermod.h ****     via granulation.
+  42:granularplayermod.h ****     Inspired by the grain.player object from else pure data's library.
+  43:granularplayermod.h **** */
+  44:granularplayermod.h **** 
+  45:granularplayermod.h **** class GranularPlayerMod
+  46:granularplayermod.h **** {
+  47:granularplayermod.h ****   public:
+  48:granularplayermod.h ****     GranularPlayerMod() {}
+  55              		.loc 2 48 25 view .LVU4
+  56 000e 04F50D26 		add	r6, r4, #577536
+  57 0012 04F50F27 		add	r7, r4, #585728
+  58              	.LBE45:
+  59              	.LBE44:
+  60              	.LBE43:
+ARM GAS  /tmp/cckduCwq.s 			page 3
+
+
+  61              		.loc 1 7 81 view .LVU5
+  62 0016 DFF8A481 		ldr	r8, .L4+40
+  63              	.LBE42:
+  64              		.loc 1 7 1 view .LVU6
+  65 001a 2DED048B 		vpush.64	{d8, d9}
+  66              		.cfi_def_cfa_offset 44
+  67              		.cfi_offset 80, -44
+  68              		.cfi_offset 81, -40
+  69              		.cfi_offset 82, -36
+  70              		.cfi_offset 83, -32
+  71              	.LBB101:
+  72              		.loc 1 7 81 view .LVU7
+  73 001e F6EE008A 		vmov.f32	s17, #5.0e-1
+  74              	.LBE101:
+  75              		.loc 1 7 1 view .LVU8
+  76 0022 83B0     		sub	sp, sp, #12
+  77              		.cfi_def_cfa_offset 56
+  78              	.LBB102:
+  79              		.loc 1 7 81 view .LVU9
+  80 0024 F7EE009A 		vmov.f32	s19, #1.0e+0
+  81 0028 9FED5D8A 		vldr.32	s16, .L4+12
+  82 002c 6061     		str	r0, [r4, #20]	@ float
+  83              	.LBE102:
+  84              		.loc 1 7 1 view .LVU10
+  85 002e B0EE409A 		vmov.f32	s18, s0
+  86              	.LBB103:
+  87              	.LBB64:
+  88              	.LBB59:
+  89              	.LBB54:
+  90              		.loc 2 48 25 view .LVU11
+  91 0032 5C48     		ldr	r0, .L4+16
+  92              	.LBE54:
+  93              	.LBE59:
+  94              	.LBE64:
+  95              		.loc 1 7 81 discriminator 6 view .LVU12
+  96 0034 07F53C69 		add	r9, r7, #3008
+  97              		.loc 1 7 81 view .LVU13
+  98 0038 A362     		str	r3, [r4, #40]	@ float
+  99 003a A044     		add	r8, r4, r8
+ 100              		.loc 1 7 81 is_stmt 1 discriminator 3 view .LVU14
+ 101              	.LVL2:
+ 102              	.LBB65:
+ 103              	.LBI43:
+ 104              		.loc 2 48 5 view .LVU15
+ 105              	.LBE65:
+ 106              		.loc 1 7 70 is_stmt 0 view .LVU16
+ 107 003c 2160     		str	r1, [r4]
+ 108              	.LBB66:
+ 109              	.LBB60:
+ 110              	.LBB55:
+ 111              		.loc 2 48 25 view .LVU17
+ 112 003e 2018     		adds	r0, r4, r0
+ 113 0040 2946     		mov	r1, r5
+ 114              	.LVL3:
+ 115              		.loc 2 48 25 view .LVU18
+ 116              	.LBE55:
+ 117              	.LBE60:
+ARM GAS  /tmp/cckduCwq.s 			page 4
+
+
+ 118              	.LBE66:
+ 119              		.loc 1 7 81 view .LVU19
+ 120 0042 2262     		str	r2, [r4, #32]	@ float
+ 121 0044 C4ED018A 		vstr.32	s17, [r4, #4]
+ 122              	.LBB67:
+ 123              	.LBB61:
+ 124              	.LBB56:
+ 125              		.loc 2 48 25 view .LVU20
+ 126 0048 4FF40062 		mov	r2, #2048
+ 127              	.LBE56:
+ 128              	.LBE61:
+ 129              	.LBE67:
+ 130              		.loc 1 7 81 view .LVU21
+ 131 004c C4ED028A 		vstr.32	s17, [r4, #8]
+ 132 0050 84ED038A 		vstr.32	s16, [r4, #12]
+ 133 0054 84ED048A 		vstr.32	s16, [r4, #16]
+ 134 0058 C4ED069A 		vstr.32	s19, [r4, #24]
+ 135 005c 84ED078A 		vstr.32	s16, [r4, #28]
+ 136 0060 C4ED098A 		vstr.32	s17, [r4, #36]
+ 137 0064 A585     		strh	r5, [r4, #44]	@ movhi
+ 138              	.LBB68:
+ 139              	.LBB62:
+ 140              	.LBB57:
+ 141              		.loc 2 48 25 view .LVU22
+ 142 0066 FFF7FEFF 		bl	memset
+ 143              	.LVL4:
+ 144              		.loc 2 48 25 view .LVU23
+ 145 006a 2946     		mov	r1, r5
+ 146 006c 4FF40062 		mov	r2, #2048
+ 147 0070 06F51370 		add	r0, r6, #588
+ 148 0074 FFF7FEFF 		bl	memset
+ 149              	.LVL5:
+ 150 0078 06F64C20 		addw	r0, r6, #2636
+ 151 007c 04F50E26 		add	r6, r4, #581632
+ 152 0080 2946     		mov	r1, r5
+ 153 0082 4FF40062 		mov	r2, #2048
+ 154 0086 FFF7FEFF 		bl	memset
+ 155              	.LVL6:
+ 156              	.LBB46:
+ 157              	.LBI46:
+ 158              		.file 3 "../../DaisySP/Source/Control/phasor.h"
+   1:../../DaisySP/Source/Control/phasor.h **** /*
+   2:../../DaisySP/Source/Control/phasor.h **** Copyright (c) 2020 Electrosmith, Corp
+   3:../../DaisySP/Source/Control/phasor.h **** 
+   4:../../DaisySP/Source/Control/phasor.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Control/phasor.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Control/phasor.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Control/phasor.h **** */
+   8:../../DaisySP/Source/Control/phasor.h **** 
+   9:../../DaisySP/Source/Control/phasor.h **** #pragma once
+  10:../../DaisySP/Source/Control/phasor.h **** #ifndef DSY_PHASOR_H
+  11:../../DaisySP/Source/Control/phasor.h **** #define DSY_PHASOR_H
+  12:../../DaisySP/Source/Control/phasor.h **** #ifdef __cplusplus
+  13:../../DaisySP/Source/Control/phasor.h **** 
+  14:../../DaisySP/Source/Control/phasor.h **** namespace daisysp
+  15:../../DaisySP/Source/Control/phasor.h **** {
+  16:../../DaisySP/Source/Control/phasor.h **** /** Generates a normalized signal moving from 0-1 at the specified frequency.
+ARM GAS  /tmp/cckduCwq.s 			page 5
+
+
+  17:../../DaisySP/Source/Control/phasor.h **** 
+  18:../../DaisySP/Source/Control/phasor.h **** \todo Selecting which channels should be initialized/included in the sequence conversion.
+  19:../../DaisySP/Source/Control/phasor.h **** \todo Setup a similar start function for an external mux, but that seems outside the scope of this 
+  20:../../DaisySP/Source/Control/phasor.h **** 
+  21:../../DaisySP/Source/Control/phasor.h **** */
+  22:../../DaisySP/Source/Control/phasor.h **** class Phasor
+  23:../../DaisySP/Source/Control/phasor.h **** {
+  24:../../DaisySP/Source/Control/phasor.h ****   public:
+  25:../../DaisySP/Source/Control/phasor.h ****     Phasor() {}
+ 159              		.loc 3 25 5 is_stmt 1 view .LVU24
+ 160              		.loc 3 25 5 is_stmt 0 view .LVU25
+ 161              	.LBE46:
+ 162              	.LBB47:
+ 163              	.LBI47:
+ 164              		.loc 3 25 5 is_stmt 1 view .LVU26
+ 165              		.loc 3 25 5 is_stmt 0 view .LVU27
+ 166              	.LBE47:
+ 167              	.LBB48:
+ 168              	.LBI48:
+ 169              		.loc 3 25 5 is_stmt 1 view .LVU28
+ 170              		.loc 3 25 5 is_stmt 0 view .LVU29
+ 171              	.LBE48:
+ 172              	.LBB49:
+ 173              	.LBI49:
+ 174              		.loc 3 25 5 is_stmt 1 view .LVU30
+ 175              	.LBE49:
+ 176              	.LBE57:
+ 177              	.LBE62:
+ 178              	.LBE68:
+ 179              		.loc 1 7 81 discriminator 3 view .LVU31
+ 180              	.LBB69:
+ 181              		.loc 2 48 5 view .LVU32
+ 182              	.LBB63:
+ 183              	.LBB58:
+ 184              		.loc 2 48 25 is_stmt 0 view .LVU33
+ 185 008a 2946     		mov	r1, r5
+ 186 008c 4FF40062 		mov	r2, #2048
+ 187 0090 06F53F70 		add	r0, r6, #764
+ 188 0094 FFF7FEFF 		bl	memset
+ 189              	.LVL7:
+ 190 0098 2946     		mov	r1, r5
+ 191 009a 4FF40062 		mov	r2, #2048
+ 192 009e 06F6FC20 		addw	r0, r6, #2812
+ 193 00a2 FFF7FEFF 		bl	memset
+ 194              	.LVL8:
+ 195 00a6 2946     		mov	r1, r5
+ 196 00a8 4FF40062 		mov	r2, #2048
+ 197 00ac 07F53F70 		add	r0, r7, #764
+ 198 00b0 FFF7FEFF 		bl	memset
+ 199              	.LVL9:
+ 200              	.LBB50:
+ 201              		.loc 3 25 5 is_stmt 1 view .LVU34
+ 202              		.loc 3 25 5 is_stmt 0 view .LVU35
+ 203              	.LBE50:
+ 204              	.LBB51:
+ 205              		.loc 3 25 5 is_stmt 1 view .LVU36
+ 206              		.loc 3 25 5 is_stmt 0 view .LVU37
+ARM GAS  /tmp/cckduCwq.s 			page 6
+
+
+ 207              	.LBE51:
+ 208              	.LBB52:
+ 209              		.loc 3 25 5 is_stmt 1 view .LVU38
+ 210              		.loc 3 25 5 is_stmt 0 view .LVU39
+ 211              	.LBE52:
+ 212              	.LBB53:
+ 213              		.loc 3 25 5 is_stmt 1 view .LVU40
+ 214              		.loc 3 25 5 is_stmt 0 view .LVU41
+ 215              	.LBE53:
+ 216              	.LBE58:
+ 217              	.LBE63:
+ 218              	.LBE69:
+ 219              		.loc 1 7 81 is_stmt 1 discriminator 3 view .LVU42
+ 220              	.LBB70:
+   8:Uranus.cpp    ****     // Initialisation de la mémoire à zéro
+   9:Uranus.cpp    ****     memset(audioSample, 0, sizeof(audioSample));
+  10:Uranus.cpp    ****     
+  11:Uranus.cpp    ****     sample_index = 0;
+  12:Uranus.cpp    **** 
+  13:Uranus.cpp    ****     // Initialisation des générateurs de grains (GranularPlayers)
+  14:Uranus.cpp    ****     swarm[0].Init(audioSample, MAX_SAMPLE, sampleRate, 0.0, 0.5);
+  15:Uranus.cpp    ****     swarm[1].Init(audioSample, MAX_SAMPLE, sampleRate, 0.25, 0.75);
+ 221              		.loc 1 15 18 is_stmt 0 view .LVU43
+ 222 00b4 3C4E     		ldr	r6, .L4+20
+   9:Uranus.cpp    ****     
+ 223              		.loc 1 9 11 view .LVU44
+ 224 00b6 2946     		mov	r1, r5
+ 225              	.LBE70:
+   7:Uranus.cpp    ****     // Initialisation de la mémoire à zéro
+ 226              		.loc 1 7 81 discriminator 5 view .LVU45
+ 227 00b8 C7F8905B 		str	r5, [r7, #2960]
+ 228              	.LVL10:
+ 229              	.LBB97:
+ 230              	.LBI97:
+ 231              		.file 4 "../../DaisySP/Source/Synthesis/oscillator.h"
+   1:../../DaisySP/Source/Synthesis/oscillator.h **** /*
+   2:../../DaisySP/Source/Synthesis/oscillator.h **** Copyright (c) 2020 Electrosmith, Corp
+   3:../../DaisySP/Source/Synthesis/oscillator.h **** 
+   4:../../DaisySP/Source/Synthesis/oscillator.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Synthesis/oscillator.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Synthesis/oscillator.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Synthesis/oscillator.h **** */
+   8:../../DaisySP/Source/Synthesis/oscillator.h **** 
+   9:../../DaisySP/Source/Synthesis/oscillator.h **** #pragma once
+  10:../../DaisySP/Source/Synthesis/oscillator.h **** #ifndef DSY_OSCILLATOR_H
+  11:../../DaisySP/Source/Synthesis/oscillator.h **** #define DSY_OSCILLATOR_H
+  12:../../DaisySP/Source/Synthesis/oscillator.h **** #include <stdint.h>
+  13:../../DaisySP/Source/Synthesis/oscillator.h **** #include "Utility/dsp.h"
+  14:../../DaisySP/Source/Synthesis/oscillator.h **** #ifdef __cplusplus
+  15:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  16:../../DaisySP/Source/Synthesis/oscillator.h **** namespace daisysp
+  17:../../DaisySP/Source/Synthesis/oscillator.h **** {
+  18:../../DaisySP/Source/Synthesis/oscillator.h **** /** Synthesis of several waveforms, including polyBLEP bandlimited waveforms.
+  19:../../DaisySP/Source/Synthesis/oscillator.h **** */
+  20:../../DaisySP/Source/Synthesis/oscillator.h **** class Oscillator
+  21:../../DaisySP/Source/Synthesis/oscillator.h **** {
+  22:../../DaisySP/Source/Synthesis/oscillator.h ****   public:
+ARM GAS  /tmp/cckduCwq.s 			page 7
+
+
+  23:../../DaisySP/Source/Synthesis/oscillator.h ****     Oscillator() {}
+ 232              		.loc 4 23 5 is_stmt 1 view .LVU46
+ 233              		.loc 4 23 5 is_stmt 0 view .LVU47
+ 234              	.LBE97:
+ 235              	.LBB98:
+   9:Uranus.cpp    ****     
+ 236              		.loc 1 9 11 view .LVU48
+ 237 00bc 3B4A     		ldr	r2, .L4+24
+ 238 00be 04F13000 		add	r0, r4, #48
+ 239              	.LBE98:
+   7:Uranus.cpp    ****     // Initialisation de la mémoire à zéro
+ 240              		.loc 1 7 81 discriminator 6 view .LVU49
+ 241 00c2 89ED008A 		vstr.32	s16, [r9]
+ 242              	.LBB99:
+   9:Uranus.cpp    ****     
+ 243              		.loc 1 9 5 is_stmt 1 view .LVU50
+   9:Uranus.cpp    ****     
+ 244              		.loc 1 9 11 is_stmt 0 view .LVU51
+ 245 00c6 FFF7FEFF 		bl	memset
+ 246              	.LVL11:
+  11:Uranus.cpp    **** 
+ 247              		.loc 1 11 5 is_stmt 1 view .LVU52
+  14:Uranus.cpp    ****     swarm[1].Init(audioSample, MAX_SAMPLE, sampleRate, 0.25, 0.75);
+ 248              		.loc 1 14 5 view .LVU53
+  14:Uranus.cpp    ****     swarm[1].Init(audioSample, MAX_SAMPLE, sampleRate, 0.25, 0.75);
+ 249              		.loc 1 14 18 is_stmt 0 view .LVU54
+ 250 00ca B0EE681A 		vmov.f32	s2, s17
+ 251 00ce F0EE480A 		vmov.f32	s1, s16
+ 252 00d2 04F13001 		add	r1, r4, #48
+ 253 00d6 B0EE490A 		vmov.f32	s0, s18
+ 254 00da 4046     		mov	r0, r8
+ 255 00dc 45F6C052 		movw	r2, #24000
+ 256 00e0 FFF7FEFF 		bl	_ZN17GranularPlayerMod4InitEPfifff
+ 257              	.LVL12:
+ 258              		.loc 1 15 5 is_stmt 1 view .LVU55
+ 259              		.loc 1 15 18 is_stmt 0 view .LVU56
+ 260 00e4 B6EE081A 		vmov.f32	s2, #7.5e-1
+ 261 00e8 F5EE000A 		vmov.f32	s1, #2.5e-1
+ 262 00ec 45F6C052 		movw	r2, #24000
+ 263 00f0 B0EE490A 		vmov.f32	s0, s18
+ 264 00f4 3019     		adds	r0, r6, r4
+ 265 00f6 04F13001 		add	r1, r4, #48
+ 266 00fa FFF7FEFF 		bl	_ZN17GranularPlayerMod4InitEPfifff
+ 267              	.LVL13:
+  16:Uranus.cpp    **** 
+  17:Uranus.cpp    ****     swarm[0].setEnvelopeMode(1);
+ 268              		.loc 1 17 5 is_stmt 1 view .LVU57
+ 269              		.loc 1 17 29 is_stmt 0 view .LVU58
+ 270 00fe 4046     		mov	r0, r8
+ 271 0100 0121     		movs	r1, #1
+ 272 0102 FFF7FEFF 		bl	_ZN17GranularPlayerMod15setEnvelopeModeEi
+ 273              	.LVL14:
+  18:Uranus.cpp    ****     swarm[1].setEnvelopeMode(1);
+ 274              		.loc 1 18 5 is_stmt 1 view .LVU59
+ 275              		.loc 1 18 29 is_stmt 0 view .LVU60
+ 276 0106 0121     		movs	r1, #1
+ 277 0108 3019     		adds	r0, r6, r4
+ARM GAS  /tmp/cckduCwq.s 			page 8
+
+
+ 278 010a FFF7FEFF 		bl	_ZN17GranularPlayerMod15setEnvelopeModeEi
+ 279              	.LVL15:
+  19:Uranus.cpp    **** 
+  20:Uranus.cpp    ****     // Espace stéréo par défaut
+  21:Uranus.cpp    ****     for (int j = 0; j < 2; j++) {
+ 280              		.loc 1 21 5 is_stmt 1 view .LVU61
+ 281              	.LBB71:
+ 282              		.loc 1 21 23 discriminator 1 view .LVU62
+  22:Uranus.cpp    ****         swarm[j].setStereoSpread(0.4);
+ 283              		.loc 1 22 9 view .LVU63
+ 284              		.loc 1 22 33 is_stmt 0 view .LVU64
+ 285 010e 9FED280A 		vldr.32	s0, .L4+28
+ 286 0112 4046     		mov	r0, r8
+ 287 0114 8DED010A 		vstr.32	s0, [sp, #4]	@ int
+ 288 0118 FFF7FEFF 		bl	_ZN17GranularPlayerMod15setStereoSpreadEf
+ 289              	.LVL16:
+  21:Uranus.cpp    ****         swarm[j].setStereoSpread(0.4);
+ 290              		.loc 1 21 5 is_stmt 1 discriminator 3 view .LVU65
+  21:Uranus.cpp    ****         swarm[j].setStereoSpread(0.4);
+ 291              		.loc 1 21 23 discriminator 1 view .LVU66
+ 292              		.loc 1 22 9 view .LVU67
+ 293              		.loc 1 22 33 is_stmt 0 view .LVU68
+ 294 011c 3019     		adds	r0, r6, r4
+ 295 011e 9DED010A 		vldr.32	s0, [sp, #4]	@ int
+ 296 0122 FFF7FEFF 		bl	_ZN17GranularPlayerMod15setStereoSpreadEf
+ 297              	.LVL17:
+  21:Uranus.cpp    ****         swarm[j].setStereoSpread(0.4);
+ 298              		.loc 1 21 5 is_stmt 1 discriminator 3 view .LVU69
+  21:Uranus.cpp    ****         swarm[j].setStereoSpread(0.4);
+ 299              		.loc 1 21 23 discriminator 1 view .LVU70
+ 300              	.LBE71:
+  23:Uranus.cpp    ****     }
+  24:Uranus.cpp    **** 
+  25:Uranus.cpp    ****     // LFO pour moduler le pitch
+  26:Uranus.cpp    ****     LFO.Init(sampleRate);
+ 301              		.loc 1 26 5 view .LVU71
+ 302              	.LBB72:
+ 303              	.LBB73:
+  24:../../DaisySP/Source/Synthesis/oscillator.h ****     ~Oscillator() {}
+  25:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Choices for output waveforms, POLYBLEP are appropriately labeled. Others are naive forms.
+  26:../../DaisySP/Source/Synthesis/oscillator.h ****     */
+  27:../../DaisySP/Source/Synthesis/oscillator.h ****     enum
+  28:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+  29:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_SIN,
+  30:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_TRI,
+  31:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_SAW,
+  32:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_RAMP,
+  33:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_SQUARE,
+  34:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_POLYBLEP_TRI,
+  35:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_POLYBLEP_SAW,
+  36:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_POLYBLEP_SQUARE,
+  37:../../DaisySP/Source/Synthesis/oscillator.h ****         WAVE_LAST,
+  38:../../DaisySP/Source/Synthesis/oscillator.h ****     };
+  39:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  40:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  41:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Initializes the Oscillator
+  42:../../DaisySP/Source/Synthesis/oscillator.h **** 
+ARM GAS  /tmp/cckduCwq.s 			page 9
+
+
+  43:../../DaisySP/Source/Synthesis/oscillator.h ****         \param sample_rate - sample rate of the audio engine being run, and the frequency that the 
+  44:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  45:../../DaisySP/Source/Synthesis/oscillator.h ****         Defaults:
+  46:../../DaisySP/Source/Synthesis/oscillator.h ****         - freq_ = 100 Hz
+  47:../../DaisySP/Source/Synthesis/oscillator.h ****         - amp_ = 0.5
+  48:../../DaisySP/Source/Synthesis/oscillator.h ****         - waveform_ = sine wave.
+  49:../../DaisySP/Source/Synthesis/oscillator.h ****     */
+  50:../../DaisySP/Source/Synthesis/oscillator.h ****     void Init(float sample_rate)
+  51:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+  52:../../DaisySP/Source/Synthesis/oscillator.h ****         sr_        = sample_rate;
+  53:../../DaisySP/Source/Synthesis/oscillator.h ****         sr_recip_  = 1.0f / sample_rate;
+ 304              		.loc 4 53 27 is_stmt 0 view .LVU72
+ 305 0126 C9EE897A 		vdiv.f32	s15, s19, s18
+  52:../../DaisySP/Source/Synthesis/oscillator.h ****         sr_recip_  = 1.0f / sample_rate;
+ 306              		.loc 4 52 20 view .LVU73
+ 307 012a 07F69436 		addw	r6, r7, #2964
+  54:../../DaisySP/Source/Synthesis/oscillator.h ****         freq_      = 100.0f;
+ 308              		.loc 4 54 20 view .LVU74
+ 309 012e 9FED210A 		vldr.32	s0, .L4+32
+ 310              	.LVL18:
+ 311              		.loc 4 54 20 view .LVU75
+ 312              	.LBE73:
+ 313              	.LBI72:
+  50:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+ 314              		.loc 4 50 10 is_stmt 1 view .LVU76
+ 315              	.LBB74:
+  52:../../DaisySP/Source/Synthesis/oscillator.h ****         sr_recip_  = 1.0f / sample_rate;
+ 316              		.loc 4 52 9 view .LVU77
+  55:../../DaisySP/Source/Synthesis/oscillator.h ****         amp_       = 0.5f;
+  56:../../DaisySP/Source/Synthesis/oscillator.h ****         pw_        = 0.5f;
+  57:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_     = 0.0f;
+  58:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(freq_);
+ 317              		.loc 4 58 34 is_stmt 0 view .LVU78
+ 318 0132 2148     		ldr	r0, .L4+36
+  52:../../DaisySP/Source/Synthesis/oscillator.h ****         sr_recip_  = 1.0f / sample_rate;
+ 319              		.loc 4 52 20 view .LVU79
+ 320 0134 86ED049A 		vstr.32	s18, [r6, #16]
+  53:../../DaisySP/Source/Synthesis/oscillator.h ****         freq_      = 100.0f;
+ 321              		.loc 4 53 9 is_stmt 1 view .LVU80
+ 322              		.loc 4 58 34 is_stmt 0 view .LVU81
+ 323 0138 2018     		adds	r0, r4, r0
+  54:../../DaisySP/Source/Synthesis/oscillator.h ****         amp_       = 0.5f;
+ 324              		.loc 4 54 20 view .LVU82
+ 325 013a 86ED020A 		vstr.32	s0, [r6, #8]
+  55:../../DaisySP/Source/Synthesis/oscillator.h ****         pw_        = 0.5f;
+ 326              		.loc 4 55 20 view .LVU83
+ 327 013e C6ED018A 		vstr.32	s17, [r6, #4]
+  56:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_     = 0.0f;
+ 328              		.loc 4 56 20 view .LVU84
+ 329 0142 C6ED038A 		vstr.32	s17, [r6, #12]
+  57:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(freq_);
+ 330              		.loc 4 57 20 view .LVU85
+ 331 0146 86ED068A 		vstr.32	s16, [r6, #24]
+  53:../../DaisySP/Source/Synthesis/oscillator.h ****         freq_      = 100.0f;
+ 332              		.loc 4 53 20 view .LVU86
+ 333 014a C6ED057A 		vstr.32	s15, [r6, #20]
+  54:../../DaisySP/Source/Synthesis/oscillator.h ****         amp_       = 0.5f;
+ARM GAS  /tmp/cckduCwq.s 			page 10
+
+
+ 334              		.loc 4 54 9 is_stmt 1 view .LVU87
+  55:../../DaisySP/Source/Synthesis/oscillator.h ****         pw_        = 0.5f;
+ 335              		.loc 4 55 9 view .LVU88
+  56:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_     = 0.0f;
+ 336              		.loc 4 56 9 view .LVU89
+  57:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(freq_);
+ 337              		.loc 4 57 9 view .LVU90
+ 338              		.loc 4 58 9 view .LVU91
+ 339              		.loc 4 58 34 is_stmt 0 view .LVU92
+ 340 014e FFF7FEFF 		bl	_ZN7daisysp10Oscillator12CalcPhaseIncEf
+ 341              	.LVL19:
+ 342              	.LBE74:
+ 343              	.LBE72:
+ 344              	.LBB78:
+ 345              	.LBB79:
+  59:../../DaisySP/Source/Synthesis/oscillator.h ****         waveform_  = WAVE_SIN;
+  60:../../DaisySP/Source/Synthesis/oscillator.h ****         eoc_       = true;
+  61:../../DaisySP/Source/Synthesis/oscillator.h ****         eor_       = true;
+  62:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+  63:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  64:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  65:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Changes the frequency of the Oscillator, and recalculates phase increment.
+  66:../../DaisySP/Source/Synthesis/oscillator.h ****     */
+  67:../../DaisySP/Source/Synthesis/oscillator.h ****     inline void SetFreq(const float f)
+  68:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+  69:../../DaisySP/Source/Synthesis/oscillator.h ****         freq_      = f;
+ 346              		.loc 4 69 20 view .LVU93
+ 347 0152 F5EE007A 		vmov.f32	s15, #2.5e-1
+ 348              	.LBE79:
+ 349              	.LBE78:
+ 350              	.LBB84:
+ 351              	.LBB75:
+  61:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 352              		.loc 4 61 20 view .LVU94
+ 353 0156 40F20113 		movw	r3, #257
+ 354              	.LBE75:
+ 355              	.LBE84:
+ 356              	.LBB85:
+ 357              	.LBB80:
+  70:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(f);
+ 358              		.loc 4 70 34 view .LVU95
+ 359 015a 1748     		ldr	r0, .L4+36
+ 360              	.LBE80:
+ 361              	.LBE85:
+ 362              	.LBB86:
+ 363              	.LBB76:
+  58:../../DaisySP/Source/Synthesis/oscillator.h ****         waveform_  = WAVE_SIN;
+ 364              		.loc 4 58 20 discriminator 1 view .LVU96
+ 365 015c 86ED070A 		vstr.32	s0, [r6, #28]
+  59:../../DaisySP/Source/Synthesis/oscillator.h ****         eoc_       = true;
+ 366              		.loc 4 59 9 is_stmt 1 view .LVU97
+ 367              	.LBE76:
+ 368              	.LBE86:
+ 369              	.LBB87:
+ 370              	.LBB81:
+ 371              		.loc 4 70 34 is_stmt 0 view .LVU98
+ 372 0160 2018     		adds	r0, r4, r0
+ARM GAS  /tmp/cckduCwq.s 			page 11
+
+
+ 373              	.LBE81:
+ 374              	.LBE87:
+ 375              	.LBB88:
+ 376              	.LBB77:
+  61:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 377              		.loc 4 61 20 view .LVU99
+ 378 0162 A7F8BC3B 		strh	r3, [r7, #3004]	@ movhi
+  59:../../DaisySP/Source/Synthesis/oscillator.h ****         eoc_       = true;
+ 379              		.loc 4 59 20 view .LVU100
+ 380 0166 87F8945B 		strb	r5, [r7, #2964]
+  60:../../DaisySP/Source/Synthesis/oscillator.h ****         eor_       = true;
+ 381              		.loc 4 60 9 is_stmt 1 view .LVU101
+  61:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 382              		.loc 4 61 9 view .LVU102
+ 383              	.LVL20:
+  61:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 384              		.loc 4 61 9 is_stmt 0 view .LVU103
+ 385              	.LBE77:
+ 386              	.LBE88:
+  27:Uranus.cpp    ****     LFO.SetFreq(0.25); 
+ 387              		.loc 1 27 5 is_stmt 1 view .LVU104
+ 388              	.LBB89:
+ 389              	.LBI78:
+  67:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+ 390              		.loc 4 67 17 view .LVU105
+ 391              	.LBB82:
+  69:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(f);
+ 392              		.loc 4 69 9 view .LVU106
+ 393              		.loc 4 70 34 is_stmt 0 view .LVU107
+ 394 016a B0EE670A 		vmov.f32	s0, s15
+  69:../../DaisySP/Source/Synthesis/oscillator.h ****         phase_inc_ = CalcPhaseInc(f);
+ 395              		.loc 4 69 20 view .LVU108
+ 396 016e C6ED027A 		vstr.32	s15, [r6, #8]
+ 397              		.loc 4 70 9 is_stmt 1 view .LVU109
+ 398              		.loc 4 70 34 is_stmt 0 view .LVU110
+ 399 0172 FFF7FEFF 		bl	_ZN7daisysp10Oscillator12CalcPhaseIncEf
+ 400              	.LVL21:
+ 401              	.LBE82:
+ 402              	.LBE89:
+ 403              	.LBE99:
+ 404              	.LBE103:
+  28:Uranus.cpp    ****     LFO.SetWaveform(0); // Onde sinusoïdale
+  29:Uranus.cpp    ****     LFO.SetAmp(2.0); 
+  30:Uranus.cpp    ****     LFO_depth = 0.0;   // 0 à 200 (2 demi-tons)
+  31:Uranus.cpp    **** }
+ 405              		.loc 1 31 1 view .LVU111
+ 406 0176 2046     		mov	r0, r4
+ 407              	.LBB104:
+ 408              	.LBB100:
+ 409              	.LBB90:
+ 410              	.LBB91:
+  71:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+  72:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  73:../../DaisySP/Source/Synthesis/oscillator.h **** 
+  74:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the amplitude of the waveform.
+  75:../../DaisySP/Source/Synthesis/oscillator.h ****     */
+  76:../../DaisySP/Source/Synthesis/oscillator.h ****     inline void SetAmp(const float a) { amp_ = a; }
+ARM GAS  /tmp/cckduCwq.s 			page 12
+
+
+ 411              		.loc 4 76 46 view .LVU112
+ 412 0178 4FF08043 		mov	r3, #1073741824
+ 413              	.LBE91:
+ 414              	.LBE90:
+ 415              	.LBB93:
+ 416              	.LBB83:
+  70:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 417              		.loc 4 70 20 discriminator 1 view .LVU113
+ 418 017c 86ED070A 		vstr.32	s0, [r6, #28]
+ 419              	.LVL22:
+  70:../../DaisySP/Source/Synthesis/oscillator.h ****     }
+ 420              		.loc 4 70 20 discriminator 1 view .LVU114
+ 421              	.LBE83:
+ 422              	.LBE93:
+  28:Uranus.cpp    ****     LFO.SetWaveform(0); // Onde sinusoïdale
+ 423              		.loc 1 28 5 is_stmt 1 view .LVU115
+ 424              	.LBB94:
+ 425              	.LBI94:
+  77:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the waveform to be synthesized by the Process() function.
+  78:../../DaisySP/Source/Synthesis/oscillator.h ****     */
+  79:../../DaisySP/Source/Synthesis/oscillator.h ****     inline void SetWaveform(const uint8_t wf)
+ 426              		.loc 4 79 17 view .LVU116
+ 427              	.LBB95:
+  80:../../DaisySP/Source/Synthesis/oscillator.h ****     {
+  81:../../DaisySP/Source/Synthesis/oscillator.h ****         waveform_ = wf < WAVE_LAST ? wf : WAVE_SIN;
+ 428              		.loc 4 81 9 view .LVU117
+ 429              		.loc 4 81 19 is_stmt 0 discriminator 4 view .LVU118
+ 430 0180 87F8945B 		strb	r5, [r7, #2964]
+ 431              	.LVL23:
+ 432              		.loc 4 81 19 discriminator 4 view .LVU119
+ 433              	.LBE95:
+ 434              	.LBE94:
+  29:Uranus.cpp    ****     LFO_depth = 0.0;   // 0 à 200 (2 demi-tons)
+ 435              		.loc 1 29 5 is_stmt 1 view .LVU120
+ 436              	.LBB96:
+ 437              	.LBI90:
+  76:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the waveform to be synthesized by the Process() function.
+ 438              		.loc 4 76 17 view .LVU121
+ 439              	.LBB92:
+  76:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the waveform to be synthesized by the Process() function.
+ 440              		.loc 4 76 41 view .LVU122
+  76:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the waveform to be synthesized by the Process() function.
+ 441              		.loc 4 76 46 is_stmt 0 view .LVU123
+ 442 0184 7360     		str	r3, [r6, #4]	@ float
+ 443              	.LVL24:
+  76:../../DaisySP/Source/Synthesis/oscillator.h ****     /** Sets the waveform to be synthesized by the Process() function.
+ 444              		.loc 4 76 46 view .LVU124
+ 445              	.LBE92:
+ 446              	.LBE96:
+  30:Uranus.cpp    **** }
+ 447              		.loc 1 30 5 is_stmt 1 view .LVU125
+  30:Uranus.cpp    **** }
+ 448              		.loc 1 30 15 is_stmt 0 view .LVU126
+ 449 0186 89ED008A 		vstr.32	s16, [r9]
+ 450              	.LBE100:
+ 451              	.LBE104:
+ 452              		.loc 1 31 1 view .LVU127
+ARM GAS  /tmp/cckduCwq.s 			page 13
+
+
+ 453 018a 03B0     		add	sp, sp, #12
+ 454              		.cfi_def_cfa_offset 44
+ 455              		@ sp needed
+ 456 018c BDEC048B 		vldm	sp!, {d8-d9}
+ 457              		.cfi_restore 82
+ 458              		.cfi_restore 83
+ 459              		.cfi_restore 80
+ 460              		.cfi_restore 81
+ 461              		.cfi_def_cfa_offset 28
+ 462              	.LVL25:
+ 463              		.loc 1 31 1 view .LVU128
+ 464 0190 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 465              	.LVL26:
+ 466              	.L5:
+ 467              		.loc 1 31 1 view .LVU129
+ 468              		.align	2
+ 469              	.L4:
+ 470 0194 000096C4 		.word	-996802560
+ 471 0198 0000C841 		.word	1103626240
+ 472 019c 00001643 		.word	1125515264
+ 473 01a0 00000000 		.word	0
+ 474 01a4 4CCA0800 		.word	576076
+ 475 01a8 E0E20800 		.word	582368
+ 476 01ac 00CA0800 		.word	576000
+ 477 01b0 CDCCCC3E 		.word	1053609165
+ 478 01b4 0000C842 		.word	1120403456
+ 479 01b8 94FB0800 		.word	588692
+ 480 01bc 30CA0800 		.word	576048
+ 481              		.cfi_endproc
+ 482              	.LFE6056:
+ 484              		.global	_ZN12UranusEffectC1ERN5daisy9DaisySeedEf
+ 485              		.thumb_set _ZN12UranusEffectC1ERN5daisy9DaisySeedEf,_ZN12UranusEffectC2ERN5daisy9DaisySeedEf
+ 486              		.section	.text._ZN12UranusEffect6updateEPKPKfPPfj,"ax",%progbits
+ 487              		.align	1
+ 488              		.p2align 2,,3
+ 489              		.global	_ZN12UranusEffect6updateEPKPKfPPfj
+ 490              		.syntax unified
+ 491              		.thumb
+ 492              		.thumb_func
+ 494              	_ZN12UranusEffect6updateEPKPKfPPfj:
+ 495              	.LVL27:
+ 496              	.LFB6058:
+  32:Uranus.cpp    **** 
+  33:Uranus.cpp    **** void UranusEffect::update(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size) 
+ 497              		.loc 1 33 100 is_stmt 1 view -0
+ 498              		.cfi_startproc
+ 499              		@ args = 0, pretend = 0, frame = 0
+ 500              		@ frame_needed = 0, uses_anonymous_args = 0
+  34:Uranus.cpp    ****     for(size_t i = 0; i < size; i++)
+ 501              		.loc 1 34 5 view .LVU131
+ 502              	.LBB105:
+ 503              		.loc 1 34 25 discriminator 1 view .LVU132
+ 504 0000 002B     		cmp	r3, #0
+ 505 0002 00F0C080 		beq	.L21
+ 506              	.LBE105:
+  33:Uranus.cpp    ****     for(size_t i = 0; i < size; i++)
+ 507              		.loc 1 33 100 is_stmt 0 view .LVU133
+ARM GAS  /tmp/cckduCwq.s 			page 14
+
+
+ 508 0006 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 509              		.cfi_def_cfa_offset 40
+ 510              		.cfi_offset 3, -40
+ 511              		.cfi_offset 4, -36
+ 512              		.cfi_offset 5, -32
+ 513              		.cfi_offset 6, -28
+ 514              		.cfi_offset 7, -24
+ 515              		.cfi_offset 8, -20
+ 516              		.cfi_offset 9, -16
+ 517              		.cfi_offset 10, -12
+ 518              		.cfi_offset 11, -8
+ 519              		.cfi_offset 14, -4
+ 520 000a 9346     		mov	fp, r2
+ 521 000c 8946     		mov	r9, r1
+ 522 000e 0446     		mov	r4, r0
+ 523 0010 9A46     		mov	r10, r3
+ 524              	.LBB133:
+ 525              		.loc 1 34 16 view .LVU134
+ 526 0012 0025     		movs	r5, #0
+ 527              	.LBE133:
+  33:Uranus.cpp    ****     for(size_t i = 0; i < size; i++)
+ 528              		.loc 1 33 100 view .LVU135
+ 529 0014 2DED048B 		vpush.64	{d8, d9}
+ 530              		.cfi_def_cfa_offset 56
+ 531              		.cfi_offset 80, -56
+ 532              		.cfi_offset 81, -52
+ 533              		.cfi_offset 82, -48
+ 534              		.cfi_offset 83, -44
+ 535              	.LVL28:
+ 536              	.L7:
+  35:Uranus.cpp    ****     {
+  36:Uranus.cpp    ****         if(bypass)
+ 537              		.loc 1 36 9 is_stmt 1 view .LVU136
+ 538              	.LBB134:
+ 539              	.LBB106:
+ 540              	.LBB107:
+  37:Uranus.cpp    ****         {
+  38:Uranus.cpp    ****             out[0][i] = out[1][i] = in[0][i];  // Bypass
+  39:Uranus.cpp    ****         } 
+  40:Uranus.cpp    ****         else {   
+  41:Uranus.cpp    ****             float input = in[0][i];
+ 541              		.loc 1 41 13 view .LVU137
+  42:Uranus.cpp    **** 
+  43:Uranus.cpp    ****             if (!hold) {
+ 542              		.loc 1 43 13 view .LVU138
+ 543              	.LBE107:
+  38:Uranus.cpp    ****         } 
+ 544              		.loc 1 38 44 is_stmt 0 view .LVU139
+ 545 0018 D9F80030 		ldr	r3, [r9]
+ 546 001c 4FEA8508 		lsl	r8, r5, #2
+  36:Uranus.cpp    ****         {
+ 547              		.loc 1 36 9 view .LVU140
+ 548 0020 94F82C20 		ldrb	r2, [r4, #44]	@ zero_extendqisi2
+  38:Uranus.cpp    ****         } 
+ 549              		.loc 1 38 44 view .LVU141
+ 550 0024 03EB8501 		add	r1, r3, r5, lsl #2
+ 551 0028 D1ED008A 		vldr.32	s17, [r1]
+ARM GAS  /tmp/cckduCwq.s 			page 15
+
+
+  36:Uranus.cpp    ****         {
+ 552              		.loc 1 36 9 view .LVU142
+ 553 002c DAB1     		cbz	r2, .L8
+  38:Uranus.cpp    ****         } 
+ 554              		.loc 1 38 13 is_stmt 1 view .LVU143
+ 555              	.LBE106:
+  34:Uranus.cpp    ****     {
+ 556              		.loc 1 34 5 is_stmt 0 discriminator 2 view .LVU144
+ 557 002e 6A1C     		adds	r2, r5, #1
+ 558              	.LBB125:
+  38:Uranus.cpp    ****         } 
+ 559              		.loc 1 38 23 view .LVU145
+ 560 0030 DBE90067 		ldrd	r6, r7, [fp]
+ 561              	.LBE125:
+  34:Uranus.cpp    ****     {
+ 562              		.loc 1 34 25 discriminator 1 view .LVU146
+ 563 0034 9245     		cmp	r10, r2
+ 564              	.LBB126:
+  38:Uranus.cpp    ****         } 
+ 565              		.loc 1 38 35 view .LVU147
+ 566 0036 07EB0801 		add	r1, r7, r8
+  38:Uranus.cpp    ****         } 
+ 567              		.loc 1 38 23 view .LVU148
+ 568 003a B044     		add	r8, r8, r6
+  38:Uranus.cpp    ****         } 
+ 569              		.loc 1 38 35 view .LVU149
+ 570 003c C1ED008A 		vstr.32	s17, [r1]
+  38:Uranus.cpp    ****         } 
+ 571              		.loc 1 38 23 view .LVU150
+ 572 0040 C8ED008A 		vstr.32	s17, [r8]
+ 573              	.LBE126:
+  34:Uranus.cpp    ****     {
+ 574              		.loc 1 34 5 is_stmt 1 discriminator 2 view .LVU151
+ 575              	.LVL29:
+  34:Uranus.cpp    ****     {
+ 576              		.loc 1 34 25 discriminator 1 view .LVU152
+ 577 0044 0BD0     		beq	.L6
+ 578              	.LVL30:
+ 579              	.L16:
+  36:Uranus.cpp    ****         {
+ 580              		.loc 1 36 9 view .LVU153
+ 581              	.LBB127:
+  38:Uranus.cpp    ****         } 
+ 582              		.loc 1 38 44 is_stmt 0 view .LVU154
+ 583 0046 03EB8201 		add	r1, r3, r2, lsl #2
+  38:Uranus.cpp    ****         } 
+ 584              		.loc 1 38 35 view .LVU155
+ 585 004a 07EB8204 		add	r4, r7, r2, lsl #2
+  38:Uranus.cpp    ****         } 
+ 586              		.loc 1 38 23 view .LVU156
+ 587 004e 06EB8200 		add	r0, r6, r2, lsl #2
+ 588              	.LBE127:
+  34:Uranus.cpp    ****     {
+ 589              		.loc 1 34 5 discriminator 2 view .LVU157
+ 590 0052 0132     		adds	r2, r2, #1
+ 591              	.LVL31:
+ 592              	.LBB128:
+ARM GAS  /tmp/cckduCwq.s 			page 16
+
+
+  38:Uranus.cpp    ****         } 
+ 593              		.loc 1 38 44 view .LVU158
+ 594 0054 0968     		ldr	r1, [r1]	@ float
+  38:Uranus.cpp    ****         } 
+ 595              		.loc 1 38 13 is_stmt 1 view .LVU159
+ 596              	.LBE128:
+  34:Uranus.cpp    ****     {
+ 597              		.loc 1 34 25 is_stmt 0 discriminator 1 view .LVU160
+ 598 0056 9245     		cmp	r10, r2
+ 599              	.LBB129:
+  38:Uranus.cpp    ****         } 
+ 600              		.loc 1 38 35 view .LVU161
+ 601 0058 2160     		str	r1, [r4]	@ float
+  38:Uranus.cpp    ****         } 
+ 602              		.loc 1 38 23 view .LVU162
+ 603 005a 0160     		str	r1, [r0]	@ float
+ 604              	.LBE129:
+  34:Uranus.cpp    ****     {
+ 605              		.loc 1 34 5 is_stmt 1 discriminator 2 view .LVU163
+ 606              	.LVL32:
+  34:Uranus.cpp    ****     {
+ 607              		.loc 1 34 25 discriminator 1 view .LVU164
+ 608 005c F3D8     		bhi	.L16
+ 609              	.L6:
+  34:Uranus.cpp    ****     {
+ 610              		.loc 1 34 25 is_stmt 0 discriminator 1 view .LVU165
+ 611              	.LBE134:
+  44:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+  45:Uranus.cpp    ****                 audioSample[sample_index] = next_sample_feedback + input;
+  46:Uranus.cpp    ****                 sample_index += 1;
+  47:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+  48:Uranus.cpp    ****                     sample_index = 0;
+  49:Uranus.cpp    ****                 }
+  50:Uranus.cpp    ****             }
+  51:Uranus.cpp    **** 
+  52:Uranus.cpp    ****             float gran_out_right = 0.0;
+  53:Uranus.cpp    ****             float gran_out_left = 0.0;
+  54:Uranus.cpp    **** 
+  55:Uranus.cpp    ****             fonepole(current_grainsize, vgrain_size, .0001f);
+  56:Uranus.cpp    **** 
+  57:Uranus.cpp    ****             float LFO_out = LFO.Process() - 1.0f;
+  58:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+  59:Uranus.cpp    **** 
+  60:Uranus.cpp    ****             swarm[0].Process(vspeed, vpitch + vpitch1 + pitch_mod, current_grainsize, vwidth);
+  61:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+  62:Uranus.cpp    **** 
+  63:Uranus.cpp    ****             gran_out_left += swarm[0].getLeftOut();
+  64:Uranus.cpp    ****             gran_out_right += swarm[0].getRightOut();
+  65:Uranus.cpp    ****         
+  66:Uranus.cpp    ****             gran_out_left += swarm[1].getLeftOut();
+  67:Uranus.cpp    ****             gran_out_right += swarm[1].getRightOut();
+  68:Uranus.cpp    ****             
+  69:Uranus.cpp    ****             out[0][i] = gran_out_left * wetMix + input * dryMix;
+  70:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+  71:Uranus.cpp    ****         }
+  72:Uranus.cpp    ****     }
+  73:Uranus.cpp    **** }
+ARM GAS  /tmp/cckduCwq.s 			page 17
+
+
+ 612              		.loc 1 73 1 view .LVU166
+ 613 005e BDEC048B 		vldm	sp!, {d8-d9}
+ 614              		.cfi_remember_state
+ 615              		.cfi_restore 82
+ 616              		.cfi_restore 83
+ 617              		.cfi_restore 80
+ 618              		.cfi_restore 81
+ 619              		.cfi_def_cfa_offset 40
+ 620 0062 BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 621              	.LVL33:
+ 622              	.L8:
+ 623              		.cfi_restore_state
+ 624              	.LBB135:
+ 625              	.LBB130:
+ 626              	.LBB122:
+ 627              	.LBB108:
+ 628              	.LBB109:
+  44:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+ 629              		.loc 1 44 17 is_stmt 1 view .LVU167
+ 630              	.LBE109:
+  43:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+ 631              		.loc 1 43 13 is_stmt 0 view .LVU168
+ 632 0066 94F82D20 		ldrb	r2, [r4, #45]	@ zero_extendqisi2
+ 633              	.LBB110:
+  44:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+ 634              		.loc 1 44 58 view .LVU169
+ 635 006a 04F50F26 		add	r6, r4, #585728
+  47:Uranus.cpp    ****                     sample_index = 0;
+ 636              		.loc 1 47 17 view .LVU170
+ 637 006e 45F6BF51 		movw	r1, #23999
+ 638              	.LBE110:
+  43:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+ 639              		.loc 1 43 13 view .LVU171
+ 640 0072 9AB9     		cbnz	r2, .L12
+ 641              	.LBB111:
+  44:Uranus.cpp    ****                 float next_sample_feedback = audioSample[sample_index] * vfeedback;
+ 642              		.loc 1 44 58 view .LVU172
+ 643 0074 D6F8903B 		ldr	r3, [r6, #2960]
+  45:Uranus.cpp    ****                 sample_index += 1;
+ 644              		.loc 1 45 43 view .LVU173
+ 645 0078 F0EE687A 		vmov.f32	s15, s17
+ 646 007c 94ED097A 		vldr.32	s14, [r4, #36]
+ 647 0080 04EB8300 		add	r0, r4, r3, lsl #2
+ 648              	.LVL34:
+  45:Uranus.cpp    ****                 sample_index += 1;
+ 649              		.loc 1 45 17 is_stmt 1 view .LVU174
+  46:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+ 650              		.loc 1 46 30 is_stmt 0 view .LVU175
+ 651 0084 0133     		adds	r3, r3, #1
+  45:Uranus.cpp    ****                 sample_index += 1;
+ 652              		.loc 1 45 43 view .LVU176
+ 653 0086 D0ED0C6A 		vldr.32	s13, [r0, #48]
+  46:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+ 654              		.loc 1 46 30 view .LVU177
+ 655 008a 8B42     		cmp	r3, r1
+ 656 008c D8BF     		it	le
+ 657 008e 1A46     		movle	r2, r3
+ARM GAS  /tmp/cckduCwq.s 			page 18
+
+
+  45:Uranus.cpp    ****                 sample_index += 1;
+ 658              		.loc 1 45 43 view .LVU178
+ 659 0090 E6EE877A 		vfma.f32	s15, s13, s14
+ 660 0094 C0ED0C7A 		vstr.32	s15, [r0, #48]
+ 661              	.LVL35:
+  46:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+ 662              		.loc 1 46 17 is_stmt 1 view .LVU179
+  47:Uranus.cpp    ****                     sample_index = 0;
+ 663              		.loc 1 47 17 view .LVU180
+  46:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+ 664              		.loc 1 46 30 is_stmt 0 view .LVU181
+ 665 0098 C6F8902B 		str	r2, [r6, #2960]
+ 666              	.LVL36:
+ 667              	.L12:
+  46:Uranus.cpp    ****                 if (sample_index > (MAX_SAMPLE-1)) {
+ 668              		.loc 1 46 30 view .LVU182
+ 669              	.LBE111:
+ 670              	.LBE108:
+  52:Uranus.cpp    ****             float gran_out_left = 0.0;
+ 671              		.loc 1 52 13 is_stmt 1 view .LVU183
+  53:Uranus.cpp    **** 
+ 672              		.loc 1 53 13 view .LVU184
+  55:Uranus.cpp    **** 
+ 673              		.loc 1 55 13 view .LVU185
+ 674              	.LBB112:
+ 675              	.LBI112:
+ 676              		.file 5 "../../DaisySP/Source/Utility/dsp.h"
+   1:../../DaisySP/Source/Utility/dsp.h **** /*
+   2:../../DaisySP/Source/Utility/dsp.h **** Copyright (c) 2020 Electrosmith, Corp, Emilie Gillet
+   3:../../DaisySP/Source/Utility/dsp.h **** 
+   4:../../DaisySP/Source/Utility/dsp.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Utility/dsp.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Utility/dsp.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Utility/dsp.h **** */
+   8:../../DaisySP/Source/Utility/dsp.h **** 
+   9:../../DaisySP/Source/Utility/dsp.h **** /** Helpful defines, functions, and other utilities for use in/with daisysp modules.
+  10:../../DaisySP/Source/Utility/dsp.h **** */
+  11:../../DaisySP/Source/Utility/dsp.h **** #pragma once
+  12:../../DaisySP/Source/Utility/dsp.h **** #ifndef DSY_CORE_DSP
+  13:../../DaisySP/Source/Utility/dsp.h **** #define DSY_CORE_DSP
+  14:../../DaisySP/Source/Utility/dsp.h **** #include <cassert>
+  15:../../DaisySP/Source/Utility/dsp.h **** #include <cstdint>
+  16:../../DaisySP/Source/Utility/dsp.h **** #include <random>
+  17:../../DaisySP/Source/Utility/dsp.h **** #include <cmath>
+  18:../../DaisySP/Source/Utility/dsp.h **** 
+  19:../../DaisySP/Source/Utility/dsp.h **** /** PIs
+  20:../../DaisySP/Source/Utility/dsp.h **** */
+  21:../../DaisySP/Source/Utility/dsp.h **** #define PI_F 3.1415927410125732421875f
+  22:../../DaisySP/Source/Utility/dsp.h **** #define TWOPI_F (2.0f * PI_F)
+  23:../../DaisySP/Source/Utility/dsp.h **** #define HALFPI_F (PI_F * 0.5f)
+  24:../../DaisySP/Source/Utility/dsp.h **** #define DSY_MIN(in, mn) (in < mn ? in : mn)
+  25:../../DaisySP/Source/Utility/dsp.h **** #define DSY_MAX(in, mx) (in > mx ? in : mx)
+  26:../../DaisySP/Source/Utility/dsp.h **** #define DSY_CLAMP(in, mn, mx) (DSY_MIN(DSY_MAX(in, mn), mx))
+  27:../../DaisySP/Source/Utility/dsp.h **** #define DSY_COUNTOF(_arr) (sizeof(_arr) / sizeof(_arr[0]))
+  28:../../DaisySP/Source/Utility/dsp.h **** 
+  29:../../DaisySP/Source/Utility/dsp.h **** namespace daisysp
+  30:../../DaisySP/Source/Utility/dsp.h **** {
+ARM GAS  /tmp/cckduCwq.s 			page 19
+
+
+  31:../../DaisySP/Source/Utility/dsp.h **** //Avoids division for random floats. e.g. rand() * kRandFrac
+  32:../../DaisySP/Source/Utility/dsp.h **** static constexpr float kRandFrac = 1.f / (float)RAND_MAX;
+  33:../../DaisySP/Source/Utility/dsp.h **** 
+  34:../../DaisySP/Source/Utility/dsp.h **** //Convert from semitones to other units. e.g. 2 ^ (kOneTwelfth * x)
+  35:../../DaisySP/Source/Utility/dsp.h **** static constexpr float kOneTwelfth = 1.f / 12.f;
+  36:../../DaisySP/Source/Utility/dsp.h **** 
+  37:../../DaisySP/Source/Utility/dsp.h **** /** efficient floating point min/max
+  38:../../DaisySP/Source/Utility/dsp.h **** c/o stephen mccaul
+  39:../../DaisySP/Source/Utility/dsp.h **** */
+  40:../../DaisySP/Source/Utility/dsp.h **** inline float fmax(float a, float b)
+  41:../../DaisySP/Source/Utility/dsp.h **** {
+  42:../../DaisySP/Source/Utility/dsp.h ****     float r;
+  43:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+  44:../../DaisySP/Source/Utility/dsp.h ****     asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+  45:../../DaisySP/Source/Utility/dsp.h **** #else
+  46:../../DaisySP/Source/Utility/dsp.h ****     r = (a > b) ? a : b;
+  47:../../DaisySP/Source/Utility/dsp.h **** #endif // __arm__
+  48:../../DaisySP/Source/Utility/dsp.h ****     return r;
+  49:../../DaisySP/Source/Utility/dsp.h **** }
+  50:../../DaisySP/Source/Utility/dsp.h **** 
+  51:../../DaisySP/Source/Utility/dsp.h **** inline float fmin(float a, float b)
+  52:../../DaisySP/Source/Utility/dsp.h **** {
+  53:../../DaisySP/Source/Utility/dsp.h ****     float r;
+  54:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+  55:../../DaisySP/Source/Utility/dsp.h ****     asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+  56:../../DaisySP/Source/Utility/dsp.h **** #else
+  57:../../DaisySP/Source/Utility/dsp.h ****     r = (a < b) ? a : b;
+  58:../../DaisySP/Source/Utility/dsp.h **** #endif // __arm__
+  59:../../DaisySP/Source/Utility/dsp.h ****     return r;
+  60:../../DaisySP/Source/Utility/dsp.h **** }
+  61:../../DaisySP/Source/Utility/dsp.h **** 
+  62:../../DaisySP/Source/Utility/dsp.h **** /** quick fp clamp
+  63:../../DaisySP/Source/Utility/dsp.h **** */
+  64:../../DaisySP/Source/Utility/dsp.h **** inline float fclamp(float in, float min, float max)
+  65:../../DaisySP/Source/Utility/dsp.h **** {
+  66:../../DaisySP/Source/Utility/dsp.h ****     return fmin(fmax(in, min), max);
+  67:../../DaisySP/Source/Utility/dsp.h **** }
+  68:../../DaisySP/Source/Utility/dsp.h **** 
+  69:../../DaisySP/Source/Utility/dsp.h **** /** From Musicdsp.org "Fast power and root estimates for 32bit floats)
+  70:../../DaisySP/Source/Utility/dsp.h **** Original code by Stefan Stenzel
+  71:../../DaisySP/Source/Utility/dsp.h **** These are approximations
+  72:../../DaisySP/Source/Utility/dsp.h **** */
+  73:../../DaisySP/Source/Utility/dsp.h **** inline float fastpower(float f, int n)
+  74:../../DaisySP/Source/Utility/dsp.h **** {
+  75:../../DaisySP/Source/Utility/dsp.h ****     long *lp, l;
+  76:../../DaisySP/Source/Utility/dsp.h ****     lp = (long *)(&f);
+  77:../../DaisySP/Source/Utility/dsp.h ****     l  = *lp;
+  78:../../DaisySP/Source/Utility/dsp.h ****     l -= 0x3F800000;
+  79:../../DaisySP/Source/Utility/dsp.h ****     l <<= (n - 1);
+  80:../../DaisySP/Source/Utility/dsp.h ****     l += 0x3F800000;
+  81:../../DaisySP/Source/Utility/dsp.h ****     *lp = l;
+  82:../../DaisySP/Source/Utility/dsp.h ****     return f;
+  83:../../DaisySP/Source/Utility/dsp.h **** }
+  84:../../DaisySP/Source/Utility/dsp.h **** 
+  85:../../DaisySP/Source/Utility/dsp.h **** inline float fastroot(float f, int n)
+  86:../../DaisySP/Source/Utility/dsp.h **** {
+  87:../../DaisySP/Source/Utility/dsp.h ****     long *lp, l;
+ARM GAS  /tmp/cckduCwq.s 			page 20
+
+
+  88:../../DaisySP/Source/Utility/dsp.h ****     lp = (long *)(&f);
+  89:../../DaisySP/Source/Utility/dsp.h ****     l  = *lp;
+  90:../../DaisySP/Source/Utility/dsp.h ****     l -= 0x3F800000;
+  91:../../DaisySP/Source/Utility/dsp.h ****     l >>= (n - 1);
+  92:../../DaisySP/Source/Utility/dsp.h ****     l += 0x3F800000;
+  93:../../DaisySP/Source/Utility/dsp.h ****     *lp = l;
+  94:../../DaisySP/Source/Utility/dsp.h ****     return f;
+  95:../../DaisySP/Source/Utility/dsp.h **** }
+  96:../../DaisySP/Source/Utility/dsp.h **** 
+  97:../../DaisySP/Source/Utility/dsp.h **** /** Significantly more efficient than fmodf(x, 1.0f) for calculating
+  98:../../DaisySP/Source/Utility/dsp.h ****  *  the decimal part of a floating point value.
+  99:../../DaisySP/Source/Utility/dsp.h ****  */
+ 100:../../DaisySP/Source/Utility/dsp.h **** inline float fastmod1f(float x)
+ 101:../../DaisySP/Source/Utility/dsp.h **** {
+ 102:../../DaisySP/Source/Utility/dsp.h ****     return x - static_cast<int>(x);
+ 103:../../DaisySP/Source/Utility/dsp.h **** }
+ 104:../../DaisySP/Source/Utility/dsp.h **** 
+ 105:../../DaisySP/Source/Utility/dsp.h **** /** From http://openaudio.blogspot.com/2017/02/faster-log10-and-pow.html
+ 106:../../DaisySP/Source/Utility/dsp.h **** No approximation, pow10f(x) gives a 90% speed increase over powf(10.f, x)
+ 107:../../DaisySP/Source/Utility/dsp.h **** */
+ 108:../../DaisySP/Source/Utility/dsp.h **** inline float pow10f(float f)
+ 109:../../DaisySP/Source/Utility/dsp.h **** {
+ 110:../../DaisySP/Source/Utility/dsp.h ****     return expf(2.302585092994046f * f);
+ 111:../../DaisySP/Source/Utility/dsp.h **** }
+ 112:../../DaisySP/Source/Utility/dsp.h **** 
+ 113:../../DaisySP/Source/Utility/dsp.h **** /* Original code for fastlog2f by Dr. Paul Beckmann from the ARM community forum, adapted from the 
+ 114:../../DaisySP/Source/Utility/dsp.h **** About 25% performance increase over std::log10f
+ 115:../../DaisySP/Source/Utility/dsp.h **** */
+ 116:../../DaisySP/Source/Utility/dsp.h **** inline float fastlog2f(float f)
+ 117:../../DaisySP/Source/Utility/dsp.h **** {
+ 118:../../DaisySP/Source/Utility/dsp.h ****     float frac;
+ 119:../../DaisySP/Source/Utility/dsp.h ****     int   exp;
+ 120:../../DaisySP/Source/Utility/dsp.h ****     frac = frexpf(fabsf(f), &exp);
+ 121:../../DaisySP/Source/Utility/dsp.h ****     f    = 1.23149591368684f;
+ 122:../../DaisySP/Source/Utility/dsp.h ****     f *= frac;
+ 123:../../DaisySP/Source/Utility/dsp.h ****     f += -4.11852516267426f;
+ 124:../../DaisySP/Source/Utility/dsp.h ****     f *= frac;
+ 125:../../DaisySP/Source/Utility/dsp.h ****     f += 6.02197014179219f;
+ 126:../../DaisySP/Source/Utility/dsp.h ****     f *= frac;
+ 127:../../DaisySP/Source/Utility/dsp.h ****     f += -3.13396450166353f;
+ 128:../../DaisySP/Source/Utility/dsp.h ****     f += exp;
+ 129:../../DaisySP/Source/Utility/dsp.h ****     return (f);
+ 130:../../DaisySP/Source/Utility/dsp.h **** }
+ 131:../../DaisySP/Source/Utility/dsp.h **** 
+ 132:../../DaisySP/Source/Utility/dsp.h **** inline float fastlog10f(float f)
+ 133:../../DaisySP/Source/Utility/dsp.h **** {
+ 134:../../DaisySP/Source/Utility/dsp.h ****     return fastlog2f(f) * 0.3010299956639812f;
+ 135:../../DaisySP/Source/Utility/dsp.h **** }
+ 136:../../DaisySP/Source/Utility/dsp.h **** 
+ 137:../../DaisySP/Source/Utility/dsp.h **** /** Midi to frequency helper
+ 138:../../DaisySP/Source/Utility/dsp.h **** */
+ 139:../../DaisySP/Source/Utility/dsp.h **** inline float mtof(float m)
+ 140:../../DaisySP/Source/Utility/dsp.h **** {
+ 141:../../DaisySP/Source/Utility/dsp.h ****     return powf(2, (m - 69.0f) / 12.0f) * 440.0f;
+ 142:../../DaisySP/Source/Utility/dsp.h **** }
+ 143:../../DaisySP/Source/Utility/dsp.h **** 
+ 144:../../DaisySP/Source/Utility/dsp.h **** 
+ARM GAS  /tmp/cckduCwq.s 			page 21
+
+
+ 145:../../DaisySP/Source/Utility/dsp.h **** /** one pole lpf
+ 146:../../DaisySP/Source/Utility/dsp.h **** out is passed by reference, and must be retained between
+ 147:../../DaisySP/Source/Utility/dsp.h **** calls to properly filter the signal
+ 148:../../DaisySP/Source/Utility/dsp.h **** coeff can be calculated:
+ 149:../../DaisySP/Source/Utility/dsp.h **** coeff = 1.0 / (time * sample_rate) ; where time is in seconds
+ 150:../../DaisySP/Source/Utility/dsp.h **** */
+ 151:../../DaisySP/Source/Utility/dsp.h **** inline void fonepole(float &out, float in, float coeff)
+ 677              		.loc 5 151 13 view .LVU186
+ 678              	.LBB113:
+ 152:../../DaisySP/Source/Utility/dsp.h **** {
+ 153:../../DaisySP/Source/Utility/dsp.h ****     out += coeff * (in - out);
+ 679              		.loc 5 153 5 view .LVU187
+ 680 009c D4ED077A 		vldr.32	s15, [r4, #28]
+ 681              	.LBE113:
+ 682              	.LBE112:
+  58:Uranus.cpp    **** 
+ 683              		.loc 1 58 41 is_stmt 0 view .LVU188
+ 684 00a0 06F53C66 		add	r6, r6, #3008
+ 685              	.LBB118:
+ 686              	.LBB114:
+ 687              		.loc 5 153 24 view .LVU189
+ 688 00a4 94ED087A 		vldr.32	s14, [r4, #32]
+ 689              	.LBE114:
+ 690              	.LBE118:
+ 691              	.LBE122:
+ 692              	.LBE130:
+  34:Uranus.cpp    ****     {
+ 693              		.loc 1 34 5 discriminator 2 view .LVU190
+ 694 00a8 0135     		adds	r5, r5, #1
+ 695              	.LVL37:
+ 696              	.LBB131:
+ 697              	.LBB123:
+ 698              	.LBB119:
+ 699              	.LBB115:
+ 700              		.loc 5 153 9 view .LVU191
+ 701 00aa DFED376A 		vldr.32	s13, .L25
+ 702              		.loc 5 153 24 view .LVU192
+ 703 00ae 37EE677A 		vsub.f32	s14, s14, s15
+ 704              	.LBE115:
+ 705              	.LBE119:
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 706              		.loc 1 57 40 view .LVU193
+ 707 00b2 3648     		ldr	r0, .L25+4
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 708              		.loc 1 60 29 view .LVU194
+ 709 00b4 364F     		ldr	r7, .L25+8
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 710              		.loc 1 57 40 view .LVU195
+ 711 00b6 2018     		adds	r0, r4, r0
+ 712              	.LBB120:
+ 713              	.LBB116:
+ 714              		.loc 5 153 9 view .LVU196
+ 715 00b8 E7EE267A 		vfma.f32	s15, s14, s13
+ 716              	.LBE116:
+ 717              	.LBE120:
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 718              		.loc 1 60 29 view .LVU197
+ARM GAS  /tmp/cckduCwq.s 			page 22
+
+
+ 719 00bc 2744     		add	r7, r7, r4
+ 720              	.LBB121:
+ 721              	.LBB117:
+ 722              		.loc 5 153 9 view .LVU198
+ 723 00be C4ED077A 		vstr.32	s15, [r4, #28]
+ 724              	.LVL38:
+ 725              		.loc 5 153 9 view .LVU199
+ 726              	.LBE117:
+ 727              	.LBE121:
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 728              		.loc 1 57 13 is_stmt 1 view .LVU200
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 729              		.loc 1 57 40 is_stmt 0 view .LVU201
+ 730 00c2 FFF7FEFF 		bl	_ZN7daisysp10Oscillator7ProcessEv
+ 731              	.LVL39:
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 732              		.loc 1 57 45 discriminator 1 view .LVU202
+ 733 00c6 B7EE007A 		vmov.f32	s14, #1.0e+0
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 734              		.loc 1 60 45 view .LVU203
+ 735 00ca D4ED047A 		vldr.32	s15, [r4, #16]
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 736              		.loc 1 60 29 view .LVU204
+ 737 00ce 3846     		mov	r0, r7
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 738              		.loc 1 60 45 view .LVU205
+ 739 00d0 D4ED030A 		vldr.32	s1, [r4, #12]
+  57:Uranus.cpp    ****             float pitch_mod = LFO_out * LFO_depth;
+ 740              		.loc 1 57 45 discriminator 1 view .LVU206
+ 741 00d4 30EE478A 		vsub.f32	s16, s0, s14
+ 742              	.LVL40:
+  58:Uranus.cpp    **** 
+ 743              		.loc 1 58 13 is_stmt 1 view .LVU207
+  58:Uranus.cpp    **** 
+ 744              		.loc 1 58 41 is_stmt 0 view .LVU208
+ 745 00d8 96ED009A 		vldr.32	s18, [r6]
+ 746              	.LVL41:
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 747              		.loc 1 60 13 is_stmt 1 view .LVU209
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 748              		.loc 1 60 45 is_stmt 0 view .LVU210
+ 749 00dc 70EEA70A 		vadd.f32	s1, s1, s15
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 750              		.loc 1 60 29 view .LVU211
+ 751 00e0 D4ED0A1A 		vldr.32	s3, [r4, #40]
+ 752 00e4 94ED071A 		vldr.32	s2, [r4, #28]
+ 753 00e8 94ED060A 		vldr.32	s0, [r4, #24]
+ 754 00ec E9EE080A 		vfma.f32	s1, s18, s16
+  61:Uranus.cpp    **** 
+ 755              		.loc 1 61 29 view .LVU212
+ 756 00f0 284E     		ldr	r6, .L25+12
+  60:Uranus.cpp    ****             swarm[1].Process(vspeed, vpitch + vpitch2 + pitch_mod, current_grainsize, vwidth);
+ 757              		.loc 1 60 29 view .LVU213
+ 758 00f2 FFF7FEFF 		bl	_ZN17GranularPlayerMod7ProcessEffff
+ 759              	.LVL42:
+  61:Uranus.cpp    **** 
+ 760              		.loc 1 61 13 is_stmt 1 view .LVU214
+ARM GAS  /tmp/cckduCwq.s 			page 23
+
+
+  61:Uranus.cpp    **** 
+ 761              		.loc 1 61 45 is_stmt 0 view .LVU215
+ 762 00f6 D4ED057A 		vldr.32	s15, [r4, #20]
+ 763 00fa D4ED030A 		vldr.32	s1, [r4, #12]
+  61:Uranus.cpp    **** 
+ 764              		.loc 1 61 29 view .LVU216
+ 765 00fe A619     		adds	r6, r4, r6
+ 766 0100 D4ED0A1A 		vldr.32	s3, [r4, #40]
+  61:Uranus.cpp    **** 
+ 767              		.loc 1 61 45 view .LVU217
+ 768 0104 70EEA70A 		vadd.f32	s1, s1, s15
+  61:Uranus.cpp    **** 
+ 769              		.loc 1 61 29 view .LVU218
+ 770 0108 94ED071A 		vldr.32	s2, [r4, #28]
+ 771 010c 94ED060A 		vldr.32	s0, [r4, #24]
+ 772 0110 3046     		mov	r0, r6
+ 773 0112 E9EE080A 		vfma.f32	s1, s18, s16
+ 774 0116 FFF7FEFF 		bl	_ZN17GranularPlayerMod7ProcessEffff
+ 775              	.LVL43:
+  63:Uranus.cpp    ****             gran_out_right += swarm[0].getRightOut();
+ 776              		.loc 1 63 13 is_stmt 1 view .LVU219
+  63:Uranus.cpp    ****             gran_out_right += swarm[0].getRightOut();
+ 777              		.loc 1 63 49 is_stmt 0 view .LVU220
+ 778 011a 3846     		mov	r0, r7
+ 779 011c FFF7FEFF 		bl	_ZN17GranularPlayerMod10getLeftOutEv
+ 780              	.LVL44:
+  64:Uranus.cpp    ****         
+ 781              		.loc 1 64 51 view .LVU221
+ 782 0120 3846     		mov	r0, r7
+  63:Uranus.cpp    ****             gran_out_right += swarm[0].getRightOut();
+ 783              		.loc 1 63 49 view .LVU222
+ 784 0122 B0EE409A 		vmov.f32	s18, s0
+ 785              	.LVL45:
+  64:Uranus.cpp    ****         
+ 786              		.loc 1 64 13 is_stmt 1 view .LVU223
+  64:Uranus.cpp    ****         
+ 787              		.loc 1 64 51 is_stmt 0 view .LVU224
+ 788 0126 FFF7FEFF 		bl	_ZN17GranularPlayerMod11getRightOutEv
+ 789              	.LVL46:
+  66:Uranus.cpp    ****             gran_out_right += swarm[1].getRightOut();
+ 790              		.loc 1 66 49 view .LVU225
+ 791 012a 3046     		mov	r0, r6
+  64:Uranus.cpp    ****         
+ 792              		.loc 1 64 51 view .LVU226
+ 793 012c B0EE408A 		vmov.f32	s16, s0
+ 794              	.LVL47:
+  66:Uranus.cpp    ****             gran_out_right += swarm[1].getRightOut();
+ 795              		.loc 1 66 13 is_stmt 1 view .LVU227
+  66:Uranus.cpp    ****             gran_out_right += swarm[1].getRightOut();
+ 796              		.loc 1 66 49 is_stmt 0 view .LVU228
+ 797 0130 FFF7FEFF 		bl	_ZN17GranularPlayerMod10getLeftOutEv
+ 798              	.LVL48:
+  67:Uranus.cpp    ****             
+ 799              		.loc 1 67 51 view .LVU229
+ 800 0134 3046     		mov	r0, r6
+  66:Uranus.cpp    ****             gran_out_right += swarm[1].getRightOut();
+ 801              		.loc 1 66 27 discriminator 1 view .LVU230
+ARM GAS  /tmp/cckduCwq.s 			page 24
+
+
+ 802 0136 39EE009A 		vadd.f32	s18, s18, s0
+ 803              	.LVL49:
+  67:Uranus.cpp    ****             
+ 804              		.loc 1 67 13 is_stmt 1 view .LVU231
+  67:Uranus.cpp    ****             
+ 805              		.loc 1 67 51 is_stmt 0 view .LVU232
+ 806 013a FFF7FEFF 		bl	_ZN17GranularPlayerMod11getRightOutEv
+ 807              	.LVL50:
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 808              		.loc 1 69 56 view .LVU233
+ 809 013e D4ED017A 		vldr.32	s15, [r4, #4]
+  67:Uranus.cpp    ****             
+ 810              		.loc 1 67 28 discriminator 1 view .LVU234
+ 811 0142 38EE008A 		vadd.f32	s16, s16, s0
+ 812              	.LVL51:
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 813              		.loc 1 69 13 is_stmt 1 view .LVU235
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 814              		.loc 1 69 23 is_stmt 0 view .LVU236
+ 815 0146 94ED027A 		vldr.32	s14, [r4, #8]
+ 816              	.LBE123:
+ 817              	.LBE131:
+  34:Uranus.cpp    ****     {
+ 818              		.loc 1 34 25 discriminator 1 view .LVU237
+ 819 014a AA45     		cmp	r10, r5
+ 820              	.LBB132:
+ 821              	.LBB124:
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 822              		.loc 1 69 56 view .LVU238
+ 823 014c 68EEA77A 		vmul.f32	s15, s17, s15
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 824              		.loc 1 69 21 view .LVU239
+ 825 0150 DBF80030 		ldr	r3, [fp]
+ 826 0154 03EB0802 		add	r2, r3, r8
+  70:Uranus.cpp    ****         }
+ 827              		.loc 1 70 21 view .LVU240
+ 828 0158 DBF80430 		ldr	r3, [fp, #4]
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 829              		.loc 1 69 23 view .LVU241
+ 830 015c E7EE097A 		vfma.f32	s15, s14, s18
+  70:Uranus.cpp    ****         }
+ 831              		.loc 1 70 21 view .LVU242
+ 832 0160 4344     		add	r3, r3, r8
+  69:Uranus.cpp    ****             out[1][i] = gran_out_right * wetMix + input * dryMix; 
+ 833              		.loc 1 69 23 view .LVU243
+ 834 0162 C2ED007A 		vstr.32	s15, [r2]
+  70:Uranus.cpp    ****         }
+ 835              		.loc 1 70 13 is_stmt 1 view .LVU244
+  70:Uranus.cpp    ****         }
+ 836              		.loc 1 70 57 is_stmt 0 view .LVU245
+ 837 0166 D4ED017A 		vldr.32	s15, [r4, #4]
+  70:Uranus.cpp    ****         }
+ 838              		.loc 1 70 23 view .LVU246
+ 839 016a 94ED027A 		vldr.32	s14, [r4, #8]
+  70:Uranus.cpp    ****         }
+ 840              		.loc 1 70 57 view .LVU247
+ 841 016e 68EEA77A 		vmul.f32	s15, s17, s15
+ARM GAS  /tmp/cckduCwq.s 			page 25
+
+
+  70:Uranus.cpp    ****         }
+ 842              		.loc 1 70 23 view .LVU248
+ 843 0172 E7EE087A 		vfma.f32	s15, s14, s16
+ 844 0176 C3ED007A 		vstr.32	s15, [r3]
+ 845              	.LBE124:
+ 846              	.LBE132:
+  34:Uranus.cpp    ****     {
+ 847              		.loc 1 34 5 is_stmt 1 discriminator 2 view .LVU249
+ 848              	.LVL52:
+  34:Uranus.cpp    ****     {
+ 849              		.loc 1 34 25 discriminator 1 view .LVU250
+ 850 017a 7FF44DAF 		bne	.L7
+ 851              	.LBE135:
+ 852              		.loc 1 73 1 is_stmt 0 view .LVU251
+ 853 017e BDEC048B 		vldm	sp!, {d8-d9}
+ 854              		.cfi_restore 82
+ 855              		.cfi_restore 83
+ 856              		.cfi_restore 80
+ 857              		.cfi_restore 81
+ 858              		.cfi_def_cfa_offset 40
+ 859              	.LVL53:
+ 860              		.loc 1 73 1 view .LVU252
+ 861 0182 BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 862              	.LVL54:
+ 863              	.L21:
+ 864              		.cfi_def_cfa_offset 0
+ 865              		.cfi_restore 3
+ 866              		.cfi_restore 4
+ 867              		.cfi_restore 5
+ 868              		.cfi_restore 6
+ 869              		.cfi_restore 7
+ 870              		.cfi_restore 8
+ 871              		.cfi_restore 9
+ 872              		.cfi_restore 10
+ 873              		.cfi_restore 11
+ 874              		.cfi_restore 14
+ 875              		.loc 1 73 1 view .LVU253
+ 876 0186 7047     		bx	lr
+ 877              	.L26:
+ 878              		.align	2
+ 879              	.L25:
+ 880 0188 17B7D138 		.word	953267991
+ 881 018c 94FB0800 		.word	588692
+ 882 0190 30CA0800 		.word	576048
+ 883 0194 E0E20800 		.word	582368
+ 884              		.cfi_endproc
+ 885              	.LFE6058:
+ 887              		.section	.text._ZN12UranusEffect9SetBypassEb,"ax",%progbits
+ 888              		.align	1
+ 889              		.p2align 2,,3
+ 890              		.global	_ZN12UranusEffect9SetBypassEb
+ 891              		.syntax unified
+ 892              		.thumb
+ 893              		.thumb_func
+ 895              	_ZN12UranusEffect9SetBypassEb:
+ 896              	.LVL55:
+ 897              	.LFB6059:
+ARM GAS  /tmp/cckduCwq.s 			page 26
+
+
+  74:Uranus.cpp    **** 
+  75:Uranus.cpp    **** void UranusEffect::SetBypass(bool state) {
+ 898              		.loc 1 75 42 is_stmt 1 view -0
+ 899              		.cfi_startproc
+ 900              		@ args = 0, pretend = 0, frame = 0
+ 901              		@ frame_needed = 0, uses_anonymous_args = 0
+ 902              		@ link register save eliminated.
+  76:Uranus.cpp    ****     bypass = state;
+ 903              		.loc 1 76 5 view .LVU255
+ 904              		.loc 1 76 12 is_stmt 0 view .LVU256
+ 905 0000 80F82C10 		strb	r1, [r0, #44]
+  77:Uranus.cpp    **** }
+ 906              		.loc 1 77 1 view .LVU257
+ 907 0004 7047     		bx	lr
+ 908              		.cfi_endproc
+ 909              	.LFE6059:
+ 911 0006 00BF     		.section	.text._ZN12UranusEffect6SetMixEf,"ax",%progbits
+ 912              		.align	1
+ 913              		.p2align 2,,3
+ 914              		.global	_ZN12UranusEffect6SetMixEf
+ 915              		.syntax unified
+ 916              		.thumb
+ 917              		.thumb_func
+ 919              	_ZN12UranusEffect6SetMixEf:
+ 920              	.LVL56:
+ 921              	.LFB6060:
+  78:Uranus.cpp    **** 
+  79:Uranus.cpp    **** void UranusEffect::SetMix(float mix) {
+ 922              		.loc 1 79 38 is_stmt 1 view -0
+ 923              		.cfi_startproc
+ 924              		@ args = 0, pretend = 0, frame = 0
+ 925              		@ frame_needed = 0, uses_anonymous_args = 0
+ 926              		@ link register save eliminated.
+  80:Uranus.cpp    ****     dryMix = 1.0f - mix;
+ 927              		.loc 1 80 5 view .LVU259
+ 928              		.loc 1 80 19 is_stmt 0 view .LVU260
+ 929 0000 F7EE007A 		vmov.f32	s15, #1.0e+0
+  81:Uranus.cpp    ****     wetMix = mix;
+ 930              		.loc 1 81 12 view .LVU261
+ 931 0004 80ED020A 		vstr.32	s0, [r0, #8]
+  80:Uranus.cpp    ****     dryMix = 1.0f - mix;
+ 932              		.loc 1 80 19 view .LVU262
+ 933 0008 77EEC07A 		vsub.f32	s15, s15, s0
+  80:Uranus.cpp    ****     dryMix = 1.0f - mix;
+ 934              		.loc 1 80 12 view .LVU263
+ 935 000c C0ED017A 		vstr.32	s15, [r0, #4]
+ 936              		.loc 1 81 5 is_stmt 1 view .LVU264
+  82:Uranus.cpp    **** }...
+ 937              		.loc 1 82 1 is_stmt 0 view .LVU265
+ 938 0010 7047     		bx	lr
+ 939              		.cfi_endproc
+ 940              	.LFE6060:
+ 942 0012 00BF     		.text
+ 943              	.Letext0:
+ 944              		.file 6 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 945              		.file 7 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 946              		.file 8 "/usr/arm-none-eabi/include/stdint.h"
+ARM GAS  /tmp/cckduCwq.s 			page 27
+
+
+ 947              		.file 9 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stddef.h"
+ 948              		.file 10 "/usr/arm-none-eabi/include/c++/15.2.0/type_traits"
+ 949              		.file 11 "/usr/arm-none-eabi/include/c++/15.2.0/cmath"
+ 950              		.file 12 "/usr/arm-none-eabi/include/c++/15.2.0/concepts"
+ 951              		.file 13 "/usr/arm-none-eabi/include/c++/15.2.0/bits/iterator_concepts.h"
+ 952              		.file 14 "/usr/arm-none-eabi/include/c++/15.2.0/bits/utility.h"
+ 953              		.file 15 "/usr/arm-none-eabi/include/c++/15.2.0/compare"
+ 954              		.file 16 "/usr/arm-none-eabi/include/c++/15.2.0/debug/debug.h"
+ 955              		.file 17 "/usr/arm-none-eabi/include/c++/15.2.0/bits/std_abs.h"
+ 956              		.file 18 "/usr/arm-none-eabi/include/c++/15.2.0/cstdlib"
+ 957              		.file 19 "/usr/arm-none-eabi/include/c++/15.2.0/cstdint"
+ 958              		.file 20 "/usr/arm-none-eabi/include/c++/15.2.0/numbers"
+ 959              		.file 21 "/usr/arm-none-eabi/include/c++/15.2.0/cstdarg"
+ 960              		.file 22 "/usr/arm-none-eabi/include/c++/15.2.0/cstdio"
+ 961              		.file 23 "/usr/arm-none-eabi/include/c++/15.2.0/cstring"
+ 962              		.file 24 "/usr/arm-none-eabi/include/c++/15.2.0/cwchar"
+ 963              		.file 25 "/usr/arm-none-eabi/include/c++/15.2.0/clocale"
+ 964              		.file 26 "/usr/arm-none-eabi/include/c++/15.2.0/arm-none-eabi/thumb/v7e-m+dp/hard/bits/c++config.h
+ 965              		.file 27 "/usr/arm-none-eabi/include/c++/15.2.0/cstddef"
+ 966              		.file 28 "/usr/arm-none-eabi/include/c++/15.2.0/bits/predefined_ops.h"
+ 967              		.file 29 "/usr/arm-none-eabi/include/sys/_types.h"
+ 968              		.file 30 "/usr/arm-none-eabi/include/sys/reent.h"
+ 969              		.file 31 "/usr/arm-none-eabi/include/sys/lock.h"
+ 970              		.file 32 "/usr/arm-none-eabi/include/math.h"
+ 971              		.file 33 "/usr/arm-none-eabi/include/stdlib.h"
+ 972              		.file 34 "/usr/arm-none-eabi/include/c++/15.2.0/bits/ptr_traits.h"
+ 973              		.file 35 "/usr/arm-none-eabi/include/c++/15.2.0/math.h"
+ 974              		.file 36 "/usr/arm-none-eabi/include/c++/15.2.0/stdlib.h"
+ 975              		.file 37 "../../libDaisy/src/daisy_core.h"
+ 976              		.file 38 "../../libDaisy/src/sys/system.h"
+ 977              		.file 39 "../../libDaisy/src/per/qspi.h"
+ 978              		.file 40 "../../libDaisy/src/per/dac.h"
+ 979              		.file 41 "../../libDaisy/src/per/sai.h"
+ 980              		.file 42 "../../libDaisy/src/hid/audio.h"
+ 981              		.file 43 "../../libDaisy/src/per/adc.h"
+ 982              		.file 44 "../../libDaisy/src/hid/usb.h"
+ 983              		.file 45 "../../libDaisy/src/util/wav_format.h"
+ 984              		.file 46 "../../libDaisy/src/dev/max11300.h"
+ 985              		.file 47 "../../libDaisy/src/daisy_seed.h"
+ 986              		.file 48 "../../libDaisy/src/per/gpio.h"
+ 987              		.file 49 "../../libDaisy/src/dev/sdram.h"
+ 988              		.file 50 "/usr/arm-none-eabi/include/c++/15.2.0/pstl/execution_defs.h"
+ 989              		.file 51 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stdarg.h"
+ 990              		.file 52 "/usr/arm-none-eabi/include/stdio.h"
+ 991              		.file 53 "/usr/arm-none-eabi/include/string.h"
+ 992              		.file 54 "/usr/arm-none-eabi/include/wchar.h"
+ 993              		.file 55 "../../DaisySP/Source/Control/adenv.h"
+ 994              		.file 56 "/usr/arm-none-eabi/include/locale.h"
+ 995              		.file 57 "Uranus.h"
+ 996              		.file 58 "/usr/arm-none-eabi/include/c++/15.2.0/bits/memory_resource.h"
+ 997              		.file 59 "<built-in>"
+ 998              		.file 60 "../../libDaisy/src/dev/sr_595.h"
+ARM GAS  /tmp/cckduCwq.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Uranus.cpp
+     /tmp/cckduCwq.s:18     .text._ZN12UranusEffectC2ERN5daisy9DaisySeedEf:00000000 $t
+     /tmp/cckduCwq.s:25     .text._ZN12UranusEffectC2ERN5daisy9DaisySeedEf:00000000 _ZN12UranusEffectC2ERN5daisy9DaisySeedEf
+     /tmp/cckduCwq.s:470    .text._ZN12UranusEffectC2ERN5daisy9DaisySeedEf:00000194 $d
+     /tmp/cckduCwq.s:25     .text._ZN12UranusEffectC2ERN5daisy9DaisySeedEf:00000000 _ZN12UranusEffectC1ERN5daisy9DaisySeedEf
+     /tmp/cckduCwq.s:487    .text._ZN12UranusEffect6updateEPKPKfPPfj:00000000 $t
+     /tmp/cckduCwq.s:494    .text._ZN12UranusEffect6updateEPKPKfPPfj:00000000 _ZN12UranusEffect6updateEPKPKfPPfj
+     /tmp/cckduCwq.s:880    .text._ZN12UranusEffect6updateEPKPKfPPfj:00000188 $d
+     /tmp/cckduCwq.s:888    .text._ZN12UranusEffect9SetBypassEb:00000000 $t
+     /tmp/cckduCwq.s:895    .text._ZN12UranusEffect9SetBypassEb:00000000 _ZN12UranusEffect9SetBypassEb
+     /tmp/cckduCwq.s:912    .text._ZN12UranusEffect6SetMixEf:00000000 $t
+     /tmp/cckduCwq.s:919    .text._ZN12UranusEffect6SetMixEf:00000000 _ZN12UranusEffect6SetMixEf
+
+UNDEFINED SYMBOLS
+memset
+_ZN17GranularPlayerMod4InitEPfifff
+_ZN17GranularPlayerMod15setEnvelopeModeEi
+_ZN17GranularPlayerMod15setStereoSpreadEf
+_ZN7daisysp10Oscillator12CalcPhaseIncEf
+_ZN7daisysp10Oscillator7ProcessEv
+_ZN17GranularPlayerMod7ProcessEffff
+_ZN17GranularPlayerMod10getLeftOutEv
+_ZN17GranularPlayerMod11getRightOutEv

@@ -1,0 +1,1133 @@
+ARM GAS  /tmp/ccEcCllc.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"Sha256.cpp"
+  15              		.text
+  16              		.section	.text._ZN6SHA2569transformEPKhj.constprop.0,"ax",%progbits
+  17              		.align	1
+  18              		.p2align 2,,3
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	_ZN6SHA2569transformEPKhj.constprop.0:
+  24              		@ args = 0, pretend = 0, frame = 296
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  27 0004 91F800C0 		ldrb	ip, [r1]	@ zero_extendqisi2
+  28 0008 CBB0     		sub	sp, sp, #300
+  29 000a 8F79     		ldrb	r7, [r1, #6]	@ zero_extendqisi2
+  30 000c CE78     		ldrb	r6, [r1, #3]	@ zero_extendqisi2
+  31 000e 8D7A     		ldrb	r5, [r1, #10]	@ zero_extendqisi2
+  32 0010 3F02     		lsls	r7, r7, #8
+  33 0012 46EA0C66 		orr	r6, r6, ip, lsl #24
+  34 0016 91F805C0 		ldrb	ip, [r1, #5]	@ zero_extendqisi2
+  35 001a 0390     		str	r0, [sp, #12]
+  36 001c 2D02     		lsls	r5, r5, #8
+  37 001e 887B     		ldrb	r0, [r1, #14]	@ zero_extendqisi2
+  38 0020 47EA0C47 		orr	r7, r7, ip, lsl #16
+  39 0024 91F809C0 		ldrb	ip, [r1, #9]	@ zero_extendqisi2
+  40 0028 8A7C     		ldrb	r2, [r1, #18]	@ zero_extendqisi2
+  41 002a 0002     		lsls	r0, r0, #8
+  42 002c 45EA0C45 		orr	r5, r5, ip, lsl #16
+  43 0030 91F80DC0 		ldrb	ip, [r1, #13]	@ zero_extendqisi2
+  44 0034 4B7D     		ldrb	r3, [r1, #21]	@ zero_extendqisi2
+  45 0036 1202     		lsls	r2, r2, #8
+  46 0038 40EA0C40 		orr	r0, r0, ip, lsl #16
+  47 003c 91F811C0 		ldrb	ip, [r1, #17]	@ zero_extendqisi2
+  48 0040 1B04     		lsls	r3, r3, #16
+  49 0042 42EA0C42 		orr	r2, r2, ip, lsl #16
+  50 0046 91F816C0 		ldrb	ip, [r1, #22]	@ zero_extendqisi2
+  51 004a 43EA0C23 		orr	r3, r3, ip, lsl #8
+  52 004e 91F802C0 		ldrb	ip, [r1, #2]	@ zero_extendqisi2
+  53 0052 46EA0C26 		orr	r6, r6, ip, lsl #8
+  54 0056 91F807C0 		ldrb	ip, [r1, #7]	@ zero_extendqisi2
+  55 005a 47EA0C07 		orr	r7, r7, ip
+  56 005e 91F80BC0 		ldrb	ip, [r1, #11]	@ zero_extendqisi2
+  57 0062 45EA0C05 		orr	r5, r5, ip
+  58 0066 91F80FC0 		ldrb	ip, [r1, #15]	@ zero_extendqisi2
+ARM GAS  /tmp/ccEcCllc.s 			page 2
+
+
+  59 006a 40EA0C00 		orr	r0, r0, ip
+  60 006e 91F813C0 		ldrb	ip, [r1, #19]	@ zero_extendqisi2
+  61 0072 42EA0C02 		orr	r2, r2, ip
+  62 0076 91F817C0 		ldrb	ip, [r1, #23]	@ zero_extendqisi2
+  63 007a 43EA0C03 		orr	r3, r3, ip
+  64 007e 91F801C0 		ldrb	ip, [r1, #1]	@ zero_extendqisi2
+  65 0082 46EA0C46 		orr	r6, r6, ip, lsl #16
+  66 0086 91F804C0 		ldrb	ip, [r1, #4]	@ zero_extendqisi2
+  67 008a 47EA0C67 		orr	r7, r7, ip, lsl #24
+  68 008e 0A96     		str	r6, [sp, #40]
+  69 0090 0B97     		str	r7, [sp, #44]
+  70 0092 0F7A     		ldrb	r7, [r1, #8]	@ zero_extendqisi2
+  71 0094 45EA0765 		orr	r5, r5, r7, lsl #24
+  72 0098 0C95     		str	r5, [sp, #48]
+  73 009a 0D7B     		ldrb	r5, [r1, #12]	@ zero_extendqisi2
+  74 009c 40EA0560 		orr	r0, r0, r5, lsl #24
+  75 00a0 0D90     		str	r0, [sp, #52]
+  76 00a2 087C     		ldrb	r0, [r1, #16]	@ zero_extendqisi2
+  77 00a4 42EA0062 		orr	r2, r2, r0, lsl #24
+  78 00a8 0E92     		str	r2, [sp, #56]
+  79 00aa 0A7D     		ldrb	r2, [r1, #20]	@ zero_extendqisi2
+  80 00ac 91F81DC0 		ldrb	ip, [r1, #29]	@ zero_extendqisi2
+  81 00b0 43EA0263 		orr	r3, r3, r2, lsl #24
+  82 00b4 91F81E80 		ldrb	r8, [r1, #30]	@ zero_extendqisi2
+  83 00b8 91F82170 		ldrb	r7, [r1, #33]	@ zero_extendqisi2
+  84 00bc 4FEA0C4C 		lsl	ip, ip, #16
+  85 00c0 0F93     		str	r3, [sp, #60]
+  86 00c2 4B7E     		ldrb	r3, [r1, #25]	@ zero_extendqisi2
+  87 00c4 4CEA082C 		orr	ip, ip, r8, lsl #8
+  88 00c8 8A7E     		ldrb	r2, [r1, #26]	@ zero_extendqisi2
+  89 00ca 3F04     		lsls	r7, r7, #16
+  90 00cc 91F82280 		ldrb	r8, [r1, #34]	@ zero_extendqisi2
+  91 00d0 1B04     		lsls	r3, r3, #16
+  92 00d2 91F82550 		ldrb	r5, [r1, #37]	@ zero_extendqisi2
+  93 00d6 43EA0223 		orr	r3, r3, r2, lsl #8
+  94 00da 91F82900 		ldrb	r0, [r1, #41]	@ zero_extendqisi2
+  95 00de CA7E     		ldrb	r2, [r1, #27]	@ zero_extendqisi2
+  96 00e0 47EA0827 		orr	r7, r7, r8, lsl #8
+  97 00e4 2D04     		lsls	r5, r5, #16
+  98 00e6 91F82680 		ldrb	r8, [r1, #38]	@ zero_extendqisi2
+  99 00ea 43EA020E 		orr	lr, r3, r2
+ 100 00ee 0004     		lsls	r0, r0, #16
+ 101 00f0 91F82D20 		ldrb	r2, [r1, #45]	@ zero_extendqisi2
+ 102 00f4 45EA0825 		orr	r5, r5, r8, lsl #8
+ 103 00f8 91F82A80 		ldrb	r8, [r1, #42]	@ zero_extendqisi2
+ 104 00fc 91F83130 		ldrb	r3, [r1, #49]	@ zero_extendqisi2
+ 105 0100 1204     		lsls	r2, r2, #16
+ 106 0102 40EA0820 		orr	r0, r0, r8, lsl #8
+ 107 0106 91F82E80 		ldrb	r8, [r1, #46]	@ zero_extendqisi2
+ 108 010a 1B04     		lsls	r3, r3, #16
+ 109 010c 42EA0822 		orr	r2, r2, r8, lsl #8
+ 110 0110 91F83280 		ldrb	r8, [r1, #50]	@ zero_extendqisi2
+ 111 0114 43EA0823 		orr	r3, r3, r8, lsl #8
+ 112 0118 91F81F80 		ldrb	r8, [r1, #31]	@ zero_extendqisi2
+ 113 011c 4CEA080C 		orr	ip, ip, r8
+ 114 0120 91F82380 		ldrb	r8, [r1, #35]	@ zero_extendqisi2
+ 115 0124 47EA0807 		orr	r7, r7, r8
+ARM GAS  /tmp/ccEcCllc.s 			page 3
+
+
+ 116 0128 91F82780 		ldrb	r8, [r1, #39]	@ zero_extendqisi2
+ 117 012c 45EA0805 		orr	r5, r5, r8
+ 118 0130 91F82B80 		ldrb	r8, [r1, #43]	@ zero_extendqisi2
+ 119 0134 40EA0800 		orr	r0, r0, r8
+ 120 0138 91F82F80 		ldrb	r8, [r1, #47]	@ zero_extendqisi2
+ 121 013c 42EA0802 		orr	r2, r2, r8
+ 122 0140 91F83380 		ldrb	r8, [r1, #51]	@ zero_extendqisi2
+ 123 0144 43EA0803 		orr	r3, r3, r8
+ 124 0148 91F81880 		ldrb	r8, [r1, #24]	@ zero_extendqisi2
+ 125 014c 4EEA086E 		orr	lr, lr, r8, lsl #24
+ 126 0150 CDF840E0 		str	lr, [sp, #64]
+ 127 0154 91F81CE0 		ldrb	lr, [r1, #28]	@ zero_extendqisi2
+ 128 0158 4CEA0E6C 		orr	ip, ip, lr, lsl #24
+ 129 015c CDF844C0 		str	ip, [sp, #68]
+ 130 0160 91F820C0 		ldrb	ip, [r1, #32]	@ zero_extendqisi2
+ 131 0164 47EA0C67 		orr	r7, r7, ip, lsl #24
+ 132 0168 1297     		str	r7, [sp, #72]
+ 133 016a 91F82470 		ldrb	r7, [r1, #36]	@ zero_extendqisi2
+ 134 016e 45EA0765 		orr	r5, r5, r7, lsl #24
+ 135 0172 3AAF     		add	r7, sp, #232
+ 136 0174 1395     		str	r5, [sp, #76]
+ 137 0176 91F82850 		ldrb	r5, [r1, #40]	@ zero_extendqisi2
+ 138 017a 40EA0560 		orr	r0, r0, r5, lsl #24
+ 139 017e 1490     		str	r0, [sp, #80]
+ 140 0180 91F82C00 		ldrb	r0, [r1, #44]	@ zero_extendqisi2
+ 141 0184 91F83A50 		ldrb	r5, [r1, #58]	@ zero_extendqisi2
+ 142 0188 42EA0062 		orr	r2, r2, r0, lsl #24
+ 143 018c 91F83500 		ldrb	r0, [r1, #53]	@ zero_extendqisi2
+ 144 0190 1592     		str	r2, [sp, #84]
+ 145 0192 0004     		lsls	r0, r0, #16
+ 146 0194 91F83020 		ldrb	r2, [r1, #48]	@ zero_extendqisi2
+ 147 0198 43EA0263 		orr	r3, r3, r2, lsl #24
+ 148 019c 91F83D20 		ldrb	r2, [r1, #61]	@ zero_extendqisi2
+ 149 01a0 1693     		str	r3, [sp, #88]
+ 150 01a2 1204     		lsls	r2, r2, #16
+ 151 01a4 91F83630 		ldrb	r3, [r1, #54]	@ zero_extendqisi2
+ 152 01a8 40EA0320 		orr	r0, r0, r3, lsl #8
+ 153 01ac 91F83930 		ldrb	r3, [r1, #57]	@ zero_extendqisi2
+ 154 01b0 1B04     		lsls	r3, r3, #16
+ 155 01b2 43EA0523 		orr	r3, r3, r5, lsl #8
+ 156 01b6 91F83E50 		ldrb	r5, [r1, #62]	@ zero_extendqisi2
+ 157 01ba 42EA0522 		orr	r2, r2, r5, lsl #8
+ 158 01be 91F83750 		ldrb	r5, [r1, #55]	@ zero_extendqisi2
+ 159 01c2 2843     		orrs	r0, r0, r5
+ 160 01c4 91F83B50 		ldrb	r5, [r1, #59]	@ zero_extendqisi2
+ 161 01c8 2B43     		orrs	r3, r3, r5
+ 162 01ca 91F83F50 		ldrb	r5, [r1, #63]	@ zero_extendqisi2
+ 163 01ce 2A43     		orrs	r2, r2, r5
+ 164 01d0 91F83450 		ldrb	r5, [r1, #52]	@ zero_extendqisi2
+ 165 01d4 40EA0560 		orr	r0, r0, r5, lsl #24
+ 166 01d8 1790     		str	r0, [sp, #92]
+ 167 01da 91F83800 		ldrb	r0, [r1, #56]	@ zero_extendqisi2
+ 168 01de 91F83C10 		ldrb	r1, [r1, #60]	@ zero_extendqisi2
+ 169 01e2 43EA0063 		orr	r3, r3, r0, lsl #24
+ 170 01e6 0AA8     		add	r0, sp, #40
+ 171 01e8 42EA0162 		orr	r2, r2, r1, lsl #24
+ 172 01ec 1D46     		mov	r5, r3
+ARM GAS  /tmp/ccEcCllc.s 			page 4
+
+
+ 173 01ee CDE91832 		strd	r3, r2, [sp, #96]
+ 174              	.L2:
+ 175 01f2 4FEAF241 		ror	r1, r2, #19
+ 176 01f6 D0F804C0 		ldr	ip, [r0, #4]
+ 177 01fa 4FEAF543 		ror	r3, r5, #19
+ 178 01fe 0830     		adds	r0, r0, #8
+ 179 0200 81EA7241 		eor	r1, r1, r2, ror #17
+ 180 0204 83EA7543 		eor	r3, r3, r5, ror #17
+ 181 0208 4FEABC48 		ror	r8, ip, #18
+ 182 020c 81EA9221 		eor	r1, r1, r2, lsr #10
+ 183 0210 026A     		ldr	r2, [r0, #32]
+ 184 0212 83EA9523 		eor	r3, r3, r5, lsr #10
+ 185 0216 88EAFC1E 		eor	lr, r8, ip, ror #7
+ 186 021a 0CEB0208 		add	r8, ip, r2
+ 187 021e C269     		ldr	r2, [r0, #28]
+ 188 0220 8742     		cmp	r7, r0
+ 189 0222 4144     		add	r1, r1, r8
+ 190 0224 1344     		add	r3, r3, r2
+ 191 0226 8EEADC02 		eor	r2, lr, ip, lsr #3
+ 192 022a 1344     		add	r3, r3, r2
+ 193 022c 03EB0605 		add	r5, r3, r6
+ 194 0230 0668     		ldr	r6, [r0]
+ 195 0232 4FEAF612 		ror	r2, r6, #7
+ 196 0236 8563     		str	r5, [r0, #56]
+ 197 0238 82EAB642 		eor	r2, r2, r6, ror #18
+ 198 023c 82EAD602 		eor	r2, r2, r6, lsr #3
+ 199 0240 0A44     		add	r2, r2, r1
+ 200 0242 C263     		str	r2, [r0, #60]
+ 201 0244 D5D1     		bne	.L2
+ 202 0246 039B     		ldr	r3, [sp, #12]
+ 203 0248 384F     		ldr	r7, .L8
+ 204 024a D3F88820 		ldr	r2, [r3, #136]
+ 205 024e D3F89C60 		ldr	r6, [r3, #156]
+ 206 0252 0192     		str	r2, [sp, #4]
+ 207 0254 D3F8A050 		ldr	r5, [r3, #160]
+ 208 0258 DDF804C0 		ldr	ip, [sp, #4]
+ 209 025c 0596     		str	r6, [sp, #20]
+ 210 025e 0695     		str	r5, [sp, #24]
+ 211 0260 D3E92321 		ldrd	r2, r1, [r3, #140]
+ 212 0264 D3E925B0 		ldrd	fp, r0, [r3, #148]
+ 213 0268 D3F8A430 		ldr	r3, [r3, #164]
+ 214 026c 1446     		mov	r4, r2
+ 215 026e 0291     		str	r1, [sp, #8]
+ 216 0270 D946     		mov	r9, fp
+ 217 0272 9A46     		mov	r10, r3
+ 218 0274 DDF808E0 		ldr	lr, [sp, #8]
+ 219 0278 0490     		str	r0, [sp, #16]
+ 220 027a 0793     		str	r3, [sp, #28]
+ 221 027c CDE9082B 		strd	r2, fp, [sp, #32]
+ 222 0280 0DF1240B 		add	fp, sp, #36
+ 223 0284 05E0     		b	.L3
+ 224              	.L4:
+ 225 0286 3546     		mov	r5, r6
+ 226 0288 A646     		mov	lr, r4
+ 227 028a 0646     		mov	r6, r0
+ 228 028c 6446     		mov	r4, ip
+ 229 028e 4046     		mov	r0, r8
+ARM GAS  /tmp/ccEcCllc.s 			page 5
+
+
+ 230 0290 9C46     		mov	ip, r3
+ 231              	.L3:
+ 232 0292 4FEAF023 		ror	r3, r0, #11
+ 233 0296 57F8042F 		ldr	r2, [r7, #4]!
+ 234 029a 5BF8041F 		ldr	r1, [fp, #4]!
+ 235 029e 25EA0008 		bic	r8, r5, r0
+ 236 02a2 83EAB013 		eor	r3, r3, r0, ror #6
+ 237 02a6 0A44     		add	r2, r2, r1
+ 238 02a8 8EEA0401 		eor	r1, lr, r4
+ 239 02ac 83EA7063 		eor	r3, r3, r0, ror #25
+ 240 02b0 01EA0C01 		and	r1, r1, ip
+ 241 02b4 1344     		add	r3, r3, r2
+ 242 02b6 06EA0002 		and	r2, r6, r0
+ 243 02ba 88EA0208 		eor	r8, r8, r2
+ 244 02be 4FEA7C32 		ror	r2, ip, #13
+ 245 02c2 82EABC02 		eor	r2, r2, ip, ror #2
+ 246 02c6 4344     		add	r3, r3, r8
+ 247 02c8 82EABC52 		eor	r2, r2, ip, ror #22
+ 248 02cc 5344     		add	r3, r3, r10
+ 249 02ce AA46     		mov	r10, r5
+ 250 02d0 0092     		str	r2, [sp]
+ 251 02d2 0EEA0402 		and	r2, lr, r4
+ 252 02d6 03EB0908 		add	r8, r3, r9
+ 253 02da F146     		mov	r9, lr
+ 254 02dc 5140     		eors	r1, r1, r2
+ 255 02de 009A     		ldr	r2, [sp]
+ 256 02e0 0A44     		add	r2, r2, r1
+ 257 02e2 1344     		add	r3, r3, r2
+ 258 02e4 124A     		ldr	r2, .L8+4
+ 259 02e6 BA42     		cmp	r2, r7
+ 260 02e8 CDD1     		bne	.L4
+ 261 02ea 0199     		ldr	r1, [sp, #4]
+ 262 02ec 039F     		ldr	r7, [sp, #12]
+ 263 02ee 0B44     		add	r3, r3, r1
+ 264 02f0 0299     		ldr	r1, [sp, #8]
+ 265 02f2 DDE9082B 		ldrd	r2, fp, [sp, #32]
+ 266 02f6 C7F88830 		str	r3, [r7, #136]
+ 267 02fa 0C44     		add	r4, r4, r1
+ 268 02fc 049B     		ldr	r3, [sp, #16]
+ 269 02fe 6244     		add	r2, r2, ip
+ 270 0300 0EEB0B01 		add	r1, lr, fp
+ 271 0304 03EB080C 		add	ip, r3, r8
+ 272 0308 059B     		ldr	r3, [sp, #20]
+ 273 030a 1844     		add	r0, r0, r3
+ 274 030c 069B     		ldr	r3, [sp, #24]
+ 275 030e 1E44     		add	r6, r6, r3
+ 276 0310 079B     		ldr	r3, [sp, #28]
+ 277 0312 1D44     		add	r5, r5, r3
+ 278 0314 C7E92324 		strd	r2, r4, [r7, #140]
+ 279 0318 C7E9251C 		strd	r1, ip, [r7, #148]
+ 280 031c C7E92706 		strd	r0, r6, [r7, #156]
+ 281 0320 C7F8A450 		str	r5, [r7, #164]
+ 282 0324 4BB0     		add	sp, sp, #300
+ 283              		@ sp needed
+ 284 0326 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 285              	.L9:
+ 286 032a 00BF     		.align	2
+ARM GAS  /tmp/ccEcCllc.s 			page 6
+
+
+ 287              	.L8:
+ 288 032c FCFFFFFF 		.word	_ZN6SHA2568sha256_kE-4
+ 289 0330 FC000000 		.word	_ZN6SHA2568sha256_kE+252
+ 291              		.section	.text._ZN6SHA2569transformEPKhj,"ax",%progbits
+ 292              		.align	1
+ 293              		.p2align 2,,3
+ 294              		.global	_ZN6SHA2569transformEPKhj
+ 295              		.syntax unified
+ 296              		.thumb
+ 297              		.thumb_func
+ 299              	_ZN6SHA2569transformEPKhj:
+ 300              		@ args = 0, pretend = 0, frame = 312
+ 301              		@ frame_needed = 0, uses_anonymous_args = 0
+ 302 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 303 0004 131E     		subs	r3, r2, #0
+ 304 0006 CFB0     		sub	sp, sp, #316
+ 305 0008 0D93     		str	r3, [sp, #52]
+ 306 000a 40F37B81 		ble	.L10
+ 307 000e 0023     		movs	r3, #0
+ 308 0010 8346     		mov	fp, r0
+ 309 0012 0493     		str	r3, [sp, #16]
+ 310              	.L14:
+ 311 0014 8D78     		ldrb	r5, [r1, #2]	@ zero_extendqisi2
+ 312 0016 4E78     		ldrb	r6, [r1, #1]	@ zero_extendqisi2
+ 313 0018 8C79     		ldrb	r4, [r1, #6]	@ zero_extendqisi2
+ 314 001a 2D02     		lsls	r5, r5, #8
+ 315 001c 887A     		ldrb	r0, [r1, #10]	@ zero_extendqisi2
+ 316 001e 45EA0645 		orr	r5, r5, r6, lsl #16
+ 317 0022 4E79     		ldrb	r6, [r1, #5]	@ zero_extendqisi2
+ 318 0024 2402     		lsls	r4, r4, #8
+ 319 0026 8A7B     		ldrb	r2, [r1, #14]	@ zero_extendqisi2
+ 320 0028 0002     		lsls	r0, r0, #8
+ 321 002a 8B7C     		ldrb	r3, [r1, #18]	@ zero_extendqisi2
+ 322 002c 44EA0644 		orr	r4, r4, r6, lsl #16
+ 323 0030 4E7A     		ldrb	r6, [r1, #9]	@ zero_extendqisi2
+ 324 0032 1202     		lsls	r2, r2, #8
+ 325 0034 8F7D     		ldrb	r7, [r1, #22]	@ zero_extendqisi2
+ 326 0036 40EA0640 		orr	r0, r0, r6, lsl #16
+ 327 003a 4E7B     		ldrb	r6, [r1, #13]	@ zero_extendqisi2
+ 328 003c 1B02     		lsls	r3, r3, #8
+ 329 003e 42EA0642 		orr	r2, r2, r6, lsl #16
+ 330 0042 4E7C     		ldrb	r6, [r1, #17]	@ zero_extendqisi2
+ 331 0044 3F02     		lsls	r7, r7, #8
+ 332 0046 43EA0643 		orr	r3, r3, r6, lsl #16
+ 333 004a 4E7D     		ldrb	r6, [r1, #21]	@ zero_extendqisi2
+ 334 004c 47EA0647 		orr	r7, r7, r6, lsl #16
+ 335 0050 CE78     		ldrb	r6, [r1, #3]	@ zero_extendqisi2
+ 336 0052 3543     		orrs	r5, r5, r6
+ 337 0054 CE79     		ldrb	r6, [r1, #7]	@ zero_extendqisi2
+ 338 0056 3443     		orrs	r4, r4, r6
+ 339 0058 CE7A     		ldrb	r6, [r1, #11]	@ zero_extendqisi2
+ 340 005a 3043     		orrs	r0, r0, r6
+ 341 005c CE7B     		ldrb	r6, [r1, #15]	@ zero_extendqisi2
+ 342 005e 3243     		orrs	r2, r2, r6
+ 343 0060 CE7C     		ldrb	r6, [r1, #19]	@ zero_extendqisi2
+ 344 0062 3343     		orrs	r3, r3, r6
+ 345 0064 CE7D     		ldrb	r6, [r1, #23]	@ zero_extendqisi2
+ARM GAS  /tmp/ccEcCllc.s 			page 7
+
+
+ 346 0066 3E43     		orrs	r6, r6, r7
+ 347 0068 0F78     		ldrb	r7, [r1]	@ zero_extendqisi2
+ 348 006a 45EA0765 		orr	r5, r5, r7, lsl #24
+ 349 006e 0F79     		ldrb	r7, [r1, #4]	@ zero_extendqisi2
+ 350 0070 44EA0764 		orr	r4, r4, r7, lsl #24
+ 351 0074 0E95     		str	r5, [sp, #56]
+ 352 0076 4F7E     		ldrb	r7, [r1, #25]	@ zero_extendqisi2
+ 353 0078 0F94     		str	r4, [sp, #60]
+ 354 007a 0C7A     		ldrb	r4, [r1, #8]	@ zero_extendqisi2
+ 355 007c 40EA0460 		orr	r0, r0, r4, lsl #24
+ 356 0080 0C7B     		ldrb	r4, [r1, #12]	@ zero_extendqisi2
+ 357 0082 1090     		str	r0, [sp, #64]
+ 358 0084 42EA0464 		orr	r4, r2, r4, lsl #24
+ 359 0088 087C     		ldrb	r0, [r1, #16]	@ zero_extendqisi2
+ 360 008a 1194     		str	r4, [sp, #68]
+ 361 008c 43EA0060 		orr	r0, r3, r0, lsl #24
+ 362 0090 0B7D     		ldrb	r3, [r1, #20]	@ zero_extendqisi2
+ 363 0092 46EA0366 		orr	r6, r6, r3, lsl #24
+ 364 0096 8B7E     		ldrb	r3, [r1, #26]	@ zero_extendqisi2
+ 365 0098 CDE91206 		strd	r0, r6, [sp, #72]
+ 366 009c 1B02     		lsls	r3, r3, #8
+ 367 009e C87E     		ldrb	r0, [r1, #27]	@ zero_extendqisi2
+ 368 00a0 4A7F     		ldrb	r2, [r1, #29]	@ zero_extendqisi2
+ 369 00a2 91F82140 		ldrb	r4, [r1, #33]	@ zero_extendqisi2
+ 370 00a6 43EA0743 		orr	r3, r3, r7, lsl #16
+ 371 00aa 8E7F     		ldrb	r6, [r1, #30]	@ zero_extendqisi2
+ 372 00ac 1204     		lsls	r2, r2, #16
+ 373 00ae 91F82270 		ldrb	r7, [r1, #34]	@ zero_extendqisi2
+ 374 00b2 2404     		lsls	r4, r4, #16
+ 375 00b4 42EA0626 		orr	r6, r2, r6, lsl #8
+ 376 00b8 0343     		orrs	r3, r3, r0
+ 377 00ba 0A7E     		ldrb	r2, [r1, #24]	@ zero_extendqisi2
+ 378 00bc 44EA0724 		orr	r4, r4, r7, lsl #8
+ 379 00c0 91F82500 		ldrb	r0, [r1, #37]	@ zero_extendqisi2
+ 380 00c4 CF7F     		ldrb	r7, [r1, #31]	@ zero_extendqisi2
+ 381 00c6 43EA0263 		orr	r3, r3, r2, lsl #24
+ 382 00ca 0004     		lsls	r0, r0, #16
+ 383 00cc 91F82920 		ldrb	r2, [r1, #41]	@ zero_extendqisi2
+ 384 00d0 3E43     		orrs	r6, r6, r7
+ 385 00d2 91F82670 		ldrb	r7, [r1, #38]	@ zero_extendqisi2
+ 386 00d6 1493     		str	r3, [sp, #80]
+ 387 00d8 1204     		lsls	r2, r2, #16
+ 388 00da 91F82D30 		ldrb	r3, [r1, #45]	@ zero_extendqisi2
+ 389 00de 40EA0720 		orr	r0, r0, r7, lsl #8
+ 390 00e2 91F82A70 		ldrb	r7, [r1, #42]	@ zero_extendqisi2
+ 391 00e6 91F831C0 		ldrb	ip, [r1, #49]	@ zero_extendqisi2
+ 392 00ea 1B04     		lsls	r3, r3, #16
+ 393 00ec 42EA0722 		orr	r2, r2, r7, lsl #8
+ 394 00f0 91F82E70 		ldrb	r7, [r1, #46]	@ zero_extendqisi2
+ 395 00f4 4FEA0C4C 		lsl	ip, ip, #16
+ 396 00f8 43EA0723 		orr	r3, r3, r7, lsl #8
+ 397 00fc 91F83270 		ldrb	r7, [r1, #50]	@ zero_extendqisi2
+ 398 0100 4CEA072C 		orr	ip, ip, r7, lsl #8
+ 399 0104 91F82370 		ldrb	r7, [r1, #35]	@ zero_extendqisi2
+ 400 0108 3C43     		orrs	r4, r4, r7
+ 401 010a 91F82770 		ldrb	r7, [r1, #39]	@ zero_extendqisi2
+ 402 010e 3843     		orrs	r0, r0, r7
+ARM GAS  /tmp/ccEcCllc.s 			page 8
+
+
+ 403 0110 91F82B70 		ldrb	r7, [r1, #43]	@ zero_extendqisi2
+ 404 0114 3A43     		orrs	r2, r2, r7
+ 405 0116 91F82F70 		ldrb	r7, [r1, #47]	@ zero_extendqisi2
+ 406 011a 3B43     		orrs	r3, r3, r7
+ 407 011c 91F83370 		ldrb	r7, [r1, #51]	@ zero_extendqisi2
+ 408 0120 4CEA0707 		orr	r7, ip, r7
+ 409 0124 91F81CC0 		ldrb	ip, [r1, #28]	@ zero_extendqisi2
+ 410 0128 46EA0C66 		orr	r6, r6, ip, lsl #24
+ 411 012c 1596     		str	r6, [sp, #84]
+ 412 012e 91F82060 		ldrb	r6, [r1, #32]	@ zero_extendqisi2
+ 413 0132 44EA0664 		orr	r4, r4, r6, lsl #24
+ 414 0136 1694     		str	r4, [sp, #88]
+ 415 0138 91F82440 		ldrb	r4, [r1, #36]	@ zero_extendqisi2
+ 416 013c 40EA0460 		orr	r0, r0, r4, lsl #24
+ 417 0140 91F82C40 		ldrb	r4, [r1, #44]	@ zero_extendqisi2
+ 418 0144 1790     		str	r0, [sp, #92]
+ 419 0146 43EA0464 		orr	r4, r3, r4, lsl #24
+ 420 014a 91F82800 		ldrb	r0, [r1, #40]	@ zero_extendqisi2
+ 421 014e 91F83030 		ldrb	r3, [r1, #48]	@ zero_extendqisi2
+ 422 0152 42EA0060 		orr	r0, r2, r0, lsl #24
+ 423 0156 47EA0363 		orr	r3, r7, r3, lsl #24
+ 424 015a 1890     		str	r0, [sp, #96]
+ 425 015c 0EA8     		add	r0, sp, #56
+ 426 015e CDE91943 		strd	r4, r3, [sp, #100]
+ 427 0162 91F83530 		ldrb	r3, [r1, #53]	@ zero_extendqisi2
+ 428 0166 91F83640 		ldrb	r4, [r1, #54]	@ zero_extendqisi2
+ 429 016a 1B04     		lsls	r3, r3, #16
+ 430 016c 91F83920 		ldrb	r2, [r1, #57]	@ zero_extendqisi2
+ 431 0170 91F83D60 		ldrb	r6, [r1, #61]	@ zero_extendqisi2
+ 432 0174 43EA0423 		orr	r3, r3, r4, lsl #8
+ 433 0178 91F83740 		ldrb	r4, [r1, #55]	@ zero_extendqisi2
+ 434 017c 1204     		lsls	r2, r2, #16
+ 435 017e 2343     		orrs	r3, r3, r4
+ 436 0180 91F83440 		ldrb	r4, [r1, #52]	@ zero_extendqisi2
+ 437 0184 3604     		lsls	r6, r6, #16
+ 438 0186 43EA0463 		orr	r3, r3, r4, lsl #24
+ 439 018a 91F83A40 		ldrb	r4, [r1, #58]	@ zero_extendqisi2
+ 440 018e 42EA0422 		orr	r2, r2, r4, lsl #8
+ 441 0192 91F83B40 		ldrb	r4, [r1, #59]	@ zero_extendqisi2
+ 442 0196 1B93     		str	r3, [sp, #108]
+ 443 0198 42EA0403 		orr	r3, r2, r4
+ 444 019c 91F83E20 		ldrb	r2, [r1, #62]	@ zero_extendqisi2
+ 445 01a0 91F83840 		ldrb	r4, [r1, #56]	@ zero_extendqisi2
+ 446 01a4 46EA0226 		orr	r6, r6, r2, lsl #8
+ 447 01a8 91F83F20 		ldrb	r2, [r1, #63]	@ zero_extendqisi2
+ 448 01ac 43EA0463 		orr	r3, r3, r4, lsl #24
+ 449 01b0 1643     		orrs	r6, r6, r2
+ 450 01b2 91F83C20 		ldrb	r2, [r1, #60]	@ zero_extendqisi2
+ 451 01b6 1F46     		mov	r7, r3
+ 452 01b8 1C93     		str	r3, [sp, #112]
+ 453 01ba 46EA0266 		orr	r6, r6, r2, lsl #24
+ 454 01be 1D96     		str	r6, [sp, #116]
+ 455              	.L12:
+ 456 01c0 4FEAF743 		ror	r3, r7, #19
+ 457 01c4 4468     		ldr	r4, [r0, #4]
+ 458 01c6 426A     		ldr	r2, [r0, #36]
+ 459 01c8 0830     		adds	r0, r0, #8
+ARM GAS  /tmp/ccEcCllc.s 			page 9
+
+
+ 460 01ca 83EA7743 		eor	r3, r3, r7, ror #17
+ 461 01ce 83EA9723 		eor	r3, r3, r7, lsr #10
+ 462 01d2 1344     		add	r3, r3, r2
+ 463 01d4 4FEAB442 		ror	r2, r4, #18
+ 464 01d8 82EAF412 		eor	r2, r2, r4, ror #7
+ 465 01dc 82EAD402 		eor	r2, r2, r4, lsr #3
+ 466 01e0 1344     		add	r3, r3, r2
+ 467 01e2 4FEAF642 		ror	r2, r6, #19
+ 468 01e6 5F19     		adds	r7, r3, r5
+ 469 01e8 82EA7642 		eor	r2, r2, r6, ror #17
+ 470 01ec 0568     		ldr	r5, [r0]
+ 471 01ee 036A     		ldr	r3, [r0, #32]
+ 472 01f0 82EA9622 		eor	r2, r2, r6, lsr #10
+ 473 01f4 4FEAF516 		ror	r6, r5, #7
+ 474 01f8 8763     		str	r7, [r0, #56]
+ 475 01fa 1C44     		add	r4, r4, r3
+ 476 01fc 3EAB     		add	r3, sp, #248
+ 477 01fe 86EAB546 		eor	r6, r6, r5, ror #18
+ 478 0202 2244     		add	r2, r2, r4
+ 479 0204 8342     		cmp	r3, r0
+ 480 0206 86EAD506 		eor	r6, r6, r5, lsr #3
+ 481 020a 1644     		add	r6, r6, r2
+ 482 020c C663     		str	r6, [r0, #60]
+ 483 020e D7D1     		bne	.L12
+ 484 0210 DBF89430 		ldr	r3, [fp, #148]
+ 485 0214 DBF89C40 		ldr	r4, [fp, #156]
+ 486 0218 0293     		str	r3, [sp, #8]
+ 487 021a DBF8A430 		ldr	r3, [fp, #164]
+ 488 021e A446     		mov	ip, r4
+ 489 0220 DBF89050 		ldr	r5, [fp, #144]
+ 490 0224 0393     		str	r3, [sp, #12]
+ 491 0226 0DAB     		add	r3, sp, #52
+ 492 0228 DBF89800 		ldr	r0, [fp, #152]
+ 493 022c DBF8A070 		ldr	r7, [fp, #160]
+ 494 0230 0894     		str	r4, [sp, #32]
+ 495 0232 DFF8DCE0 		ldr	lr, .L19+4
+ 496 0236 DDF80CA0 		ldr	r10, [sp, #12]
+ 497 023a DDF80890 		ldr	r9, [sp, #8]
+ 498 023e 0695     		str	r5, [sp, #24]
+ 499 0240 0790     		str	r0, [sp, #28]
+ 500 0242 0997     		str	r7, [sp, #36]
+ 501 0244 0193     		str	r3, [sp, #4]
+ 502 0246 CDF830B0 		str	fp, [sp, #48]
+ 503 024a DBE92226 		ldrd	r2, r6, [fp, #136]
+ 504 024e 1446     		mov	r4, r2
+ 505 0250 0596     		str	r6, [sp, #20]
+ 506 0252 CDE90A12 		strd	r1, r2, [sp, #40]
+ 507 0256 05E0     		b	.L13
+ 508              	.L15:
+ 509 0258 6746     		mov	r7, ip
+ 510 025a 3546     		mov	r5, r6
+ 511 025c 8446     		mov	ip, r0
+ 512 025e 2646     		mov	r6, r4
+ 513 0260 4046     		mov	r0, r8
+ 514 0262 1C46     		mov	r4, r3
+ 515              	.L13:
+ 516 0264 019B     		ldr	r3, [sp, #4]
+ARM GAS  /tmp/ccEcCllc.s 			page 10
+
+
+ 517 0266 27EA0008 		bic	r8, r7, r0
+ 518 026a 5EF8042F 		ldr	r2, [lr, #4]!
+ 519 026e 05EA060B 		and	fp, r5, r6
+ 520 0272 53F8041F 		ldr	r1, [r3, #4]!
+ 521 0276 0193     		str	r3, [sp, #4]
+ 522 0278 4FEAF023 		ror	r3, r0, #11
+ 523 027c 0A44     		add	r2, r2, r1
+ 524 027e 85EA0601 		eor	r1, r5, r6
+ 525 0282 83EAB013 		eor	r3, r3, r0, ror #6
+ 526 0286 2140     		ands	r1, r1, r4
+ 527 0288 83EA7063 		eor	r3, r3, r0, ror #25
+ 528 028c 81EA0B01 		eor	r1, r1, fp
+ 529 0290 1344     		add	r3, r3, r2
+ 530 0292 00EA0C02 		and	r2, r0, ip
+ 531 0296 88EA0208 		eor	r8, r8, r2
+ 532 029a 4FEA7432 		ror	r2, r4, #13
+ 533 029e 82EAB402 		eor	r2, r2, r4, ror #2
+ 534 02a2 4344     		add	r3, r3, r8
+ 535 02a4 82EAB452 		eor	r2, r2, r4, ror #22
+ 536 02a8 5344     		add	r3, r3, r10
+ 537 02aa BA46     		mov	r10, r7
+ 538 02ac 0A44     		add	r2, r2, r1
+ 539 02ae 09EB0308 		add	r8, r9, r3
+ 540 02b2 A946     		mov	r9, r5
+ 541 02b4 1344     		add	r3, r3, r2
+ 542 02b6 154A     		ldr	r2, .L19
+ 543 02b8 7245     		cmp	r2, lr
+ 544 02ba CDD1     		bne	.L15
+ 545 02bc DDE90A12 		ldrd	r1, r2, [sp, #40]
+ 546 02c0 DDF830B0 		ldr	fp, [sp, #48]
+ 547 02c4 03EB020E 		add	lr, r3, r2
+ 548 02c8 089B     		ldr	r3, [sp, #32]
+ 549 02ca 059A     		ldr	r2, [sp, #20]
+ 550 02cc 4031     		adds	r1, r1, #64
+ 551 02ce 1844     		add	r0, r0, r3
+ 552 02d0 099B     		ldr	r3, [sp, #36]
+ 553 02d2 2244     		add	r2, r2, r4
+ 554 02d4 069C     		ldr	r4, [sp, #24]
+ 555 02d6 9C44     		add	ip, ip, r3
+ 556 02d8 039B     		ldr	r3, [sp, #12]
+ 557 02da 2644     		add	r6, r6, r4
+ 558 02dc 029C     		ldr	r4, [sp, #8]
+ 559 02de 1F44     		add	r7, r7, r3
+ 560 02e0 049B     		ldr	r3, [sp, #16]
+ 561 02e2 2544     		add	r5, r5, r4
+ 562 02e4 079C     		ldr	r4, [sp, #28]
+ 563 02e6 0133     		adds	r3, r3, #1
+ 564 02e8 4444     		add	r4, r4, r8
+ 565 02ea 0493     		str	r3, [sp, #16]
+ 566 02ec CBE922E2 		strd	lr, r2, [fp, #136]
+ 567 02f0 0D9A     		ldr	r2, [sp, #52]
+ 568 02f2 9342     		cmp	r3, r2
+ 569 02f4 CBE92465 		strd	r6, r5, [fp, #144]
+ 570 02f8 CBE92640 		strd	r4, r0, [fp, #152]
+ 571 02fc CBE928C7 		strd	ip, r7, [fp, #160]
+ 572 0300 7FF488AE 		bne	.L14
+ 573              	.L10:
+ARM GAS  /tmp/ccEcCllc.s 			page 11
+
+
+ 574 0304 4FB0     		add	sp, sp, #316
+ 575              		@ sp needed
+ 576 0306 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 577              	.L20:
+ 578 030a 00BF     		.align	2
+ 579              	.L19:
+ 580 030c FC000000 		.word	_ZN6SHA2568sha256_kE+252
+ 581 0310 FCFFFFFF 		.word	_ZN6SHA2568sha256_kE-4
+ 583              		.section	.text._ZN6SHA2564initEv,"ax",%progbits
+ 584              		.align	1
+ 585              		.p2align 2,,3
+ 586              		.global	_ZN6SHA2564initEv
+ 587              		.syntax unified
+ 588              		.thumb
+ 589              		.thumb_func
+ 591              	_ZN6SHA2564initEv:
+ 592              		@ args = 0, pretend = 0, frame = 0
+ 593              		@ frame_needed = 0, uses_anonymous_args = 0
+ 594              		@ link register save eliminated.
+ 595 0000 DFF844C0 		ldr	ip, .L22+24
+ 596 0004 0023     		movs	r3, #0
+ 597 0006 0A4A     		ldr	r2, .L22
+ 598 0008 0A49     		ldr	r1, .L22+4
+ 599 000a 0360     		str	r3, [r0]
+ 600 000c C0F89010 		str	r1, [r0, #144]
+ 601 0010 4360     		str	r3, [r0, #4]
+ 602 0012 0949     		ldr	r1, .L22+8
+ 603 0014 094B     		ldr	r3, .L22+12
+ 604 0016 C0E922C2 		strd	ip, r2, [r0, #136]
+ 605 001a 094A     		ldr	r2, .L22+16
+ 606 001c DFF82CC0 		ldr	ip, .L22+28
+ 607 0020 C0F89420 		str	r2, [r0, #148]
+ 608 0024 074A     		ldr	r2, .L22+20
+ 609 0026 C0E926C1 		strd	ip, r1, [r0, #152]
+ 610 002a C0E92823 		strd	r2, r3, [r0, #160]
+ 611 002e 7047     		bx	lr
+ 612              	.L23:
+ 613              		.align	2
+ 614              	.L22:
+ 615 0030 85AE67BB 		.word	-1150833019
+ 616 0034 72F36E3C 		.word	1013904242
+ 617 0038 8C68059B 		.word	-1694144372
+ 618 003c 19CDE05B 		.word	1541459225
+ 619 0040 3AF54FA5 		.word	-1521486534
+ 620 0044 ABD9831F 		.word	528734635
+ 621 0048 67E6096A 		.word	1779033703
+ 622 004c 7F520E51 		.word	1359893119
+ 624              		.section	.text._ZN6SHA2566updateEPKhj,"ax",%progbits
+ 625              		.align	1
+ 626              		.p2align 2,,3
+ 627              		.global	_ZN6SHA2566updateEPKhj
+ 628              		.syntax unified
+ 629              		.thumb
+ 630              		.thumb_func
+ 632              	_ZN6SHA2566updateEPKhj:
+ 633              		@ args = 0, pretend = 0, frame = 8
+ 634              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccEcCllc.s 			page 12
+
+
+ 635 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 636 0002 0446     		mov	r4, r0
+ 637 0004 4068     		ldr	r0, [r0, #4]
+ 638 0006 1546     		mov	r5, r2
+ 639 0008 83B0     		sub	sp, sp, #12
+ 640 000a C0F14002 		rsb	r2, r0, #64
+ 641 000e 0830     		adds	r0, r0, #8
+ 642 0010 0E46     		mov	r6, r1
+ 643 0012 AA42     		cmp	r2, r5
+ 644 0014 2044     		add	r0, r0, r4
+ 645 0016 28BF     		it	cs
+ 646 0018 2A46     		movcs	r2, r5
+ 647 001a 0192     		str	r2, [sp, #4]
+ 648 001c FFF7FEFF 		bl	memcpy
+ 649 0020 6368     		ldr	r3, [r4, #4]
+ 650 0022 019A     		ldr	r2, [sp, #4]
+ 651 0024 2B44     		add	r3, r3, r5
+ 652 0026 3F2B     		cmp	r3, #63
+ 653 0028 02D8     		bhi	.L25
+ 654 002a 6360     		str	r3, [r4, #4]
+ 655 002c 03B0     		add	sp, sp, #12
+ 656              		@ sp needed
+ 657 002e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 658              	.L25:
+ 659 0030 AD1A     		subs	r5, r5, r2
+ 660 0032 04F10803 		add	r3, r4, #8
+ 661 0036 1644     		add	r6, r6, r2
+ 662 0038 2046     		mov	r0, r4
+ 663 003a AF09     		lsrs	r7, r5, #6
+ 664 003c 1946     		mov	r1, r3
+ 665 003e 0193     		str	r3, [sp, #4]
+ 666 0040 FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj.constprop.0
+ 667 0044 3A46     		mov	r2, r7
+ 668 0046 3146     		mov	r1, r6
+ 669 0048 2046     		mov	r0, r4
+ 670 004a FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj
+ 671 004e 05F03F02 		and	r2, r5, #63
+ 672 0052 25F03F05 		bic	r5, r5, #63
+ 673 0056 0198     		ldr	r0, [sp, #4]
+ 674 0058 0192     		str	r2, [sp, #4]
+ 675 005a 7119     		adds	r1, r6, r5
+ 676 005c FFF7FEFF 		bl	memcpy
+ 677 0060 2168     		ldr	r1, [r4]
+ 678 0062 7B1C     		adds	r3, r7, #1
+ 679 0064 019A     		ldr	r2, [sp, #4]
+ 680 0066 01EB8311 		add	r1, r1, r3, lsl #6
+ 681 006a 6260     		str	r2, [r4, #4]
+ 682 006c 2160     		str	r1, [r4]
+ 683 006e 03B0     		add	sp, sp, #12
+ 684              		@ sp needed
+ 685 0070 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 687 0072 00BF     		.section	.text._ZN6SHA2565finalEPh,"ax",%progbits
+ 688              		.align	1
+ 689              		.p2align 2,,3
+ 690              		.global	_ZN6SHA2565finalEPh
+ 691              		.syntax unified
+ 692              		.thumb
+ARM GAS  /tmp/ccEcCllc.s 			page 13
+
+
+ 693              		.thumb_func
+ 695              	_ZN6SHA2565finalEPh:
+ 696              		@ args = 0, pretend = 0, frame = 8
+ 697              		@ frame_needed = 0, uses_anonymous_args = 0
+ 698 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 699 0004 0446     		mov	r4, r0
+ 700 0006 4068     		ldr	r0, [r0, #4]
+ 701 0008 83B0     		sub	sp, sp, #12
+ 702 000a 0D46     		mov	r5, r1
+ 703 000c 00F03F03 		and	r3, r0, #63
+ 704 0010 372B     		cmp	r3, #55
+ 705 0012 40F29380 		bls	.L30
+ 706 0016 0223     		movs	r3, #2
+ 707 0018 7C27     		movs	r7, #124
+ 708 001a 4FF07D08 		mov	r8, #125
+ 709 001e 4FF07E09 		mov	r9, #126
+ 710 0022 4FF07F0A 		mov	r10, #127
+ 711 0026 8022     		movs	r2, #128
+ 712 0028 0193     		str	r3, [sp, #4]
+ 713              	.L29:
+ 714 002a A346     		mov	fp, r4
+ 715 002c 121A     		subs	r2, r2, r0
+ 716 002e 0021     		movs	r1, #0
+ 717 0030 5BF8086B 		ldr	r6, [fp], #8
+ 718 0034 0644     		add	r6, r6, r0
+ 719 0036 5844     		add	r0, r0, fp
+ 720 0038 FFF7FEFF 		bl	memset
+ 721 003c 6368     		ldr	r3, [r4, #4]
+ 722 003e F600     		lsls	r6, r6, #3
+ 723 0040 8021     		movs	r1, #128
+ 724 0042 2344     		add	r3, r3, r4
+ 725 0044 019A     		ldr	r2, [sp, #4]
+ 726 0046 2046     		mov	r0, r4
+ 727 0048 1972     		strb	r1, [r3, #8]
+ 728 004a 330A     		lsrs	r3, r6, #8
+ 729 004c 0BF80A60 		strb	r6, [fp, r10]
+ 730 0050 5946     		mov	r1, fp
+ 731 0052 0BF80930 		strb	r3, [fp, r9]
+ 732 0056 330C     		lsrs	r3, r6, #16
+ 733 0058 360E     		lsrs	r6, r6, #24
+ 734 005a 0BF80830 		strb	r3, [fp, r8]
+ 735 005e 0BF80760 		strb	r6, [fp, r7]
+ 736 0062 FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj
+ 737 0066 D4F88830 		ldr	r3, [r4, #136]
+ 738 006a EB70     		strb	r3, [r5, #3]
+ 739 006c D4F88830 		ldr	r3, [r4, #136]
+ 740 0070 1B0A     		lsrs	r3, r3, #8
+ 741 0072 AB70     		strb	r3, [r5, #2]
+ 742 0074 B4F88A30 		ldrh	r3, [r4, #138]
+ 743 0078 6B70     		strb	r3, [r5, #1]
+ 744 007a 94F88B30 		ldrb	r3, [r4, #139]	@ zero_extendqisi2
+ 745 007e 2B70     		strb	r3, [r5]
+ 746 0080 D4F88C30 		ldr	r3, [r4, #140]
+ 747 0084 EB71     		strb	r3, [r5, #7]
+ 748 0086 D4F88C30 		ldr	r3, [r4, #140]
+ 749 008a 1B0A     		lsrs	r3, r3, #8
+ 750 008c AB71     		strb	r3, [r5, #6]
+ARM GAS  /tmp/ccEcCllc.s 			page 14
+
+
+ 751 008e B4F88E30 		ldrh	r3, [r4, #142]
+ 752 0092 6B71     		strb	r3, [r5, #5]
+ 753 0094 94F88F30 		ldrb	r3, [r4, #143]	@ zero_extendqisi2
+ 754 0098 2B71     		strb	r3, [r5, #4]
+ 755 009a D4F89030 		ldr	r3, [r4, #144]
+ 756 009e EB72     		strb	r3, [r5, #11]
+ 757 00a0 D4F89030 		ldr	r3, [r4, #144]
+ 758 00a4 1B0A     		lsrs	r3, r3, #8
+ 759 00a6 AB72     		strb	r3, [r5, #10]
+ 760 00a8 B4F89230 		ldrh	r3, [r4, #146]
+ 761 00ac 6B72     		strb	r3, [r5, #9]
+ 762 00ae 94F89330 		ldrb	r3, [r4, #147]	@ zero_extendqisi2
+ 763 00b2 2B72     		strb	r3, [r5, #8]
+ 764 00b4 D4F89430 		ldr	r3, [r4, #148]
+ 765 00b8 EB73     		strb	r3, [r5, #15]
+ 766 00ba D4F89430 		ldr	r3, [r4, #148]
+ 767 00be 1B0A     		lsrs	r3, r3, #8
+ 768 00c0 AB73     		strb	r3, [r5, #14]
+ 769 00c2 B4F89630 		ldrh	r3, [r4, #150]
+ 770 00c6 6B73     		strb	r3, [r5, #13]
+ 771 00c8 94F89730 		ldrb	r3, [r4, #151]	@ zero_extendqisi2
+ 772 00cc 2B73     		strb	r3, [r5, #12]
+ 773 00ce D4F89830 		ldr	r3, [r4, #152]
+ 774 00d2 EB74     		strb	r3, [r5, #19]
+ 775 00d4 D4F89830 		ldr	r3, [r4, #152]
+ 776 00d8 1B0A     		lsrs	r3, r3, #8
+ 777 00da AB74     		strb	r3, [r5, #18]
+ 778 00dc B4F89A30 		ldrh	r3, [r4, #154]
+ 779 00e0 6B74     		strb	r3, [r5, #17]
+ 780 00e2 94F89B30 		ldrb	r3, [r4, #155]	@ zero_extendqisi2
+ 781 00e6 2B74     		strb	r3, [r5, #16]
+ 782 00e8 D4F89C30 		ldr	r3, [r4, #156]
+ 783 00ec EB75     		strb	r3, [r5, #23]
+ 784 00ee D4F89C30 		ldr	r3, [r4, #156]
+ 785 00f2 1B0A     		lsrs	r3, r3, #8
+ 786 00f4 AB75     		strb	r3, [r5, #22]
+ 787 00f6 B4F89E30 		ldrh	r3, [r4, #158]
+ 788 00fa 6B75     		strb	r3, [r5, #21]
+ 789 00fc 94F89F30 		ldrb	r3, [r4, #159]	@ zero_extendqisi2
+ 790 0100 2B75     		strb	r3, [r5, #20]
+ 791 0102 D4F8A030 		ldr	r3, [r4, #160]
+ 792 0106 EB76     		strb	r3, [r5, #27]
+ 793 0108 D4F8A030 		ldr	r3, [r4, #160]
+ 794 010c 1B0A     		lsrs	r3, r3, #8
+ 795 010e AB76     		strb	r3, [r5, #26]
+ 796 0110 B4F8A230 		ldrh	r3, [r4, #162]
+ 797 0114 6B76     		strb	r3, [r5, #25]
+ 798 0116 94F8A330 		ldrb	r3, [r4, #163]	@ zero_extendqisi2
+ 799 011a 2B76     		strb	r3, [r5, #24]
+ 800 011c D4F8A430 		ldr	r3, [r4, #164]
+ 801 0120 EB77     		strb	r3, [r5, #31]
+ 802 0122 D4F8A430 		ldr	r3, [r4, #164]
+ 803 0126 1B0A     		lsrs	r3, r3, #8
+ 804 0128 AB77     		strb	r3, [r5, #30]
+ 805 012a B4F8A630 		ldrh	r3, [r4, #166]
+ 806 012e 6B77     		strb	r3, [r5, #29]
+ 807 0130 94F8A730 		ldrb	r3, [r4, #167]	@ zero_extendqisi2
+ARM GAS  /tmp/ccEcCllc.s 			page 15
+
+
+ 808 0134 2B77     		strb	r3, [r5, #28]
+ 809 0136 03B0     		add	sp, sp, #12
+ 810              		@ sp needed
+ 811 0138 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 812              	.L30:
+ 813 013c 0123     		movs	r3, #1
+ 814 013e 3C27     		movs	r7, #60
+ 815 0140 4FF03D08 		mov	r8, #61
+ 816 0144 4FF03E09 		mov	r9, #62
+ 817 0148 4FF03F0A 		mov	r10, #63
+ 818 014c 4022     		movs	r2, #64
+ 819 014e 0193     		str	r3, [sp, #4]
+ 820 0150 6BE7     		b	.L29
+ 822 0152 00BF     		.section	.text._Z6sha256Phi,"ax",%progbits
+ 823              		.align	1
+ 824              		.p2align 2,,3
+ 825              		.global	_Z6sha256Phi
+ 826              		.syntax unified
+ 827              		.thumb
+ 828              		.thumb_func
+ 830              	_Z6sha256Phi:
+ 831              		@ args = 0, pretend = 0, frame = 208
+ 832              		@ frame_needed = 0, uses_anonymous_args = 0
+ 833 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 834 0004 B5B0     		sub	sp, sp, #212
+ 835 0006 9346     		mov	fp, r2
+ 836 0008 0F46     		mov	r7, r1
+ 837 000a 2022     		movs	r2, #32
+ 838 000c 0021     		movs	r1, #0
+ 839 000e 0546     		mov	r5, r0
+ 840 0010 02A8     		add	r0, sp, #8
+ 841 0012 0CAE     		add	r6, sp, #48
+ 842 0014 FFF7FEFF 		bl	memset
+ 843 0018 584A     		ldr	r2, .L38
+ 844 001a 594B     		ldr	r3, .L38+4
+ 845 001c 5949     		ldr	r1, .L38+8
+ 846 001e 5A48     		ldr	r0, .L38+12
+ 847 0020 CDE92C23 		strd	r2, r3, [sp, #176]
+ 848 0024 594B     		ldr	r3, .L38+16
+ 849 0026 5A46     		mov	r2, fp
+ 850 0028 CDE92E13 		strd	r1, r3, [sp, #184]
+ 851 002c 584B     		ldr	r3, .L38+20
+ 852 002e 402A     		cmp	r2, #64
+ 853 0030 3946     		mov	r1, r7
+ 854 0032 28BF     		it	cs
+ 855 0034 4022     		movcs	r2, #64
+ 856 0036 CDE93003 		strd	r0, r3, [sp, #192]
+ 857 003a 564B     		ldr	r3, .L38+24
+ 858 003c 3046     		mov	r0, r6
+ 859 003e 3293     		str	r3, [sp, #200]
+ 860 0040 03F17453 		add	r3, r3, #1023410176
+ 861 0044 A3F52303 		sub	r3, r3, #10682368
+ 862 0048 A3F69243 		subw	r3, r3, #3218
+ 863 004c 3393     		str	r3, [sp, #204]
+ 864 004e 0023     		movs	r3, #0
+ 865 0050 CDE90A33 		strd	r3, r3, [sp, #40]
+ 866 0054 FFF7FEFF 		bl	memcpy
+ARM GAS  /tmp/ccEcCllc.s 			page 16
+
+
+ 867 0058 BBF13F0F 		cmp	fp, #63
+ 868 005c 6ED8     		bhi	.L33
+ 869 005e 5C46     		mov	r4, fp
+ 870 0060 5B46     		mov	r3, fp
+ 871 0062 CDF82CB0 		str	fp, [sp, #44]
+ 872              	.L34:
+ 873 0066 372B     		cmp	r3, #55
+ 874 0068 5DD9     		bls	.L36
+ 875 006a 0223     		movs	r3, #2
+ 876 006c 7C27     		movs	r7, #124
+ 877 006e 4FF07D08 		mov	r8, #125
+ 878 0072 4FF07E09 		mov	r9, #126
+ 879 0076 4FF07F0A 		mov	r10, #127
+ 880 007a 8022     		movs	r2, #128
+ 881 007c 0193     		str	r3, [sp, #4]
+ 882              	.L35:
+ 883 007e A2EB0B02 		sub	r2, r2, fp
+ 884 0082 06EB0B00 		add	r0, r6, fp
+ 885 0086 0021     		movs	r1, #0
+ 886 0088 E400     		lsls	r4, r4, #3
+ 887 008a FFF7FEFF 		bl	memset
+ 888 008e 0B9B     		ldr	r3, [sp, #44]
+ 889 0090 3146     		mov	r1, r6
+ 890 0092 8026     		movs	r6, #128
+ 891 0094 6B44     		add	r3, sp, r3
+ 892 0096 EA44     		add	r10, sp, r10
+ 893 0098 E944     		add	r9, sp, r9
+ 894 009a E844     		add	r8, sp, r8
+ 895 009c 83F83060 		strb	r6, [r3, #48]
+ 896 00a0 230A     		lsrs	r3, r4, #8
+ 897 00a2 8AF83040 		strb	r4, [r10, #48]
+ 898 00a6 6F44     		add	r7, sp, r7
+ 899 00a8 89F83030 		strb	r3, [r9, #48]
+ 900 00ac 230C     		lsrs	r3, r4, #16
+ 901 00ae 240E     		lsrs	r4, r4, #24
+ 902 00b0 019A     		ldr	r2, [sp, #4]
+ 903 00b2 88F83030 		strb	r3, [r8, #48]
+ 904 00b6 0AA8     		add	r0, sp, #40
+ 905 00b8 87F83040 		strb	r4, [r7, #48]
+ 906 00bc FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj
+ 907 00c0 2E9B     		ldr	r3, [sp, #184]
+ 908 00c2 2020     		movs	r0, #32
+ 909 00c4 1BBA     		rev	r3, r3
+ 910 00c6 DDE92C12 		ldrd	r1, r2, [sp, #176]
+ 911 00ca 12BA     		rev	r2, r2
+ 912 00cc 09BA     		rev	r1, r1
+ 913 00ce CDE90323 		strd	r2, r3, [sp, #12]
+ 914 00d2 DDE92F23 		ldrd	r2, r3, [sp, #188]
+ 915 00d6 0291     		str	r1, [sp, #8]
+ 916 00d8 12BA     		rev	r2, r2
+ 917 00da 1BBA     		rev	r3, r3
+ 918 00dc 0592     		str	r2, [sp, #20]
+ 919 00de 0693     		str	r3, [sp, #24]
+ 920 00e0 DDE93123 		ldrd	r2, r3, [sp, #196]
+ 921 00e4 1BBA     		rev	r3, r3
+ 922 00e6 12BA     		rev	r2, r2
+ 923 00e8 0893     		str	r3, [sp, #32]
+ARM GAS  /tmp/ccEcCllc.s 			page 17
+
+
+ 924 00ea 339B     		ldr	r3, [sp, #204]
+ 925 00ec 0792     		str	r2, [sp, #28]
+ 926 00ee 1BBA     		rev	r3, r3
+ 927 00f0 0993     		str	r3, [sp, #36]
+ 928 00f2 FFF7FEFF 		bl	_Znwj
+ 929 00f6 0DF1080C 		add	ip, sp, #8
+ 930 00fa 00F12003 		add	r3, r0, #32
+ 931 00fe 0446     		mov	r4, r0
+ 932 0100 2860     		str	r0, [r5]
+ 933 0102 C5E90133 		strd	r3, r3, [r5, #4]
+ 934 0106 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 935 010a 2060     		str	r0, [r4]	@ unaligned
+ 936 010c 6160     		str	r1, [r4, #4]	@ unaligned
+ 937 010e A260     		str	r2, [r4, #8]	@ unaligned
+ 938 0110 E360     		str	r3, [r4, #12]	@ unaligned
+ 939 0112 BCE80F00 		ldmia	ip!, {r0, r1, r2, r3}
+ 940 0116 2061     		str	r0, [r4, #16]	@ unaligned
+ 941 0118 2846     		mov	r0, r5
+ 942 011a 6161     		str	r1, [r4, #20]	@ unaligned
+ 943 011c A261     		str	r2, [r4, #24]	@ unaligned
+ 944 011e E361     		str	r3, [r4, #28]	@ unaligned
+ 945 0120 35B0     		add	sp, sp, #212
+ 946              		@ sp needed
+ 947 0122 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 948              	.L36:
+ 949 0126 0123     		movs	r3, #1
+ 950 0128 3C27     		movs	r7, #60
+ 951 012a 4FF03D08 		mov	r8, #61
+ 952 012e 4FF03E09 		mov	r9, #62
+ 953 0132 4FF03F0A 		mov	r10, #63
+ 954 0136 4022     		movs	r2, #64
+ 955 0138 0193     		str	r3, [sp, #4]
+ 956 013a A0E7     		b	.L35
+ 957              	.L33:
+ 958 013c ABF14008 		sub	r8, fp, #64
+ 959 0140 4037     		adds	r7, r7, #64
+ 960 0142 3146     		mov	r1, r6
+ 961 0144 0AA8     		add	r0, sp, #40
+ 962 0146 4FEA9814 		lsr	r4, r8, #6
+ 963 014a 08F03F0B 		and	fp, r8, #63
+ 964 014e FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj.constprop.0
+ 965 0152 3946     		mov	r1, r7
+ 966 0154 2246     		mov	r2, r4
+ 967 0156 0AA8     		add	r0, sp, #40
+ 968 0158 0134     		adds	r4, r4, #1
+ 969 015a FFF7FEFF 		bl	_ZN6SHA2569transformEPKhj
+ 970 015e 28F03F01 		bic	r1, r8, #63
+ 971 0162 5A46     		mov	r2, fp
+ 972 0164 A401     		lsls	r4, r4, #6
+ 973 0166 3046     		mov	r0, r6
+ 974 0168 3944     		add	r1, r1, r7
+ 975 016a FFF7FEFF 		bl	memcpy
+ 976 016e 0A94     		str	r4, [sp, #40]
+ 977 0170 5B46     		mov	r3, fp
+ 978 0172 5C44     		add	r4, r4, fp
+ 979 0174 CDF82CB0 		str	fp, [sp, #44]
+ 980 0178 75E7     		b	.L34
+ARM GAS  /tmp/ccEcCllc.s 			page 18
+
+
+ 981              	.L39:
+ 982 017a 00BF     		.align	2
+ 983              	.L38:
+ 984 017c 67E6096A 		.word	1779033703
+ 985 0180 85AE67BB 		.word	-1150833019
+ 986 0184 72F36E3C 		.word	1013904242
+ 987 0188 7F520E51 		.word	1359893119
+ 988 018c 3AF54FA5 		.word	-1521486534
+ 989 0190 8C68059B 		.word	-1694144372
+ 990 0194 ABD9831F 		.word	528734635
+ 992              		.global	_ZN6SHA2568sha256_kE
+ 993              		.section	.rodata._ZN6SHA2568sha256_kE,"a"
+ 994              		.align	2
+ 997              	_ZN6SHA2568sha256_kE:
+ 998 0000 982F8A42 		.word	1116352408
+ 999 0004 91443771 		.word	1899447441
+ 1000 0008 CFFBC0B5 		.word	-1245643825
+ 1001 000c A5DBB5E9 		.word	-373957723
+ 1002 0010 5BC25639 		.word	961987163
+ 1003 0014 F111F159 		.word	1508970993
+ 1004 0018 A4823F92 		.word	-1841331548
+ 1005 001c D55E1CAB 		.word	-1424204075
+ 1006 0020 98AA07D8 		.word	-670586216
+ 1007 0024 015B8312 		.word	310598401
+ 1008 0028 BE853124 		.word	607225278
+ 1009 002c C37D0C55 		.word	1426881987
+ 1010 0030 745DBE72 		.word	1925078388
+ 1011 0034 FEB1DE80 		.word	-2132889090
+ 1012 0038 A706DC9B 		.word	-1680079193
+ 1013 003c 74F19BC1 		.word	-1046744716
+ 1014 0040 C1699BE4 		.word	-459576895
+ 1015 0044 8647BEEF 		.word	-272742522
+ 1016 0048 C69DC10F 		.word	264347078
+ 1017 004c CCA10C24 		.word	604807628
+ 1018 0050 6F2CE92D 		.word	770255983
+ 1019 0054 AA84744A 		.word	1249150122
+ 1020 0058 DCA9B05C 		.word	1555081692
+ 1021 005c DA88F976 		.word	1996064986
+ 1022 0060 52513E98 		.word	-1740746414
+ 1023 0064 6DC631A8 		.word	-1473132947
+ 1024 0068 C82703B0 		.word	-1341970488
+ 1025 006c C77F59BF 		.word	-1084653625
+ 1026 0070 F30BE0C6 		.word	-958395405
+ 1027 0074 4791A7D5 		.word	-710438585
+ 1028 0078 5163CA06 		.word	113926993
+ 1029 007c 67292914 		.word	338241895
+ 1030 0080 850AB727 		.word	666307205
+ 1031 0084 38211B2E 		.word	773529912
+ 1032 0088 FC6D2C4D 		.word	1294757372
+ 1033 008c 130D3853 		.word	1396182291
+ 1034 0090 54730A65 		.word	1695183700
+ 1035 0094 BB0A6A76 		.word	1986661051
+ 1036 0098 2EC9C281 		.word	-2117940946
+ 1037 009c 852C7292 		.word	-1838011259
+ 1038 00a0 A1E8BFA2 		.word	-1564481375
+ 1039 00a4 4B661AA8 		.word	-1474664885
+ 1040 00a8 708B4BC2 		.word	-1035236496
+ARM GAS  /tmp/ccEcCllc.s 			page 19
+
+
+ 1041 00ac A3516CC7 		.word	-949202525
+ 1042 00b0 19E892D1 		.word	-778901479
+ 1043 00b4 240699D6 		.word	-694614492
+ 1044 00b8 85350EF4 		.word	-200395387
+ 1045 00bc 70A06A10 		.word	275423344
+ 1046 00c0 16C1A419 		.word	430227734
+ 1047 00c4 086C371E 		.word	506948616
+ 1048 00c8 4C774827 		.word	659060556
+ 1049 00cc B5BCB034 		.word	883997877
+ 1050 00d0 B30C1C39 		.word	958139571
+ 1051 00d4 4AAAD84E 		.word	1322822218
+ 1052 00d8 4FCA9C5B 		.word	1537002063
+ 1053 00dc F36F2E68 		.word	1747873779
+ 1054 00e0 EE828F74 		.word	1955562222
+ 1055 00e4 6F63A578 		.word	2024104815
+ 1056 00e8 1478C884 		.word	-2067236844
+ 1057 00ec 0802C78C 		.word	-1933114872
+ 1058 00f0 FAFFBE90 		.word	-1866530822
+ 1059 00f4 EB6C50A4 		.word	-1538233109
+ 1060 00f8 F7A3F9BE 		.word	-1090935817
+ 1061 00fc F27871C6 		.word	-965641998
+ 1062              		.ident	"GCC: (Fedora 15.2.0-1.fc43) 15.2.0"
+ARM GAS  /tmp/ccEcCllc.s 			page 20
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Sha256.cpp
+     /tmp/ccEcCllc.s:17     .text._ZN6SHA2569transformEPKhj.constprop.0:00000000 $t
+     /tmp/ccEcCllc.s:23     .text._ZN6SHA2569transformEPKhj.constprop.0:00000000 _ZN6SHA2569transformEPKhj.constprop.0
+     /tmp/ccEcCllc.s:288    .text._ZN6SHA2569transformEPKhj.constprop.0:0000032c $d
+     /tmp/ccEcCllc.s:997    .rodata._ZN6SHA2568sha256_kE:00000000 _ZN6SHA2568sha256_kE
+     /tmp/ccEcCllc.s:292    .text._ZN6SHA2569transformEPKhj:00000000 $t
+     /tmp/ccEcCllc.s:299    .text._ZN6SHA2569transformEPKhj:00000000 _ZN6SHA2569transformEPKhj
+     /tmp/ccEcCllc.s:580    .text._ZN6SHA2569transformEPKhj:0000030c $d
+     /tmp/ccEcCllc.s:584    .text._ZN6SHA2564initEv:00000000 $t
+     /tmp/ccEcCllc.s:591    .text._ZN6SHA2564initEv:00000000 _ZN6SHA2564initEv
+     /tmp/ccEcCllc.s:615    .text._ZN6SHA2564initEv:00000030 $d
+     /tmp/ccEcCllc.s:625    .text._ZN6SHA2566updateEPKhj:00000000 $t
+     /tmp/ccEcCllc.s:632    .text._ZN6SHA2566updateEPKhj:00000000 _ZN6SHA2566updateEPKhj
+     /tmp/ccEcCllc.s:688    .text._ZN6SHA2565finalEPh:00000000 $t
+     /tmp/ccEcCllc.s:695    .text._ZN6SHA2565finalEPh:00000000 _ZN6SHA2565finalEPh
+     /tmp/ccEcCllc.s:823    .text._Z6sha256Phi:00000000 $t
+     /tmp/ccEcCllc.s:830    .text._Z6sha256Phi:00000000 _Z6sha256Phi
+     /tmp/ccEcCllc.s:984    .text._Z6sha256Phi:0000017c $d
+     /tmp/ccEcCllc.s:994    .rodata._ZN6SHA2568sha256_kE:00000000 $d
+
+UNDEFINED SYMBOLS
+memcpy
+memset
+_Znwj

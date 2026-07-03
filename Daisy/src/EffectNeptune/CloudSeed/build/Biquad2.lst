@@ -1,0 +1,1192 @@
+ARM GAS  /tmp/ccF4OKCp.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"Biquad2.cpp"
+  15              		.text
+  16              		.section	.text._ZN8AudioLib7Biquad2C2Ev,"ax",%progbits
+  17              		.align	1
+  18              		.p2align 2,,3
+  19              		.global	_ZN8AudioLib7Biquad2C2Ev
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	_ZN8AudioLib7Biquad2C2Ev:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 0023     		movs	r3, #0
+  29 0002 C362     		str	r3, [r0, #44]	@ float
+  30 0004 8362     		str	r3, [r0, #40]	@ float
+  31 0006 4363     		str	r3, [r0, #52]	@ float
+  32 0008 4362     		str	r3, [r0, #36]	@ float
+  33 000a 0363     		str	r3, [r0, #48]	@ float
+  34 000c 7047     		bx	lr
+  36              		.global	_ZN8AudioLib7Biquad2C1Ev
+  37              		.thumb_set _ZN8AudioLib7Biquad2C1Ev,_ZN8AudioLib7Biquad2C2Ev
+  38 000e 00BF     		.section	.text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf,"ax",%progbits
+  39              		.align	1
+  40              		.p2align 2,,3
+  41              		.global	_ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf
+  42              		.syntax unified
+  43              		.thumb
+  44              		.thumb_func
+  46              	_ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:
+  47              		@ args = 0, pretend = 0, frame = 8
+  48              		@ frame_needed = 0, uses_anonymous_args = 0
+  49 0000 00B5     		push	{lr}
+  50 0002 2DED048B 		vpush.64	{d8, d9}
+  51 0006 F5EE008A 		vmov.f32	s17, #2.5e-1
+  52 000a 83B0     		sub	sp, sp, #12
+  53 000c B7EEC06A 		vcvt.f64.f32	d6, s0
+  54 0010 B0EE409A 		vmov.f32	s18, s0
+  55 0014 0190     		str	r0, [sp, #4]
+  56 0016 60EE288A 		vmul.f32	s17, s0, s17
+  57 001a 0091     		str	r1, [sp]
+  58 001c 9FED9C5B 		vldr.64	d5, .L19
+  59 0020 B7EEE87A 		vcvt.f64.f32	d7, s17
+  60 0024 27EE057B 		vmul.f64	d7, d7, d5
+ARM GAS  /tmp/ccF4OKCp.s 			page 2
+
+
+  61 0028 87EE060B 		vdiv.f64	d0, d7, d6
+  62 002c B7EEC08B 		vcvt.f32.f64	s16, d0
+  63 0030 B0EE480A 		vmov.f32	s0, s16
+  64 0034 FFF7FEFF 		bl	sinf
+  65 0038 F0EE407A 		vmov.f32	s15, s0
+  66 003c B0EE480A 		vmov.f32	s0, s16
+  67 0040 B0EE678A 		vmov.f32	s16, s15
+  68 0044 FFF7FEFF 		bl	cosf
+  69 0048 0099     		ldr	r1, [sp]
+  70 004a 0198     		ldr	r0, [sp, #4]
+  71 004c 4B1F     		subs	r3, r1, #5
+  72 004e 012B     		cmp	r3, #1
+  73 0050 0AD9     		bls	.L18
+  74 0052 DFED914A 		vldr.32	s9, .L19+8
+  75              	.L4:
+  76 0056 0629     		cmp	r1, #6
+  77 0058 00F20C81 		bhi	.L15
+  78 005c DFE801F0 		tbb	[pc, r1]
+  79              	.L7:
+  80 0060 64       		.byte	(.L13-.L7)/2
+  81 0061 81       		.byte	(.L12-.L7)/2
+  82 0062 9E       		.byte	(.L11-.L7)/2
+  83 0063 B7       		.byte	(.L10-.L7)/2
+  84 0064 CC       		.byte	(.L9-.L7)/2
+  85 0065 E3       		.byte	(.L8-.L7)/2
+  86 0066 0F       		.byte	(.L6-.L7)/2
+  87 0067 00       		.p2align 1
+  88              	.L18:
+  89 0068 F6EE007A 		vmov.f32	s15, #5.0e-1
+  90 006c 9FED8B7A 		vldr.32	s14, .L19+12
+  91 0070 F0EE004A 		vmov.f32	s9, #2.0e+0
+  92 0074 68EE277A 		vmul.f32	s15, s16, s15
+  93 0078 27EE878A 		vmul.f32	s16, s15, s14
+  94 007c EBE7     		b	.L4
+  95              	.L6:
+  96 007e F0EE006A 		vmov.f32	s13, #2.0e+0
+  97 0082 DFED857A 		vldr.32	s15, .L19+8
+  98 0086 F8EE003A 		vmov.f32	s7, #-2.0e+0
+  99 008a B0EE677A 		vmov.f32	s14, s15
+ 100 008e B0EE666A 		vmov.f32	s12, s13
+ 101 0092 B0EE665A 		vmov.f32	s10, s13
+ 102 0096 A0EE267A 		vfma.f32	s14, s0, s13
+ 103 009a A0EE676A 		vfms.f32	s12, s0, s15
+ 104 009e A0EE275A 		vfma.f32	s10, s0, s15
+ 105 00a2 E0EE667A 		vfms.f32	s15, s0, s13
+ 106 00a6 B7EE004A 		vmov.f32	s8, #1.0e+0
+ 107 00aa 27EE237A 		vmul.f32	s14, s14, s7
+ 108 00ae F0EE465A 		vmov.f32	s11, s12
+ 109 00b2 F0EE456A 		vmov.f32	s13, s10
+ 110 00b6 A8EE646A 		vfms.f32	s12, s16, s9
+ 111 00ba E8EE245A 		vfma.f32	s11, s16, s9
+ 112 00be E8EE246A 		vfma.f32	s13, s16, s9
+ 113 00c2 A8EE645A 		vfms.f32	s10, s16, s9
+ 114 00c6 77EEA77A 		vadd.f32	s15, s15, s15
+ 115              	.L17:
+ 116 00ca C4EE254A 		vdiv.f32	s9, s8, s11
+ 117 00ce 27EEA40A 		vmul.f32	s0, s15, s9
+ARM GAS  /tmp/ccF4OKCp.s 			page 3
+
+
+ 118 00d2 66EEA46A 		vmul.f32	s13, s13, s9
+ 119 00d6 27EE247A 		vmul.f32	s14, s14, s9
+ 120 00da 25EE245A 		vmul.f32	s10, s10, s9
+ 121 00de 66EE247A 		vmul.f32	s15, s12, s9
+ 122              	.L5:
+ 123 00e2 0023     		movs	r3, #0
+ 124 00e4 4FF07E52 		mov	r2, #1065353216
+ 125 00e8 4FF07C5C 		mov	ip, #1056964608
+ 126 00ec C163     		str	r1, [r0, #60]
+ 127 00ee C0ED118A 		vstr.32	s17, [r0, #68]
+ 128 00f2 80ED009A 		vstr.32	s18, [r0]
+ 129 00f6 8264     		str	r2, [r0, #72]	@ float
+ 130 00f8 8263     		str	r2, [r0, #56]	@ float
+ 131 00fa C0F808C0 		str	ip, [r0, #8]	@ float
+ 132 00fe C362     		str	r3, [r0, #44]	@ float
+ 133 0100 8362     		str	r3, [r0, #40]	@ float
+ 134 0102 4363     		str	r3, [r0, #52]	@ float
+ 135 0104 4362     		str	r3, [r0, #36]	@ float
+ 136 0106 0363     		str	r3, [r0, #48]	@ float
+ 137 0108 C0ED035A 		vstr.32	s11, [r0, #12]
+ 138 010c C0ED066A 		vstr.32	s13, [r0, #24]
+ 139 0110 80ED077A 		vstr.32	s14, [r0, #28]
+ 140 0114 80ED085A 		vstr.32	s10, [r0, #32]
+ 141 0118 80ED040A 		vstr.32	s0, [r0, #16]
+ 142 011c C0ED057A 		vstr.32	s15, [r0, #20]
+ 143 0120 03B0     		add	sp, sp, #12
+ 144              		@ sp needed
+ 145 0122 BDEC048B 		vldm	sp!, {d8-d9}
+ 146 0126 00BD     		pop	{pc}
+ 147              	.L13:
+ 148 0128 B7EE005A 		vmov.f32	s10, #1.0e+0
+ 149 012c F6EE006A 		vmov.f32	s13, #5.0e-1
+ 150 0130 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 151 0134 78EE055A 		vadd.f32	s11, s16, s10
+ 152 0138 35EE407A 		vsub.f32	s14, s10, s0
+ 153 013c 20EE270A 		vmul.f32	s0, s0, s15
+ 154 0140 85EE256A 		vdiv.f32	s12, s10, s11
+ 155 0144 67EE266A 		vmul.f32	s13, s14, s13
+ 156 0148 75EE487A 		vsub.f32	s15, s10, s16
+ 157 014c 66EE866A 		vmul.f32	s13, s13, s12
+ 158 0150 27EE067A 		vmul.f32	s14, s14, s12
+ 159 0154 20EE060A 		vmul.f32	s0, s0, s12
+ 160 0158 67EE867A 		vmul.f32	s15, s15, s12
+ 161 015c B0EE665A 		vmov.f32	s10, s13
+ 162 0160 BFE7     		b	.L5
+ 163              	.L12:
+ 164 0162 B7EE005A 		vmov.f32	s10, #1.0e+0
+ 165 0166 F6EE006A 		vmov.f32	s13, #5.0e-1
+ 166 016a F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 167 016e 78EE055A 		vadd.f32	s11, s16, s10
+ 168 0172 30EE057A 		vadd.f32	s14, s0, s10
+ 169 0176 20EE270A 		vmul.f32	s0, s0, s15
+ 170 017a 85EE256A 		vdiv.f32	s12, s10, s11
+ 171 017e 67EE266A 		vmul.f32	s13, s14, s13
+ 172 0182 75EE487A 		vsub.f32	s15, s10, s16
+ 173 0186 66EE866A 		vmul.f32	s13, s13, s12
+ 174 018a 27EE467A 		vnmul.f32	s14, s14, s12
+ARM GAS  /tmp/ccF4OKCp.s 			page 4
+
+
+ 175 018e 20EE060A 		vmul.f32	s0, s0, s12
+ 176 0192 67EE867A 		vmul.f32	s15, s15, s12
+ 177 0196 B0EE665A 		vmov.f32	s10, s13
+ 178 019a A2E7     		b	.L5
+ 179              	.L11:
+ 180 019c F7EE006A 		vmov.f32	s13, #1.0e+0
+ 181 01a0 9FED3D7A 		vldr.32	s14, .L19+8
+ 182 01a4 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 183 01a8 78EE265A 		vadd.f32	s11, s16, s13
+ 184 01ac 20EE270A 		vmul.f32	s0, s0, s15
+ 185 01b0 76EEC87A 		vsub.f32	s15, s13, s16
+ 186 01b4 86EEA56A 		vdiv.f32	s12, s13, s11
+ 187 01b8 68EE066A 		vmul.f32	s13, s16, s12
+ 188 01bc 26EE077A 		vmul.f32	s14, s12, s14
+ 189 01c0 20EE060A 		vmul.f32	s0, s0, s12
+ 190 01c4 67EE867A 		vmul.f32	s15, s15, s12
+ 191 01c8 B1EE665A 		vneg.f32	s10, s13
+ 192 01cc 89E7     		b	.L5
+ 193              	.L10:
+ 194 01ce B7EE006A 		vmov.f32	s12, #1.0e+0
+ 195 01d2 B8EE007A 		vmov.f32	s14, #-2.0e+0
+ 196 01d6 78EE065A 		vadd.f32	s11, s16, s12
+ 197 01da 20EE077A 		vmul.f32	s14, s0, s14
+ 198 01de 76EE487A 		vsub.f32	s15, s12, s16
+ 199 01e2 C6EE256A 		vdiv.f32	s13, s12, s11
+ 200 01e6 27EE267A 		vmul.f32	s14, s14, s13
+ 201 01ea 67EEA67A 		vmul.f32	s15, s15, s13
+ 202 01ee B0EE665A 		vmov.f32	s10, s13
+ 203 01f2 B0EE470A 		vmov.f32	s0, s14
+ 204 01f6 74E7     		b	.L5
+ 205              	.L9:
+ 206 01f8 F7EE007A 		vmov.f32	s15, #1.0e+0
+ 207 01fc B8EE007A 		vmov.f32	s14, #-2.0e+0
+ 208 0200 78EE275A 		vadd.f32	s11, s16, s15
+ 209 0204 20EE077A 		vmul.f32	s14, s0, s14
+ 210 0208 37EEC85A 		vsub.f32	s10, s15, s16
+ 211 020c C7EEA56A 		vdiv.f32	s13, s15, s11
+ 212 0210 27EE267A 		vmul.f32	s14, s14, s13
+ 213 0214 25EE265A 		vmul.f32	s10, s10, s13
+ 214 0218 65EEA66A 		vmul.f32	s13, s11, s13
+ 215 021c B0EE470A 		vmov.f32	s0, s14
+ 216 0220 F0EE457A 		vmov.f32	s15, s10
+ 217 0224 5DE7     		b	.L5
+ 218              	.L8:
+ 219 0226 F0EE006A 		vmov.f32	s13, #2.0e+0
+ 220 022a DFED1B7A 		vldr.32	s15, .L19+8
+ 221 022e F8EE003A 		vmov.f32	s7, #-2.0e+0
+ 222 0232 B0EE677A 		vmov.f32	s14, s15
+ 223 0236 B0EE666A 		vmov.f32	s12, s13
+ 224 023a B0EE665A 		vmov.f32	s10, s13
+ 225 023e A0EE667A 		vfms.f32	s14, s0, s13
+ 226 0242 A0EE276A 		vfma.f32	s12, s0, s15
+ 227 0246 A0EE675A 		vfms.f32	s10, s0, s15
+ 228 024a E0EE267A 		vfma.f32	s15, s0, s13
+ 229 024e B7EE004A 		vmov.f32	s8, #1.0e+0
+ 230 0252 37EE077A 		vadd.f32	s14, s14, s14
+ 231 0256 F0EE465A 		vmov.f32	s11, s12
+ARM GAS  /tmp/ccF4OKCp.s 			page 5
+
+
+ 232 025a F0EE456A 		vmov.f32	s13, s10
+ 233 025e A8EE646A 		vfms.f32	s12, s16, s9
+ 234 0262 E8EE245A 		vfma.f32	s11, s16, s9
+ 235 0266 E8EE246A 		vfma.f32	s13, s16, s9
+ 236 026a A8EE645A 		vfms.f32	s10, s16, s9
+ 237 026e 67EEA37A 		vmul.f32	s15, s15, s7
+ 238 0272 2AE7     		b	.L17
+ 239              	.L15:
+ 240 0274 F7EE005A 		vmov.f32	s11, #1.0e+0
+ 241 0278 DFED077A 		vldr.32	s15, .L19+8
+ 242 027c B0EE670A 		vmov.f32	s0, s15
+ 243 0280 B0EE675A 		vmov.f32	s10, s15
+ 244 0284 B0EE677A 		vmov.f32	s14, s15
+ 245 0288 F0EE656A 		vmov.f32	s13, s11
+ 246 028c 29E7     		b	.L5
+ 247              	.L20:
+ 248 028e 00BF     		.align	3
+ 249              	.L19:
+ 250 0290 182D4454 		.word	1413754136
+ 251 0294 FB211940 		.word	1075388923
+ 252 0298 00000000 		.word	0
+ 253 029c F304B53F 		.word	1068827891
+ 255              		.global	_ZN8AudioLib7Biquad2C1ENS0_10FilterTypeEf
+ 256              		.thumb_set _ZN8AudioLib7Biquad2C1ENS0_10FilterTypeEf,_ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf
+ 257              		.section	.text._ZN8AudioLib7Biquad2D2Ev,"ax",%progbits
+ 258              		.align	1
+ 259              		.p2align 2,,3
+ 260              		.global	_ZN8AudioLib7Biquad2D2Ev
+ 261              		.syntax unified
+ 262              		.thumb
+ 263              		.thumb_func
+ 265              	_ZN8AudioLib7Biquad2D2Ev:
+ 266              		@ args = 0, pretend = 0, frame = 0
+ 267              		@ frame_needed = 0, uses_anonymous_args = 0
+ 268              		@ link register save eliminated.
+ 269 0000 7047     		bx	lr
+ 271              		.global	_ZN8AudioLib7Biquad2D1Ev
+ 272              		.thumb_set _ZN8AudioLib7Biquad2D1Ev,_ZN8AudioLib7Biquad2D2Ev
+ 273 0002 00BF     		.section	.text._ZN8AudioLib7Biquad213GetSamplerateEv,"ax",%progbits
+ 274              		.align	1
+ 275              		.p2align 2,,3
+ 276              		.global	_ZN8AudioLib7Biquad213GetSamplerateEv
+ 277              		.syntax unified
+ 278              		.thumb
+ 279              		.thumb_func
+ 281              	_ZN8AudioLib7Biquad213GetSamplerateEv:
+ 282              		@ args = 0, pretend = 0, frame = 0
+ 283              		@ frame_needed = 0, uses_anonymous_args = 0
+ 284              		@ link register save eliminated.
+ 285 0000 90ED000A 		vldr.32	s0, [r0]
+ 286 0004 7047     		bx	lr
+ 288 0006 00BF     		.section	.text._ZN8AudioLib7Biquad213SetSamplerateEf,"ax",%progbits
+ 289              		.align	1
+ 290              		.p2align 2,,3
+ 291              		.global	_ZN8AudioLib7Biquad213SetSamplerateEf
+ 292              		.syntax unified
+ 293              		.thumb
+ARM GAS  /tmp/ccF4OKCp.s 			page 6
+
+
+ 294              		.thumb_func
+ 296              	_ZN8AudioLib7Biquad213SetSamplerateEf:
+ 297              		@ args = 0, pretend = 0, frame = 24
+ 298              		@ frame_needed = 0, uses_anonymous_args = 0
+ 299 0000 90ED117A 		vldr.32	s14, [r0, #68]
+ 300 0004 B7EEC06A 		vcvt.f64.f32	d6, s0
+ 301 0008 9FEDC95B 		vldr.64	d5, .L48
+ 302 000c B7EEC77A 		vcvt.f64.f32	d7, s14
+ 303 0010 00B5     		push	{lr}
+ 304 0012 27EE057B 		vmul.f64	d7, d7, d5
+ 305 0016 2DED028B 		vpush.64	{d8}
+ 306 001a 87B0     		sub	sp, sp, #28
+ 307 001c 80ED000A 		vstr.32	s0, [r0]
+ 308 0020 87EE060B 		vdiv.f64	d0, d7, d6
+ 309 0024 0190     		str	r0, [sp, #4]
+ 310 0026 B7EEC08B 		vcvt.f32.f64	s16, d0
+ 311 002a B0EE480A 		vmov.f32	s0, s16
+ 312 002e FFF7FEFF 		bl	sinf
+ 313 0032 F0EE408A 		vmov.f32	s17, s0
+ 314 0036 B0EE480A 		vmov.f32	s0, s16
+ 315 003a FFF7FEFF 		bl	cosf
+ 316 003e 0198     		ldr	r0, [sp, #4]
+ 317 0040 B0EE405A 		vmov.f32	s10, s0
+ 318 0044 C36B     		ldr	r3, [r0, #60]
+ 319 0046 5A1F     		subs	r2, r3, #5
+ 320 0048 012A     		cmp	r2, #1
+ 321 004a 13D9     		bls	.L47
+ 322 004c D0ED027A 		vldr.32	s15, [r0, #8]
+ 323 0050 9FEDB97A 		vldr.32	s14, .L48+8
+ 324 0054 77EEA77A 		vadd.f32	s15, s15, s15
+ 325 0058 88EEA78A 		vdiv.f32	s16, s17, s15
+ 326              	.L30:
+ 327 005c 062B     		cmp	r3, #6
+ 328 005e 00F25A81 		bhi	.L40
+ 329 0062 DFE813F0 		tbh	[pc, r3, lsl #1]
+ 330              	.L33:
+ 331 0066 7C00     		.2byte	(.L39-.L33)/2
+ 332 0068 9900     		.2byte	(.L38-.L33)/2
+ 333 006a B600     		.2byte	(.L37-.L33)/2
+ 334 006c CF00     		.2byte	(.L36-.L33)/2
+ 335 006e E400     		.2byte	(.L35-.L33)/2
+ 336 0070 0701     		.2byte	(.L34-.L33)/2
+ 337 0072 3000     		.2byte	(.L32-.L33)/2
+ 338              		.p2align 1
+ 339              	.L47:
+ 340 0074 F7EE005A 		vmov.f32	s11, #1.0e+0
+ 341 0078 D0ED0E6A 		vldr.32	s13, [r0, #56]
+ 342 007c D0ED124A 		vldr.32	s9, [r0, #72]
+ 343 0080 B0EE000A 		vmov.f32	s0, #2.0e+0
+ 344 0084 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 345 0088 85EEA66A 		vdiv.f32	s12, s11, s13
+ 346 008c 85EEA47A 		vdiv.f32	s14, s11, s9
+ 347 0090 68EEA77A 		vmul.f32	s15, s17, s15
+ 348 0094 36EE266A 		vadd.f32	s12, s12, s13
+ 349 0098 37EE657A 		vsub.f32	s14, s14, s11
+ 350 009c A6EE070A 		vfma.f32	s0, s12, s14
+ 351 00a0 B5EE400A 		vcmp.f32	s0, #0
+ARM GAS  /tmp/ccF4OKCp.s 			page 7
+
+
+ 352 00a4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 353 00a8 00F12081 		bmi	.L43
+ 354 00ac B1EEC08A 		vsqrt.f32	s16, s0
+ 355              	.L27:
+ 356 00b0 F5EE406A 		vcmp.f32	s13, #0
+ 357 00b4 27EE888A 		vmul.f32	s16, s15, s16
+ 358 00b8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 359 00bc 00F10781 		bmi	.L44
+ 360 00c0 B1EEE67A 		vsqrt.f32	s14, s13
+ 361 00c4 CAE7     		b	.L30
+ 362              	.L32:
+ 363 00c6 F7EE003A 		vmov.f32	s7, #1.0e+0
+ 364 00ca D0ED0E4A 		vldr.32	s9, [r0, #56]
+ 365 00ce 37EE077A 		vadd.f32	s14, s14, s14
+ 366 00d2 B8EE003A 		vmov.f32	s6, #-2.0e+0
+ 367 00d6 34EEA36A 		vadd.f32	s12, s9, s7
+ 368 00da 34EEE30A 		vsub.f32	s0, s9, s7
+ 369 00de 24EE833A 		vmul.f32	s6, s9, s6
+ 370 00e2 F0EE466A 		vmov.f32	s13, s12
+ 371 00e6 F0EE465A 		vmov.f32	s11, s12
+ 372 00ea F0EE407A 		vmov.f32	s15, s0
+ 373 00ee E5EE406A 		vfms.f32	s13, s10, s0
+ 374 00f2 E5EE005A 		vfma.f32	s11, s10, s0
+ 375 00f6 E5EE067A 		vfma.f32	s15, s10, s12
+ 376 00fa A5EE460A 		vfms.f32	s0, s10, s12
+ 377 00fe B0EE666A 		vmov.f32	s12, s13
+ 378 0102 B0EE654A 		vmov.f32	s8, s11
+ 379 0106 E8EE476A 		vfms.f32	s13, s16, s14
+ 380 010a A8EE076A 		vfma.f32	s12, s16, s14
+ 381 010e A8EE074A 		vfma.f32	s8, s16, s14
+ 382 0112 E8EE475A 		vfms.f32	s11, s16, s14
+ 383 0116 67EE837A 		vmul.f32	s15, s15, s6
+ 384 011a 30EE000A 		vadd.f32	s0, s0, s0
+ 385              	.L46:
+ 386 011e 83EE865A 		vdiv.f32	s10, s7, s12
+ 387 0122 24EE247A 		vmul.f32	s14, s8, s9
+ 388 0126 65EEA45A 		vmul.f32	s11, s11, s9
+ 389 012a 27EE057A 		vmul.f32	s14, s14, s10
+ 390 012e 67EE857A 		vmul.f32	s15, s15, s10
+ 391 0132 65EE855A 		vmul.f32	s11, s11, s10
+ 392 0136 20EE050A 		vmul.f32	s0, s0, s10
+ 393 013a 66EE856A 		vmul.f32	s13, s13, s10
+ 394              	.L31:
+ 395 013e 80ED036A 		vstr.32	s12, [r0, #12]
+ 396 0142 80ED067A 		vstr.32	s14, [r0, #24]
+ 397 0146 C0ED077A 		vstr.32	s15, [r0, #28]
+ 398 014a C0ED085A 		vstr.32	s11, [r0, #32]
+ 399 014e 80ED040A 		vstr.32	s0, [r0, #16]
+ 400 0152 C0ED056A 		vstr.32	s13, [r0, #20]
+ 401 0156 07B0     		add	sp, sp, #28
+ 402              		@ sp needed
+ 403 0158 BDEC028B 		vldm	sp!, {d8}
+ 404 015c 00BD     		pop	{pc}
+ 405              	.L39:
+ 406 015e F7EE004A 		vmov.f32	s9, #1.0e+0
+ 407 0162 B6EE007A 		vmov.f32	s14, #5.0e-1
+ 408 0166 B8EE000A 		vmov.f32	s0, #-2.0e+0
+ARM GAS  /tmp/ccF4OKCp.s 			page 8
+
+
+ 409 016a 38EE246A 		vadd.f32	s12, s16, s9
+ 410 016e 74EEC57A 		vsub.f32	s15, s9, s10
+ 411 0172 25EE000A 		vmul.f32	s0, s10, s0
+ 412 0176 C4EE865A 		vdiv.f32	s11, s9, s12
+ 413 017a 27EE877A 		vmul.f32	s14, s15, s14
+ 414 017e 74EEC86A 		vsub.f32	s13, s9, s16
+ 415 0182 27EE257A 		vmul.f32	s14, s14, s11
+ 416 0186 67EEA57A 		vmul.f32	s15, s15, s11
+ 417 018a 20EE250A 		vmul.f32	s0, s0, s11
+ 418 018e 66EEA56A 		vmul.f32	s13, s13, s11
+ 419 0192 F0EE475A 		vmov.f32	s11, s14
+ 420 0196 D2E7     		b	.L31
+ 421              	.L38:
+ 422 0198 F7EE004A 		vmov.f32	s9, #1.0e+0
+ 423 019c B6EE007A 		vmov.f32	s14, #5.0e-1
+ 424 01a0 B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 425 01a4 38EE246A 		vadd.f32	s12, s16, s9
+ 426 01a8 75EE247A 		vadd.f32	s15, s10, s9
+ 427 01ac 25EE000A 		vmul.f32	s0, s10, s0
+ 428 01b0 C4EE865A 		vdiv.f32	s11, s9, s12
+ 429 01b4 27EE877A 		vmul.f32	s14, s15, s14
+ 430 01b8 74EEC86A 		vsub.f32	s13, s9, s16
+ 431 01bc 27EE257A 		vmul.f32	s14, s14, s11
+ 432 01c0 67EEE57A 		vnmul.f32	s15, s15, s11
+ 433 01c4 20EE250A 		vmul.f32	s0, s0, s11
+ 434 01c8 66EEA56A 		vmul.f32	s13, s13, s11
+ 435 01cc F0EE475A 		vmov.f32	s11, s14
+ 436 01d0 B5E7     		b	.L31
+ 437              	.L37:
+ 438 01d2 B7EE007A 		vmov.f32	s14, #1.0e+0
+ 439 01d6 DFED587A 		vldr.32	s15, .L48+8
+ 440 01da B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 441 01de 38EE076A 		vadd.f32	s12, s16, s14
+ 442 01e2 77EE486A 		vsub.f32	s13, s14, s16
+ 443 01e6 25EE000A 		vmul.f32	s0, s10, s0
+ 444 01ea C7EE065A 		vdiv.f32	s11, s14, s12
+ 445 01ee 28EE257A 		vmul.f32	s14, s16, s11
+ 446 01f2 65EEA77A 		vmul.f32	s15, s11, s15
+ 447 01f6 20EE250A 		vmul.f32	s0, s0, s11
+ 448 01fa 66EEA56A 		vmul.f32	s13, s13, s11
+ 449 01fe F1EE475A 		vneg.f32	s11, s14
+ 450 0202 9CE7     		b	.L31
+ 451              	.L36:
+ 452 0204 F7EE005A 		vmov.f32	s11, #1.0e+0
+ 453 0208 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 454 020c 38EE256A 		vadd.f32	s12, s16, s11
+ 455 0210 65EE277A 		vmul.f32	s15, s10, s15
+ 456 0214 75EEC86A 		vsub.f32	s13, s11, s16
+ 457 0218 85EE867A 		vdiv.f32	s14, s11, s12
+ 458 021c 67EE877A 		vmul.f32	s15, s15, s14
+ 459 0220 66EE876A 		vmul.f32	s13, s13, s14
+ 460 0224 F0EE475A 		vmov.f32	s11, s14
+ 461 0228 B0EE670A 		vmov.f32	s0, s15
+ 462 022c 87E7     		b	.L31
+ 463              	.L35:
+ 464 022e 90ED0E6A 		vldr.32	s12, [r0, #56]
+ 465 0232 F7EE004A 		vmov.f32	s9, #1.0e+0
+ARM GAS  /tmp/ccF4OKCp.s 			page 9
+
+
+ 466 0236 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 467 023a C8EE066A 		vdiv.f32	s13, s16, s12
+ 468 023e B0EE647A 		vmov.f32	s14, s9
+ 469 0242 F0EE645A 		vmov.f32	s11, s9
+ 470 0246 65EE277A 		vmul.f32	s15, s10, s15
+ 471 024a A8EE067A 		vfma.f32	s14, s16, s12
+ 472 024e E8EE465A 		vfms.f32	s11, s16, s12
+ 473 0252 36EEA46A 		vadd.f32	s12, s13, s9
+ 474 0256 74EEE66A 		vsub.f32	s13, s9, s13
+ 475 025a 84EE865A 		vdiv.f32	s10, s9, s12
+ 476 025e 67EE857A 		vmul.f32	s15, s15, s10
+ 477 0262 27EE057A 		vmul.f32	s14, s14, s10
+ 478 0266 65EE855A 		vmul.f32	s11, s11, s10
+ 479 026a 66EE856A 		vmul.f32	s13, s13, s10
+ 480 026e B0EE670A 		vmov.f32	s0, s15
+ 481 0272 64E7     		b	.L31
+ 482              	.L34:
+ 483 0274 F7EE003A 		vmov.f32	s7, #1.0e+0
+ 484 0278 D0ED0E4A 		vldr.32	s9, [r0, #56]
+ 485 027c 37EE077A 		vadd.f32	s14, s14, s14
+ 486 0280 B8EE003A 		vmov.f32	s6, #-2.0e+0
+ 487 0284 34EEA36A 		vadd.f32	s12, s9, s7
+ 488 0288 34EEE30A 		vsub.f32	s0, s9, s7
+ 489 028c 74EEA42A 		vadd.f32	s5, s9, s9
+ 490 0290 F0EE466A 		vmov.f32	s13, s12
+ 491 0294 F0EE465A 		vmov.f32	s11, s12
+ 492 0298 F0EE407A 		vmov.f32	s15, s0
+ 493 029c E5EE006A 		vfma.f32	s13, s10, s0
+ 494 02a0 E5EE405A 		vfms.f32	s11, s10, s0
+ 495 02a4 E5EE467A 		vfms.f32	s15, s10, s12
+ 496 02a8 A5EE060A 		vfma.f32	s0, s10, s12
+ 497 02ac B0EE666A 		vmov.f32	s12, s13
+ 498 02b0 B0EE654A 		vmov.f32	s8, s11
+ 499 02b4 E8EE476A 		vfms.f32	s13, s16, s14
+ 500 02b8 A8EE076A 		vfma.f32	s12, s16, s14
+ 501 02bc A8EE074A 		vfma.f32	s8, s16, s14
+ 502 02c0 E8EE475A 		vfms.f32	s11, s16, s14
+ 503 02c4 67EEA27A 		vmul.f32	s15, s15, s5
+ 504 02c8 20EE030A 		vmul.f32	s0, s0, s6
+ 505 02cc 27E7     		b	.L46
+ 506              	.L44:
+ 507 02ce B0EE660A 		vmov.f32	s0, s13
+ 508 02d2 8DED035A 		vstr.32	s10, [sp, #12]	@ int
+ 509 02d6 CDE90130 		strd	r3, r0, [sp, #4]
+ 510 02da FFF7FEFF 		bl	sqrtf
+ 511 02de 9DED035A 		vldr.32	s10, [sp, #12]	@ int
+ 512 02e2 B0EE407A 		vmov.f32	s14, s0
+ 513 02e6 DDE90130 		ldrd	r3, r0, [sp, #4]
+ 514 02ea B7E6     		b	.L30
+ 515              	.L43:
+ 516 02ec 8DED055A 		vstr.32	s10, [sp, #20]	@ int
+ 517 02f0 0490     		str	r0, [sp, #16]
+ 518 02f2 CDED036A 		vstr.32	s13, [sp, #12]	@ int
+ 519 02f6 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 520 02fa 0193     		str	r3, [sp, #4]
+ 521 02fc FFF7FEFF 		bl	sqrtf
+ 522 0300 9DED055A 		vldr.32	s10, [sp, #20]	@ int
+ARM GAS  /tmp/ccF4OKCp.s 			page 10
+
+
+ 523 0304 B0EE408A 		vmov.f32	s16, s0
+ 524 0308 0498     		ldr	r0, [sp, #16]
+ 525 030a DDED036A 		vldr.32	s13, [sp, #12]	@ int
+ 526 030e DDED027A 		vldr.32	s15, [sp, #8]	@ int
+ 527 0312 019B     		ldr	r3, [sp, #4]
+ 528 0314 CCE6     		b	.L27
+ 529              	.L40:
+ 530 0316 B7EE006A 		vmov.f32	s12, #1.0e+0
+ 531 031a DFED076A 		vldr.32	s13, .L48+8
+ 532 031e B0EE660A 		vmov.f32	s0, s13
+ 533 0322 F0EE665A 		vmov.f32	s11, s13
+ 534 0326 F0EE667A 		vmov.f32	s15, s13
+ 535 032a B0EE467A 		vmov.f32	s14, s12
+ 536 032e 06E7     		b	.L31
+ 537              	.L49:
+ 538              		.align	3
+ 539              	.L48:
+ 540 0330 182D4454 		.word	1413754136
+ 541 0334 FB211940 		.word	1075388923
+ 542 0338 00000000 		.word	0
+ 544              		.section	.text._ZN8AudioLib7Biquad29GetGainDbEv,"ax",%progbits
+ 545              		.align	1
+ 546              		.p2align 2,,3
+ 547              		.global	_ZN8AudioLib7Biquad29GetGainDbEv
+ 548              		.syntax unified
+ 549              		.thumb
+ 550              		.thumb_func
+ 552              	_ZN8AudioLib7Biquad29GetGainDbEv:
+ 553              		@ args = 0, pretend = 0, frame = 0
+ 554              		@ frame_needed = 0, uses_anonymous_args = 0
+ 555 0000 90ED0E0A 		vldr.32	s0, [r0, #56]
+ 556 0004 08B5     		push	{r3, lr}
+ 557 0006 FFF7FEFF 		bl	log10f
+ 558 000a F3EE047A 		vmov.f32	s15, #2.0e+1
+ 559 000e 20EE270A 		vmul.f32	s0, s0, s15
+ 560 0012 08BD     		pop	{r3, pc}
+ 562              		.section	.text._ZN8AudioLib7Biquad29SetGainDbEf,"ax",%progbits
+ 563              		.align	1
+ 564              		.p2align 2,,3
+ 565              		.global	_ZN8AudioLib7Biquad29SetGainDbEf
+ 566              		.syntax unified
+ 567              		.thumb
+ 568              		.thumb_func
+ 570              	_ZN8AudioLib7Biquad29SetGainDbEf:
+ 571              		@ args = 0, pretend = 0, frame = 8
+ 572              		@ frame_needed = 0, uses_anonymous_args = 0
+ 573 0000 B0EE407A 		vmov.f32	s14, s0
+ 574 0004 F3EE047A 		vmov.f32	s15, #2.0e+1
+ 575 0008 B2EE040B 		vmov.f64	d0, #1.0e+1
+ 576 000c 87EE271A 		vdiv.f32	s2, s14, s15
+ 577 0010 00B5     		push	{lr}
+ 578 0012 83B0     		sub	sp, sp, #12
+ 579 0014 0190     		str	r0, [sp, #4]
+ 580 0016 B7EEC11A 		vcvt.f64.f32	d1, s2
+ 581 001a FFF7FEFF 		bl	pow
+ 582 001e B7EEC00B 		vcvt.f32.f64	s0, d0
+ 583 0022 0198     		ldr	r0, [sp, #4]
+ARM GAS  /tmp/ccF4OKCp.s 			page 11
+
+
+ 584 0024 B5EE400A 		vcmp.f32	s0, #0
+ 585 0028 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 586 002c 08BF     		it	eq
+ 587 002e 9FED030A 		vldreq.32	s0, .L56
+ 588 0032 80ED0E0A 		vstr.32	s0, [r0, #56]
+ 589 0036 03B0     		add	sp, sp, #12
+ 590              		@ sp needed
+ 591 0038 00BD     		pop	{pc}
+ 592              	.L57:
+ 593 003a 00BF     		.align	2
+ 594              	.L56:
+ 595 003c 6F12833A 		.word	981668463
+ 597              		.section	.text._ZN8AudioLib7Biquad27GetGainEv,"ax",%progbits
+ 598              		.align	1
+ 599              		.p2align 2,,3
+ 600              		.global	_ZN8AudioLib7Biquad27GetGainEv
+ 601              		.syntax unified
+ 602              		.thumb
+ 603              		.thumb_func
+ 605              	_ZN8AudioLib7Biquad27GetGainEv:
+ 606              		@ args = 0, pretend = 0, frame = 0
+ 607              		@ frame_needed = 0, uses_anonymous_args = 0
+ 608              		@ link register save eliminated.
+ 609 0000 90ED0E0A 		vldr.32	s0, [r0, #56]
+ 610 0004 7047     		bx	lr
+ 612 0006 00BF     		.section	.text._ZN8AudioLib7Biquad27SetGainEf,"ax",%progbits
+ 613              		.align	1
+ 614              		.p2align 2,,3
+ 615              		.global	_ZN8AudioLib7Biquad27SetGainEf
+ 616              		.syntax unified
+ 617              		.thumb
+ 618              		.thumb_func
+ 620              	_ZN8AudioLib7Biquad27SetGainEf:
+ 621              		@ args = 0, pretend = 0, frame = 0
+ 622              		@ frame_needed = 0, uses_anonymous_args = 0
+ 623              		@ link register save eliminated.
+ 624 0000 B5EE400A 		vcmp.f32	s0, #0
+ 625 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 626 0008 08BF     		it	eq
+ 627 000a 9FED020A 		vldreq.32	s0, .L62
+ 628 000e 80ED0E0A 		vstr.32	s0, [r0, #56]
+ 629 0012 7047     		bx	lr
+ 630              	.L63:
+ 631              		.align	2
+ 632              	.L62:
+ 633 0014 6F12833A 		.word	981668463
+ 635              		.section	.text._ZN8AudioLib7Biquad24GetQEv,"ax",%progbits
+ 636              		.align	1
+ 637              		.p2align 2,,3
+ 638              		.global	_ZN8AudioLib7Biquad24GetQEv
+ 639              		.syntax unified
+ 640              		.thumb
+ 641              		.thumb_func
+ 643              	_ZN8AudioLib7Biquad24GetQEv:
+ 644              		@ args = 0, pretend = 0, frame = 0
+ 645              		@ frame_needed = 0, uses_anonymous_args = 0
+ 646              		@ link register save eliminated.
+ARM GAS  /tmp/ccF4OKCp.s 			page 12
+
+
+ 647 0000 90ED020A 		vldr.32	s0, [r0, #8]
+ 648 0004 7047     		bx	lr
+ 650 0006 00BF     		.section	.text._ZN8AudioLib7Biquad24SetQEf,"ax",%progbits
+ 651              		.align	1
+ 652              		.p2align 2,,3
+ 653              		.global	_ZN8AudioLib7Biquad24SetQEf
+ 654              		.syntax unified
+ 655              		.thumb
+ 656              		.thumb_func
+ 658              	_ZN8AudioLib7Biquad24SetQEf:
+ 659              		@ args = 0, pretend = 0, frame = 0
+ 660              		@ frame_needed = 0, uses_anonymous_args = 0
+ 661              		@ link register save eliminated.
+ 662 0000 B5EE400A 		vcmp.f32	s0, #0
+ 663 0004 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 664 0008 08BF     		it	eq
+ 665 000a 9FED020A 		vldreq.32	s0, .L68
+ 666 000e 80ED020A 		vstr.32	s0, [r0, #8]
+ 667 0012 7047     		bx	lr
+ 668              	.L69:
+ 669              		.align	2
+ 670              	.L68:
+ 671 0014 CCBC8C2B 		.word	730643660
+ 673              		.section	.text._ZN8AudioLib7Biquad24GetAEv,"ax",%progbits
+ 674              		.align	1
+ 675              		.p2align 2,,3
+ 676              		.global	_ZN8AudioLib7Biquad24GetAEv
+ 677              		.syntax unified
+ 678              		.thumb
+ 679              		.thumb_func
+ 681              	_ZN8AudioLib7Biquad24GetAEv:
+ 682              		@ args = 0, pretend = 0, frame = 16
+ 683              		@ frame_needed = 0, uses_anonymous_args = 0
+ 684 0000 10B5     		push	{r4, lr}
+ 685 0002 0A69     		ldr	r2, [r1, #16]	@ float
+ 686 0004 84B0     		sub	sp, sp, #16
+ 687 0006 4B69     		ldr	r3, [r1, #20]	@ float
+ 688 0008 4FF07E5C 		mov	ip, #1065353216
+ 689 000c 0446     		mov	r4, r0
+ 690 000e 0C20     		movs	r0, #12
+ 691 0010 CDF804C0 		str	ip, [sp, #4]	@ float
+ 692 0014 0292     		str	r2, [sp, #8]	@ float
+ 693 0016 0393     		str	r3, [sp, #12]	@ float
+ 694 0018 FFF7FEFF 		bl	_Znwj
+ 695 001c 0DF1040C 		add	ip, sp, #4
+ 696 0020 00F10C02 		add	r2, r0, #12
+ 697 0024 0346     		mov	r3, r0
+ 698 0026 2060     		str	r0, [r4]
+ 699 0028 C4E90122 		strd	r2, r2, [r4, #4]
+ 700 002c BCE80700 		ldmia	ip!, {r0, r1, r2}
+ 701 0030 1860     		str	r0, [r3]	@ unaligned
+ 702 0032 2046     		mov	r0, r4
+ 703 0034 5960     		str	r1, [r3, #4]	@ unaligned
+ 704 0036 9A60     		str	r2, [r3, #8]	@ unaligned
+ 705 0038 04B0     		add	sp, sp, #16
+ 706              		@ sp needed
+ 707 003a 10BD     		pop	{r4, pc}
+ARM GAS  /tmp/ccF4OKCp.s 			page 13
+
+
+ 709              		.section	.text._ZN8AudioLib7Biquad24GetBEv,"ax",%progbits
+ 710              		.align	1
+ 711              		.p2align 2,,3
+ 712              		.global	_ZN8AudioLib7Biquad24GetBEv
+ 713              		.syntax unified
+ 714              		.thumb
+ 715              		.thumb_func
+ 717              	_ZN8AudioLib7Biquad24GetBEv:
+ 718              		@ args = 0, pretend = 0, frame = 16
+ 719              		@ frame_needed = 0, uses_anonymous_args = 0
+ 720 0000 10B5     		push	{r4, lr}
+ 721 0002 D1F818C0 		ldr	ip, [r1, #24]	@ float
+ 722 0006 84B0     		sub	sp, sp, #16
+ 723 0008 CA69     		ldr	r2, [r1, #28]	@ float
+ 724 000a 0446     		mov	r4, r0
+ 725 000c 0B6A     		ldr	r3, [r1, #32]	@ float
+ 726 000e 0C20     		movs	r0, #12
+ 727 0010 CDF804C0 		str	ip, [sp, #4]	@ float
+ 728 0014 0292     		str	r2, [sp, #8]	@ float
+ 729 0016 0393     		str	r3, [sp, #12]	@ float
+ 730 0018 FFF7FEFF 		bl	_Znwj
+ 731 001c 0DF1040C 		add	ip, sp, #4
+ 732 0020 00F10C02 		add	r2, r0, #12
+ 733 0024 0346     		mov	r3, r0
+ 734 0026 2060     		str	r0, [r4]
+ 735 0028 C4E90122 		strd	r2, r2, [r4, #4]
+ 736 002c BCE80700 		ldmia	ip!, {r0, r1, r2}
+ 737 0030 1860     		str	r0, [r3]	@ unaligned
+ 738 0032 2046     		mov	r0, r4
+ 739 0034 5960     		str	r1, [r3, #4]	@ unaligned
+ 740 0036 9A60     		str	r2, [r3, #8]	@ unaligned
+ 741 0038 04B0     		add	sp, sp, #16
+ 742              		@ sp needed
+ 743 003a 10BD     		pop	{r4, pc}
+ 745              		.section	.text._ZN8AudioLib7Biquad26UpdateEv,"ax",%progbits
+ 746              		.align	1
+ 747              		.p2align 2,,3
+ 748              		.global	_ZN8AudioLib7Biquad26UpdateEv
+ 749              		.syntax unified
+ 750              		.thumb
+ 751              		.thumb_func
+ 753              	_ZN8AudioLib7Biquad26UpdateEv:
+ 754              		@ args = 0, pretend = 0, frame = 24
+ 755              		@ frame_needed = 0, uses_anonymous_args = 0
+ 756 0000 90ED117A 		vldr.32	s14, [r0, #68]
+ 757 0004 90ED006A 		vldr.32	s12, [r0]
+ 758 0008 B7EEC77A 		vcvt.f64.f32	d7, s14
+ 759 000c B7EEC66A 		vcvt.f64.f32	d6, s12
+ 760 0010 9FEDC75B 		vldr.64	d5, .L99
+ 761 0014 00B5     		push	{lr}
+ 762 0016 27EE057B 		vmul.f64	d7, d7, d5
+ 763 001a 2DED028B 		vpush.64	{d8}
+ 764 001e 87B0     		sub	sp, sp, #28
+ 765 0020 87EE060B 		vdiv.f64	d0, d7, d6
+ 766 0024 0190     		str	r0, [sp, #4]
+ 767 0026 B7EEC08B 		vcvt.f32.f64	s16, d0
+ 768 002a B0EE480A 		vmov.f32	s0, s16
+ARM GAS  /tmp/ccF4OKCp.s 			page 14
+
+
+ 769 002e FFF7FEFF 		bl	sinf
+ 770 0032 F0EE408A 		vmov.f32	s17, s0
+ 771 0036 B0EE480A 		vmov.f32	s0, s16
+ 772 003a FFF7FEFF 		bl	cosf
+ 773 003e 0198     		ldr	r0, [sp, #4]
+ 774 0040 B0EE405A 		vmov.f32	s10, s0
+ 775 0044 C36B     		ldr	r3, [r0, #60]
+ 776 0046 5A1F     		subs	r2, r3, #5
+ 777 0048 012A     		cmp	r2, #1
+ 778 004a 13D9     		bls	.L98
+ 779 004c D0ED027A 		vldr.32	s15, [r0, #8]
+ 780 0050 9FEDB97A 		vldr.32	s14, .L99+8
+ 781 0054 77EEA77A 		vadd.f32	s15, s15, s15
+ 782 0058 88EEA78A 		vdiv.f32	s16, s17, s15
+ 783              	.L81:
+ 784 005c 062B     		cmp	r3, #6
+ 785 005e 00F25A81 		bhi	.L91
+ 786 0062 DFE813F0 		tbh	[pc, r3, lsl #1]
+ 787              	.L84:
+ 788 0066 7C00     		.2byte	(.L90-.L84)/2
+ 789 0068 9900     		.2byte	(.L89-.L84)/2
+ 790 006a B600     		.2byte	(.L88-.L84)/2
+ 791 006c CF00     		.2byte	(.L87-.L84)/2
+ 792 006e E400     		.2byte	(.L86-.L84)/2
+ 793 0070 0701     		.2byte	(.L85-.L84)/2
+ 794 0072 3000     		.2byte	(.L83-.L84)/2
+ 795              		.p2align 1
+ 796              	.L98:
+ 797 0074 F7EE005A 		vmov.f32	s11, #1.0e+0
+ 798 0078 D0ED0E6A 		vldr.32	s13, [r0, #56]
+ 799 007c D0ED124A 		vldr.32	s9, [r0, #72]
+ 800 0080 B0EE000A 		vmov.f32	s0, #2.0e+0
+ 801 0084 F6EE007A 		vmov.f32	s15, #5.0e-1
+ 802 0088 85EEA66A 		vdiv.f32	s12, s11, s13
+ 803 008c 85EEA47A 		vdiv.f32	s14, s11, s9
+ 804 0090 68EEA77A 		vmul.f32	s15, s17, s15
+ 805 0094 36EE266A 		vadd.f32	s12, s12, s13
+ 806 0098 37EE657A 		vsub.f32	s14, s14, s11
+ 807 009c A6EE070A 		vfma.f32	s0, s12, s14
+ 808 00a0 B5EE400A 		vcmp.f32	s0, #0
+ 809 00a4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 810 00a8 00F12081 		bmi	.L94
+ 811 00ac B1EEC08A 		vsqrt.f32	s16, s0
+ 812              	.L78:
+ 813 00b0 F5EE406A 		vcmp.f32	s13, #0
+ 814 00b4 27EE888A 		vmul.f32	s16, s15, s16
+ 815 00b8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 816 00bc 00F10781 		bmi	.L95
+ 817 00c0 B1EEE67A 		vsqrt.f32	s14, s13
+ 818 00c4 CAE7     		b	.L81
+ 819              	.L83:
+ 820 00c6 F7EE003A 		vmov.f32	s7, #1.0e+0
+ 821 00ca D0ED0E4A 		vldr.32	s9, [r0, #56]
+ 822 00ce 37EE077A 		vadd.f32	s14, s14, s14
+ 823 00d2 B8EE003A 		vmov.f32	s6, #-2.0e+0
+ 824 00d6 34EEA36A 		vadd.f32	s12, s9, s7
+ 825 00da 34EEE30A 		vsub.f32	s0, s9, s7
+ARM GAS  /tmp/ccF4OKCp.s 			page 15
+
+
+ 826 00de 24EE833A 		vmul.f32	s6, s9, s6
+ 827 00e2 F0EE466A 		vmov.f32	s13, s12
+ 828 00e6 F0EE465A 		vmov.f32	s11, s12
+ 829 00ea F0EE407A 		vmov.f32	s15, s0
+ 830 00ee E0EE456A 		vfms.f32	s13, s0, s10
+ 831 00f2 E0EE055A 		vfma.f32	s11, s0, s10
+ 832 00f6 E6EE057A 		vfma.f32	s15, s12, s10
+ 833 00fa A6EE450A 		vfms.f32	s0, s12, s10
+ 834 00fe B0EE666A 		vmov.f32	s12, s13
+ 835 0102 B0EE654A 		vmov.f32	s8, s11
+ 836 0106 E7EE486A 		vfms.f32	s13, s14, s16
+ 837 010a A7EE086A 		vfma.f32	s12, s14, s16
+ 838 010e A7EE084A 		vfma.f32	s8, s14, s16
+ 839 0112 E7EE485A 		vfms.f32	s11, s14, s16
+ 840 0116 67EE837A 		vmul.f32	s15, s15, s6
+ 841 011a 30EE000A 		vadd.f32	s0, s0, s0
+ 842              	.L97:
+ 843 011e 83EE865A 		vdiv.f32	s10, s7, s12
+ 844 0122 24EE247A 		vmul.f32	s14, s8, s9
+ 845 0126 65EEA45A 		vmul.f32	s11, s11, s9
+ 846 012a 27EE057A 		vmul.f32	s14, s14, s10
+ 847 012e 67EE857A 		vmul.f32	s15, s15, s10
+ 848 0132 65EE855A 		vmul.f32	s11, s11, s10
+ 849 0136 20EE050A 		vmul.f32	s0, s0, s10
+ 850 013a 66EE856A 		vmul.f32	s13, s13, s10
+ 851              	.L82:
+ 852 013e 80ED036A 		vstr.32	s12, [r0, #12]
+ 853 0142 80ED067A 		vstr.32	s14, [r0, #24]
+ 854 0146 C0ED077A 		vstr.32	s15, [r0, #28]
+ 855 014a C0ED085A 		vstr.32	s11, [r0, #32]
+ 856 014e 80ED040A 		vstr.32	s0, [r0, #16]
+ 857 0152 C0ED056A 		vstr.32	s13, [r0, #20]
+ 858 0156 07B0     		add	sp, sp, #28
+ 859              		@ sp needed
+ 860 0158 BDEC028B 		vldm	sp!, {d8}
+ 861 015c 00BD     		pop	{pc}
+ 862              	.L90:
+ 863 015e F7EE004A 		vmov.f32	s9, #1.0e+0
+ 864 0162 B6EE007A 		vmov.f32	s14, #5.0e-1
+ 865 0166 B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 866 016a 38EE246A 		vadd.f32	s12, s16, s9
+ 867 016e 74EEC57A 		vsub.f32	s15, s9, s10
+ 868 0172 25EE000A 		vmul.f32	s0, s10, s0
+ 869 0176 C4EE865A 		vdiv.f32	s11, s9, s12
+ 870 017a 27EE877A 		vmul.f32	s14, s15, s14
+ 871 017e 74EEC86A 		vsub.f32	s13, s9, s16
+ 872 0182 27EE257A 		vmul.f32	s14, s14, s11
+ 873 0186 67EEA57A 		vmul.f32	s15, s15, s11
+ 874 018a 20EE250A 		vmul.f32	s0, s0, s11
+ 875 018e 66EEA56A 		vmul.f32	s13, s13, s11
+ 876 0192 F0EE475A 		vmov.f32	s11, s14
+ 877 0196 D2E7     		b	.L82
+ 878              	.L89:
+ 879 0198 F7EE004A 		vmov.f32	s9, #1.0e+0
+ 880 019c B6EE007A 		vmov.f32	s14, #5.0e-1
+ 881 01a0 B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 882 01a4 38EE246A 		vadd.f32	s12, s16, s9
+ARM GAS  /tmp/ccF4OKCp.s 			page 16
+
+
+ 883 01a8 75EE247A 		vadd.f32	s15, s10, s9
+ 884 01ac 25EE000A 		vmul.f32	s0, s10, s0
+ 885 01b0 C4EE865A 		vdiv.f32	s11, s9, s12
+ 886 01b4 27EE877A 		vmul.f32	s14, s15, s14
+ 887 01b8 74EEC86A 		vsub.f32	s13, s9, s16
+ 888 01bc 27EE257A 		vmul.f32	s14, s14, s11
+ 889 01c0 67EEE57A 		vnmul.f32	s15, s15, s11
+ 890 01c4 20EE250A 		vmul.f32	s0, s0, s11
+ 891 01c8 66EEA56A 		vmul.f32	s13, s13, s11
+ 892 01cc F0EE475A 		vmov.f32	s11, s14
+ 893 01d0 B5E7     		b	.L82
+ 894              	.L88:
+ 895 01d2 B7EE007A 		vmov.f32	s14, #1.0e+0
+ 896 01d6 DFED587A 		vldr.32	s15, .L99+8
+ 897 01da B8EE000A 		vmov.f32	s0, #-2.0e+0
+ 898 01de 38EE076A 		vadd.f32	s12, s16, s14
+ 899 01e2 77EE486A 		vsub.f32	s13, s14, s16
+ 900 01e6 25EE000A 		vmul.f32	s0, s10, s0
+ 901 01ea C7EE065A 		vdiv.f32	s11, s14, s12
+ 902 01ee 28EE257A 		vmul.f32	s14, s16, s11
+ 903 01f2 65EEA77A 		vmul.f32	s15, s11, s15
+ 904 01f6 20EE250A 		vmul.f32	s0, s0, s11
+ 905 01fa 66EEA56A 		vmul.f32	s13, s13, s11
+ 906 01fe F1EE475A 		vneg.f32	s11, s14
+ 907 0202 9CE7     		b	.L82
+ 908              	.L87:
+ 909 0204 F7EE005A 		vmov.f32	s11, #1.0e+0
+ 910 0208 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 911 020c 38EE256A 		vadd.f32	s12, s16, s11
+ 912 0210 65EE277A 		vmul.f32	s15, s10, s15
+ 913 0214 75EEC86A 		vsub.f32	s13, s11, s16
+ 914 0218 85EE867A 		vdiv.f32	s14, s11, s12
+ 915 021c 67EE877A 		vmul.f32	s15, s15, s14
+ 916 0220 66EE876A 		vmul.f32	s13, s13, s14
+ 917 0224 F0EE475A 		vmov.f32	s11, s14
+ 918 0228 B0EE670A 		vmov.f32	s0, s15
+ 919 022c 87E7     		b	.L82
+ 920              	.L86:
+ 921 022e 90ED0E6A 		vldr.32	s12, [r0, #56]
+ 922 0232 F7EE004A 		vmov.f32	s9, #1.0e+0
+ 923 0236 F8EE007A 		vmov.f32	s15, #-2.0e+0
+ 924 023a C8EE066A 		vdiv.f32	s13, s16, s12
+ 925 023e B0EE647A 		vmov.f32	s14, s9
+ 926 0242 F0EE645A 		vmov.f32	s11, s9
+ 927 0246 65EE277A 		vmul.f32	s15, s10, s15
+ 928 024a A6EE087A 		vfma.f32	s14, s12, s16
+ 929 024e E6EE485A 		vfms.f32	s11, s12, s16
+ 930 0252 36EEA46A 		vadd.f32	s12, s13, s9
+ 931 0256 74EEE66A 		vsub.f32	s13, s9, s13
+ 932 025a 84EE865A 		vdiv.f32	s10, s9, s12
+ 933 025e 67EE857A 		vmul.f32	s15, s15, s10
+ 934 0262 27EE057A 		vmul.f32	s14, s14, s10
+ 935 0266 65EE855A 		vmul.f32	s11, s11, s10
+ 936 026a 66EE856A 		vmul.f32	s13, s13, s10
+ 937 026e B0EE670A 		vmov.f32	s0, s15
+ 938 0272 64E7     		b	.L82
+ 939              	.L85:
+ARM GAS  /tmp/ccF4OKCp.s 			page 17
+
+
+ 940 0274 F7EE003A 		vmov.f32	s7, #1.0e+0
+ 941 0278 D0ED0E4A 		vldr.32	s9, [r0, #56]
+ 942 027c 37EE077A 		vadd.f32	s14, s14, s14
+ 943 0280 B8EE003A 		vmov.f32	s6, #-2.0e+0
+ 944 0284 34EEA36A 		vadd.f32	s12, s9, s7
+ 945 0288 34EEE30A 		vsub.f32	s0, s9, s7
+ 946 028c 74EEA42A 		vadd.f32	s5, s9, s9
+ 947 0290 F0EE466A 		vmov.f32	s13, s12
+ 948 0294 F0EE465A 		vmov.f32	s11, s12
+ 949 0298 F0EE407A 		vmov.f32	s15, s0
+ 950 029c E0EE056A 		vfma.f32	s13, s0, s10
+ 951 02a0 E0EE455A 		vfms.f32	s11, s0, s10
+ 952 02a4 E6EE457A 		vfms.f32	s15, s12, s10
+ 953 02a8 A6EE050A 		vfma.f32	s0, s12, s10
+ 954 02ac B0EE666A 		vmov.f32	s12, s13
+ 955 02b0 B0EE654A 		vmov.f32	s8, s11
+ 956 02b4 E7EE486A 		vfms.f32	s13, s14, s16
+ 957 02b8 A7EE086A 		vfma.f32	s12, s14, s16
+ 958 02bc A7EE084A 		vfma.f32	s8, s14, s16
+ 959 02c0 E7EE485A 		vfms.f32	s11, s14, s16
+ 960 02c4 67EEA27A 		vmul.f32	s15, s15, s5
+ 961 02c8 20EE030A 		vmul.f32	s0, s0, s6
+ 962 02cc 27E7     		b	.L97
+ 963              	.L95:
+ 964 02ce B0EE660A 		vmov.f32	s0, s13
+ 965 02d2 8DED035A 		vstr.32	s10, [sp, #12]	@ int
+ 966 02d6 CDE90130 		strd	r3, r0, [sp, #4]
+ 967 02da FFF7FEFF 		bl	sqrtf
+ 968 02de 9DED035A 		vldr.32	s10, [sp, #12]	@ int
+ 969 02e2 B0EE407A 		vmov.f32	s14, s0
+ 970 02e6 DDE90130 		ldrd	r3, r0, [sp, #4]
+ 971 02ea B7E6     		b	.L81
+ 972              	.L94:
+ 973 02ec 8DED055A 		vstr.32	s10, [sp, #20]	@ int
+ 974 02f0 0490     		str	r0, [sp, #16]
+ 975 02f2 CDED036A 		vstr.32	s13, [sp, #12]	@ int
+ 976 02f6 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 977 02fa 0193     		str	r3, [sp, #4]
+ 978 02fc FFF7FEFF 		bl	sqrtf
+ 979 0300 9DED055A 		vldr.32	s10, [sp, #20]	@ int
+ 980 0304 B0EE408A 		vmov.f32	s16, s0
+ 981 0308 0498     		ldr	r0, [sp, #16]
+ 982 030a DDED036A 		vldr.32	s13, [sp, #12]	@ int
+ 983 030e DDED027A 		vldr.32	s15, [sp, #8]	@ int
+ 984 0312 019B     		ldr	r3, [sp, #4]
+ 985 0314 CCE6     		b	.L78
+ 986              	.L91:
+ 987 0316 B7EE006A 		vmov.f32	s12, #1.0e+0
+ 988 031a DFED076A 		vldr.32	s13, .L99+8
+ 989 031e B0EE660A 		vmov.f32	s0, s13
+ 990 0322 F0EE665A 		vmov.f32	s11, s13
+ 991 0326 F0EE667A 		vmov.f32	s15, s13
+ 992 032a B0EE467A 		vmov.f32	s14, s12
+ 993 032e 06E7     		b	.L82
+ 994              	.L100:
+ 995              		.align	3
+ 996              	.L99:
+ARM GAS  /tmp/ccF4OKCp.s 			page 18
+
+
+ 997 0330 182D4454 		.word	1413754136
+ 998 0334 FB211940 		.word	1075388923
+ 999 0338 00000000 		.word	0
+ 1001              		.section	.text._ZN8AudioLib7Biquad211GetResponseEf,"ax",%progbits
+ 1002              		.align	1
+ 1003              		.p2align 2,,3
+ 1004              		.global	_ZN8AudioLib7Biquad211GetResponseEf
+ 1005              		.syntax unified
+ 1006              		.thumb
+ 1007              		.thumb_func
+ 1009              	_ZN8AudioLib7Biquad211GetResponseEf:
+ 1010              		@ args = 0, pretend = 0, frame = 8
+ 1011              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1012 0000 9FED3B6B 		vldr.64	d6, .L103
+ 1013 0004 B7EEC00A 		vcvt.f64.f32	d0, s0
+ 1014 0008 90ED007A 		vldr.32	s14, [r0]
+ 1015 000c B7EEC77A 		vcvt.f64.f32	d7, s14
+ 1016 0010 20EE060B 		vmul.f64	d0, d0, d6
+ 1017 0014 37EE077B 		vadd.f64	d7, d7, d7
+ 1018 0018 00B5     		push	{lr}
+ 1019 001a 2DED088B 		vpush.64	{d8, d9, d10, d11}
+ 1020 001e 83B0     		sub	sp, sp, #12
+ 1021 0020 80EE070B 		vdiv.f64	d0, d0, d7
+ 1022 0024 0190     		str	r0, [sp, #4]
+ 1023 0026 FFF7FEFF 		bl	sin
+ 1024 002a 0198     		ldr	r0, [sp, #4]
+ 1025 002c B1EE008B 		vmov.f64	d8, #4.0e+0
+ 1026 0030 90ED065A 		vldr.32	s10, [r0, #24]
+ 1027 0034 20EE000B 		vmul.f64	d0, d0, d0
+ 1028 0038 D0ED053A 		vldr.32	s7, [r0, #20]
+ 1029 003c 90ED043A 		vldr.32	s6, [r0, #16]
+ 1030 0040 B7EEC54A 		vcvt.f64.f32	d4, s10
+ 1031 0044 90ED072A 		vldr.32	s4, [r0, #28]
+ 1032 0048 23EE23AA 		vmul.f32	s20, s6, s7
+ 1033 004c D0ED087A 		vldr.32	s15, [r0, #32]
+ 1034 0050 25EE027A 		vmul.f32	s14, s10, s4
+ 1035 0054 35EE025A 		vadd.f32	s10, s10, s4
+ 1036 0058 B7EECABA 		vcvt.f64.f32	d11, s20
+ 1037 005c 24EE08AB 		vmul.f64	d10, d4, d8
+ 1038 0060 B7EEE79A 		vcvt.f64.f32	d9, s15
+ 1039 0064 22EE272A 		vmul.f32	s4, s4, s15
+ 1040 0068 35EE275A 		vadd.f32	s10, s10, s15
+ 1041 006c B7EEC77A 		vcvt.f64.f32	d7, s14
+ 1042 0070 B7EEC22A 		vcvt.f64.f32	d2, s4
+ 1043 0074 B7EEC00B 		vcvt.f32.f64	s0, d0
+ 1044 0078 AAEE097B 		vfma.f64	d7, d10, d9
+ 1045 007c B7EEC06A 		vcvt.f64.f32	d6, s0
+ 1046 0080 B7EEC55A 		vcvt.f64.f32	d5, s10
+ 1047 0084 B7EEE30A 		vcvt.f64.f32	d0, s7
+ 1048 0088 B7EEC33A 		vcvt.f64.f32	d3, s6
+ 1049 008c B3EE001B 		vmov.f64	d1, #1.6e+1
+ 1050 0090 37EE027B 		vadd.f64	d7, d7, d2
+ 1051 0094 24EE014B 		vmul.f64	d4, d4, d1
+ 1052 0098 27EE087B 		vmul.f64	d7, d7, d8
+ 1053 009c 24EE094B 		vmul.f64	d4, d4, d9
+ 1054 00a0 26EE477B 		vnmul.f64	d7, d6, d7
+ 1055 00a4 20EE011B 		vmul.f64	d1, d0, d1
+ARM GAS  /tmp/ccF4OKCp.s 			page 19
+
+
+ 1056 00a8 A5EE057B 		vfma.f64	d7, d5, d5
+ 1057 00ac B7EE005B 		vmov.f64	d5, #1.0e+0
+ 1058 00b0 24EE064B 		vmul.f64	d4, d4, d6
+ 1059 00b4 33EE055B 		vadd.f64	d5, d3, d5
+ 1060 00b8 A0EE083B 		vfma.f64	d3, d0, d8
+ 1061 00bc 35EE005B 		vadd.f64	d5, d5, d0
+ 1062 00c0 21EE061B 		vmul.f64	d1, d1, d6
+ 1063 00c4 A6EE047B 		vfma.f64	d7, d6, d4
+ 1064 00c8 3BEE03BB 		vadd.f64	d11, d11, d3
+ 1065 00cc 2BEE08BB 		vmul.f64	d11, d11, d8
+ 1066 00d0 26EE4BBB 		vnmul.f64	d11, d6, d11
+ 1067 00d4 A5EE05BB 		vfma.f64	d11, d5, d5
+ 1068 00d8 A6EE01BB 		vfma.f64	d11, d6, d1
+ 1069 00dc 87EE0B0B 		vdiv.f64	d0, d7, d11
+ 1070 00e0 B7EEC00B 		vcvt.f32.f64	s0, d0
+ 1071 00e4 03B0     		add	sp, sp, #12
+ 1072              		@ sp needed
+ 1073 00e6 BDEC088B 		vldm	sp!, {d8-d11}
+ 1074 00ea 00BD     		pop	{pc}
+ 1075              	.L104:
+ 1076 00ec AFF30080 		.align	3
+ 1077              	.L103:
+ 1078 00f0 182D4454 		.word	1413754136
+ 1079 00f4 FB211940 		.word	1075388923
+ 1081              		.section	.text._ZN8AudioLib7Biquad212ClearBuffersEv,"ax",%progbits
+ 1082              		.align	1
+ 1083              		.p2align 2,,3
+ 1084              		.global	_ZN8AudioLib7Biquad212ClearBuffersEv
+ 1085              		.syntax unified
+ 1086              		.thumb
+ 1087              		.thumb_func
+ 1089              	_ZN8AudioLib7Biquad212ClearBuffersEv:
+ 1090              		@ args = 0, pretend = 0, frame = 0
+ 1091              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1092              		@ link register save eliminated.
+ 1093 0000 0023     		movs	r3, #0
+ 1094 0002 C362     		str	r3, [r0, #44]	@ float
+ 1095 0004 8362     		str	r3, [r0, #40]	@ float
+ 1096 0006 4363     		str	r3, [r0, #52]	@ float
+ 1097 0008 4362     		str	r3, [r0, #36]	@ float
+ 1098 000a 0363     		str	r3, [r0, #48]	@ float
+ 1099 000c 7047     		bx	lr
+ 1101 000e 00BF     		.ident	"GCC: (Fedora 15.2.0-1.fc43) 15.2.0"
+ARM GAS  /tmp/ccF4OKCp.s 			page 20
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 Biquad2.cpp
+     /tmp/ccF4OKCp.s:17     .text._ZN8AudioLib7Biquad2C2Ev:00000000 $t
+     /tmp/ccF4OKCp.s:24     .text._ZN8AudioLib7Biquad2C2Ev:00000000 _ZN8AudioLib7Biquad2C2Ev
+     /tmp/ccF4OKCp.s:24     .text._ZN8AudioLib7Biquad2C2Ev:00000000 _ZN8AudioLib7Biquad2C1Ev
+     /tmp/ccF4OKCp.s:39     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000000 $t
+     /tmp/ccF4OKCp.s:46     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000000 _ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf
+     /tmp/ccF4OKCp.s:80     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000060 $d
+     /tmp/ccF4OKCp.s:250    .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000290 $d
+     /tmp/ccF4OKCp.s:46     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000000 _ZN8AudioLib7Biquad2C1ENS0_10FilterTypeEf
+     /tmp/ccF4OKCp.s:258    .text._ZN8AudioLib7Biquad2D2Ev:00000000 $t
+     /tmp/ccF4OKCp.s:265    .text._ZN8AudioLib7Biquad2D2Ev:00000000 _ZN8AudioLib7Biquad2D2Ev
+     /tmp/ccF4OKCp.s:265    .text._ZN8AudioLib7Biquad2D2Ev:00000000 _ZN8AudioLib7Biquad2D1Ev
+     /tmp/ccF4OKCp.s:274    .text._ZN8AudioLib7Biquad213GetSamplerateEv:00000000 $t
+     /tmp/ccF4OKCp.s:281    .text._ZN8AudioLib7Biquad213GetSamplerateEv:00000000 _ZN8AudioLib7Biquad213GetSamplerateEv
+     /tmp/ccF4OKCp.s:289    .text._ZN8AudioLib7Biquad213SetSamplerateEf:00000000 $t
+     /tmp/ccF4OKCp.s:296    .text._ZN8AudioLib7Biquad213SetSamplerateEf:00000000 _ZN8AudioLib7Biquad213SetSamplerateEf
+     /tmp/ccF4OKCp.s:331    .text._ZN8AudioLib7Biquad213SetSamplerateEf:00000066 $d
+     /tmp/ccF4OKCp.s:338    .text._ZN8AudioLib7Biquad213SetSamplerateEf:00000074 $t
+     /tmp/ccF4OKCp.s:540    .text._ZN8AudioLib7Biquad213SetSamplerateEf:00000330 $d
+     /tmp/ccF4OKCp.s:545    .text._ZN8AudioLib7Biquad29GetGainDbEv:00000000 $t
+     /tmp/ccF4OKCp.s:552    .text._ZN8AudioLib7Biquad29GetGainDbEv:00000000 _ZN8AudioLib7Biquad29GetGainDbEv
+     /tmp/ccF4OKCp.s:563    .text._ZN8AudioLib7Biquad29SetGainDbEf:00000000 $t
+     /tmp/ccF4OKCp.s:570    .text._ZN8AudioLib7Biquad29SetGainDbEf:00000000 _ZN8AudioLib7Biquad29SetGainDbEf
+     /tmp/ccF4OKCp.s:595    .text._ZN8AudioLib7Biquad29SetGainDbEf:0000003c $d
+     /tmp/ccF4OKCp.s:598    .text._ZN8AudioLib7Biquad27GetGainEv:00000000 $t
+     /tmp/ccF4OKCp.s:605    .text._ZN8AudioLib7Biquad27GetGainEv:00000000 _ZN8AudioLib7Biquad27GetGainEv
+     /tmp/ccF4OKCp.s:613    .text._ZN8AudioLib7Biquad27SetGainEf:00000000 $t
+     /tmp/ccF4OKCp.s:620    .text._ZN8AudioLib7Biquad27SetGainEf:00000000 _ZN8AudioLib7Biquad27SetGainEf
+     /tmp/ccF4OKCp.s:633    .text._ZN8AudioLib7Biquad27SetGainEf:00000014 $d
+     /tmp/ccF4OKCp.s:636    .text._ZN8AudioLib7Biquad24GetQEv:00000000 $t
+     /tmp/ccF4OKCp.s:643    .text._ZN8AudioLib7Biquad24GetQEv:00000000 _ZN8AudioLib7Biquad24GetQEv
+     /tmp/ccF4OKCp.s:651    .text._ZN8AudioLib7Biquad24SetQEf:00000000 $t
+     /tmp/ccF4OKCp.s:658    .text._ZN8AudioLib7Biquad24SetQEf:00000000 _ZN8AudioLib7Biquad24SetQEf
+     /tmp/ccF4OKCp.s:671    .text._ZN8AudioLib7Biquad24SetQEf:00000014 $d
+     /tmp/ccF4OKCp.s:674    .text._ZN8AudioLib7Biquad24GetAEv:00000000 $t
+     /tmp/ccF4OKCp.s:681    .text._ZN8AudioLib7Biquad24GetAEv:00000000 _ZN8AudioLib7Biquad24GetAEv
+     /tmp/ccF4OKCp.s:710    .text._ZN8AudioLib7Biquad24GetBEv:00000000 $t
+     /tmp/ccF4OKCp.s:717    .text._ZN8AudioLib7Biquad24GetBEv:00000000 _ZN8AudioLib7Biquad24GetBEv
+     /tmp/ccF4OKCp.s:746    .text._ZN8AudioLib7Biquad26UpdateEv:00000000 $t
+     /tmp/ccF4OKCp.s:753    .text._ZN8AudioLib7Biquad26UpdateEv:00000000 _ZN8AudioLib7Biquad26UpdateEv
+     /tmp/ccF4OKCp.s:788    .text._ZN8AudioLib7Biquad26UpdateEv:00000066 $d
+     /tmp/ccF4OKCp.s:795    .text._ZN8AudioLib7Biquad26UpdateEv:00000074 $t
+     /tmp/ccF4OKCp.s:997    .text._ZN8AudioLib7Biquad26UpdateEv:00000330 $d
+     /tmp/ccF4OKCp.s:1002   .text._ZN8AudioLib7Biquad211GetResponseEf:00000000 $t
+     /tmp/ccF4OKCp.s:1009   .text._ZN8AudioLib7Biquad211GetResponseEf:00000000 _ZN8AudioLib7Biquad211GetResponseEf
+     /tmp/ccF4OKCp.s:1078   .text._ZN8AudioLib7Biquad211GetResponseEf:000000f0 $d
+     /tmp/ccF4OKCp.s:1082   .text._ZN8AudioLib7Biquad212ClearBuffersEv:00000000 $t
+     /tmp/ccF4OKCp.s:1089   .text._ZN8AudioLib7Biquad212ClearBuffersEv:00000000 _ZN8AudioLib7Biquad212ClearBuffersEv
+     /tmp/ccF4OKCp.s:87     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000067 $d
+     /tmp/ccF4OKCp.s:87     .text._ZN8AudioLib7Biquad2C2ENS0_10FilterTypeEf:00000068 $t
+
+UNDEFINED SYMBOLS
+sinf
+cosf
+sqrtf
+log10f
+ARM GAS  /tmp/ccF4OKCp.s 			page 21
+
+
+pow
+_Znwj
+sin

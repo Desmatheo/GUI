@@ -1,0 +1,408 @@
+ARM GAS  /tmp/ccbS8C7p.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"ShaRandom.cpp"
+  15              		.text
+  16              		.section	.rodata._ZN8AudioLib9ShaRandom8GenerateExi.str1.4,"aMS",%progbits,1
+  17              		.align	2
+  18              	.LC0:
+  19 0000 76656374 		.ascii	"vector::_M_realloc_append\000"
+  19      6F723A3A 
+  19      5F4D5F72 
+  19      65616C6C 
+  19      6F635F61 
+  20              		.section	.text._ZN8AudioLib9ShaRandom8GenerateExi,"ax",%progbits
+  21              		.align	1
+  22              		.p2align 2,,3
+  23              		.global	_ZN8AudioLib9ShaRandom8GenerateExi
+  24              		.syntax unified
+  25              		.thumb
+  26              		.thumb_func
+  28              	_ZN8AudioLib9ShaRandom8GenerateExi:
+  29              		@ args = 4, pretend = 0, frame = 40
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  32 0004 2DED028B 		vpush.64	{d8}
+  33 0008 8BB0     		sub	sp, sp, #44
+  34 000a 1C46     		mov	r4, r3
+  35 000c 1546     		mov	r5, r2
+  36 000e 0026     		movs	r6, #0
+  37 0010 169B     		ldr	r3, [sp, #88]
+  38 0012 6FF0004A 		mvn	r10, #-2147483648
+  39 0016 0590     		str	r0, [sp, #20]
+  40 0018 0820     		movs	r0, #8
+  41 001a C3F3DA03 		ubfx	r3, r3, #3, #27
+  42 001e B046     		mov	r8, r6
+  43 0020 B346     		mov	fp, r6
+  44 0022 0493     		str	r3, [sp, #16]
+  45 0024 FFF7FEFF 		bl	_Znwj
+  46 0028 0346     		mov	r3, r0
+  47 002a 8146     		mov	r9, r0
+  48 002c 43F8085B 		str	r5, [r3], #8	@ unaligned
+  49 0030 3546     		mov	r5, r6
+  50 0032 0193     		str	r3, [sp, #4]
+  51 0034 4460     		str	r4, [r0, #4]	@ unaligned
+  52              	.L12:
+  53 0036 4946     		mov	r1, r9
+  54 0038 0822     		movs	r2, #8
+ARM GAS  /tmp/ccbS8C7p.s 			page 2
+
+
+  55 003a 07A8     		add	r0, sp, #28
+  56 003c FFF7FEFF 		bl	_Z6sha256Phi
+  57 0040 0023     		movs	r3, #0
+  58 0042 099A     		ldr	r2, [sp, #36]
+  59 0044 4846     		mov	r0, r9
+  60 0046 0199     		ldr	r1, [sp, #4]
+  61 0048 0993     		str	r3, [sp, #36]
+  62 004a 0192     		str	r2, [sp, #4]
+  63 004c DDE90797 		ldrd	r9, r7, [sp, #28]
+  64 0050 0793     		str	r3, [sp, #28]
+  65 0052 40B1     		cbz	r0, .L3
+  66 0054 091A     		subs	r1, r1, r0
+  67 0056 FFF7FEFF 		bl	_ZdlPvj
+  68 005a 0798     		ldr	r0, [sp, #28]
+  69 005c 0999     		ldr	r1, [sp, #36]
+  70 005e 091A     		subs	r1, r1, r0
+  71 0060 08B1     		cbz	r0, .L3
+  72 0062 FFF7FEFF 		bl	_ZdlPvj
+  73              	.L3:
+  74 0066 B945     		cmp	r9, r7
+  75 0068 3ED0     		beq	.L5
+  76 006a 4C46     		mov	r4, r9
+  77 006c CDF80890 		str	r9, [sp, #8]
+  78 0070 CDF80CB0 		str	fp, [sp, #12]
+  79 0074 C146     		mov	r9, r8
+  80 0076 04E0     		b	.L11
+  81              	.L48:
+  82 0078 0134     		adds	r4, r4, #1
+  83 007a 05F8011B 		strb	r1, [r5], #1
+  84 007e A742     		cmp	r7, r4
+  85 0080 2FD0     		beq	.L47
+  86              	.L11:
+  87 0082 B542     		cmp	r5, r6
+  88 0084 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+  89 0086 F7D1     		bne	.L48
+  90 0088 A5EB090B 		sub	fp, r5, r9
+  91 008c D345     		cmp	fp, r10
+  92 008e 00F0A180 		beq	.L18
+  93 0092 BBF1010F 		cmp	fp, #1
+  94 0096 2CBF     		ite	cs
+  95 0098 0BEB0B06 		addcs	r6, fp, fp
+  96 009c 0BF10106 		addcc	r6, fp, #1
+  97 00a0 0091     		str	r1, [sp]
+  98 00a2 5645     		cmp	r6, r10
+  99 00a4 28BF     		it	cs
+ 100 00a6 5646     		movcs	r6, r10
+ 101 00a8 3046     		mov	r0, r6
+ 102 00aa FFF7FEFF 		bl	_Znwj
+ 103 00ae 0099     		ldr	r1, [sp]
+ 104 00b0 8046     		mov	r8, r0
+ 105 00b2 00F80B10 		strb	r1, [r0, fp]
+ 106 00b6 BBF1000F 		cmp	fp, #0
+ 107 00ba 03D0     		beq	.L9
+ 108 00bc 5A46     		mov	r2, fp
+ 109 00be 4946     		mov	r1, r9
+ 110 00c0 FFF7FEFF 		bl	memcpy
+ 111              	.L9:
+ARM GAS  /tmp/ccbS8C7p.s 			page 3
+
+
+ 112 00c4 0BF10105 		add	r5, fp, #1
+ 113 00c8 4544     		add	r5, r5, r8
+ 114 00ca B9F1000F 		cmp	r9, #0
+ 115 00ce 03D0     		beq	.L10
+ 116 00d0 5946     		mov	r1, fp
+ 117 00d2 4846     		mov	r0, r9
+ 118 00d4 FFF7FEFF 		bl	_ZdlPvj
+ 119              	.L10:
+ 120 00d8 0134     		adds	r4, r4, #1
+ 121 00da 4644     		add	r6, r6, r8
+ 122 00dc C146     		mov	r9, r8
+ 123 00de A742     		cmp	r7, r4
+ 124 00e0 CFD1     		bne	.L11
+ 125              	.L47:
+ 126 00e2 C846     		mov	r8, r9
+ 127 00e4 DDE9029B 		ldrd	r9, fp, [sp, #8]
+ 128              	.L5:
+ 129 00e8 049B     		ldr	r3, [sp, #16]
+ 130 00ea 5B45     		cmp	r3, fp
+ 131 00ec 02D0     		beq	.L49
+ 132 00ee 0BF1010B 		add	fp, fp, #1
+ 133 00f2 A0E7     		b	.L12
+ 134              	.L49:
+ 135 00f4 0025     		movs	r5, #0
+ 136 00f6 059B     		ldr	r3, [sp, #20]
+ 137 00f8 C3E90055 		strd	r5, r5, [r3]
+ 138 00fc 9D60     		str	r5, [r3, #8]
+ 139 00fe 169B     		ldr	r3, [sp, #88]
+ 140 0100 AB42     		cmp	r3, r5
+ 141 0102 50DD     		ble	.L22
+ 142 0104 A8F1040A 		sub	r10, r8, #4
+ 143 0108 DFED348A 		vldr.32	s17, .L52
+ 144 010c 2C46     		mov	r4, r5
+ 145 010e 2F46     		mov	r7, r5
+ 146 0110 0496     		str	r6, [sp, #16]
+ 147 0112 CDE90289 		strd	r8, r9, [sp, #8]
+ 148 0116 DDF85890 		ldr	r9, [sp, #88]
+ 149 011a DDF81480 		ldr	r8, [sp, #20]
+ 150 011e 06E0     		b	.L21
+ 151              	.L51:
+ 152 0120 0137     		adds	r7, r7, #1
+ 153 0122 A4EC018A 		vstmia.32	r4!, {s16}
+ 154 0126 C8F80440 		str	r4, [r8, #4]
+ 155 012a B945     		cmp	r9, r7
+ 156 012c 38D0     		beq	.L50
+ 157              	.L21:
+ 158 012e DAED017A 		vldr.32	s15, [r10, #4]	@ int
+ 159 0132 A542     		cmp	r5, r4
+ 160 0134 0AF1040A 		add	r10, r10, #4
+ 161 0138 F8EE677A 		vcvt.f32.u32	s15, s15
+ 162 013c 27EEA88A 		vmul.f32	s16, s15, s17
+ 163 0140 EED1     		bne	.L51
+ 164 0142 D8F80060 		ldr	r6, [r8]
+ 165 0146 6FF06043 		mvn	r3, #-536870912
+ 166 014a AA1B     		subs	r2, r5, r6
+ 167 014c B3EBA20F 		cmp	r3, r2, asr #2
+ 168 0150 4FEAA205 		asr	r5, r2, #2
+ARM GAS  /tmp/ccbS8C7p.s 			page 4
+
+
+ 169 0154 3ED0     		beq	.L18
+ 170 0156 012D     		cmp	r5, #1
+ 171 0158 2CBF     		ite	cs
+ 172 015a 6D19     		addcs	r5, r5, r5
+ 173 015c 0135     		addcc	r5, r5, #1
+ 174 015e 0092     		str	r2, [sp]
+ 175 0160 9D42     		cmp	r5, r3
+ 176 0162 28BF     		it	cs
+ 177 0164 1D46     		movcs	r5, r3
+ 178 0166 AD00     		lsls	r5, r5, #2
+ 179 0168 2846     		mov	r0, r5
+ 180 016a FFF7FEFF 		bl	_Znwj
+ 181 016e 009A     		ldr	r2, [sp]
+ 182 0170 8346     		mov	fp, r0
+ 183 0172 8118     		adds	r1, r0, r2
+ 184 0174 81ED008A 		vstr.32	s16, [r1]
+ 185 0178 1AB1     		cbz	r2, .L19
+ 186 017a 3146     		mov	r1, r6
+ 187 017c FFF7FEFF 		bl	memcpy
+ 188 0180 009A     		ldr	r2, [sp]
+ 189              	.L19:
+ 190 0182 141D     		adds	r4, r2, #4
+ 191 0184 5C44     		add	r4, r4, fp
+ 192 0186 1EB1     		cbz	r6, .L20
+ 193 0188 1146     		mov	r1, r2
+ 194 018a 3046     		mov	r0, r6
+ 195 018c FFF7FEFF 		bl	_ZdlPvj
+ 196              	.L20:
+ 197 0190 0137     		adds	r7, r7, #1
+ 198 0192 5D44     		add	r5, r5, fp
+ 199 0194 B945     		cmp	r9, r7
+ 200 0196 C8F80850 		str	r5, [r8, #8]
+ 201 019a C8E900B4 		strd	fp, r4, [r8]
+ 202 019e C6D1     		bne	.L21
+ 203              	.L50:
+ 204 01a0 049E     		ldr	r6, [sp, #16]
+ 205 01a2 DDE90289 		ldrd	r8, r9, [sp, #8]
+ 206              	.L22:
+ 207 01a6 B9F1000F 		cmp	r9, #0
+ 208 01aa 05D0     		beq	.L15
+ 209 01ac 019B     		ldr	r3, [sp, #4]
+ 210 01ae 4846     		mov	r0, r9
+ 211 01b0 A3EB0901 		sub	r1, r3, r9
+ 212 01b4 FFF7FEFF 		bl	_ZdlPvj
+ 213              	.L15:
+ 214 01b8 B8F1000F 		cmp	r8, #0
+ 215 01bc 04D0     		beq	.L1
+ 216 01be A6EB0801 		sub	r1, r6, r8
+ 217 01c2 4046     		mov	r0, r8
+ 218 01c4 FFF7FEFF 		bl	_ZdlPvj
+ 219              	.L1:
+ 220 01c8 0598     		ldr	r0, [sp, #20]
+ 221 01ca 0BB0     		add	sp, sp, #44
+ 222              		@ sp needed
+ 223 01cc BDEC028B 		vldm	sp!, {d8}
+ 224 01d0 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 225              	.L18:
+ARM GAS  /tmp/ccbS8C7p.s 			page 5
+
+
+ 226 01d4 0248     		ldr	r0, .L52+4
+ 227 01d6 FFF7FEFF 		bl	_ZSt20__throw_length_errorPKc
+ 228              	.L53:
+ 229 01da 00BF     		.align	2
+ 230              	.L52:
+ 231 01dc 0000802F 		.word	796917760
+ 232 01e0 00000000 		.word	.LC0
+ 234              		.section	.text._ZN8AudioLib9ShaRandom8GenerateExif,"ax",%progbits
+ 235              		.align	1
+ 236              		.p2align 2,,3
+ 237              		.global	_ZN8AudioLib9ShaRandom8GenerateExif
+ 238              		.syntax unified
+ 239              		.thumb
+ 240              		.thumb_func
+ 242              	_ZN8AudioLib9ShaRandom8GenerateExif:
+ 243              		@ args = 4, pretend = 0, frame = 48
+ 244              		@ frame_needed = 0, uses_anonymous_args = 0
+ 245 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 246 0004 2DED028B 		vpush.64	{d8}
+ 247 0008 8FB0     		sub	sp, sp, #60
+ 248 000a 1C46     		mov	r4, r3
+ 249 000c 1546     		mov	r5, r2
+ 250 000e 8046     		mov	r8, r0
+ 251 0010 DDF86890 		ldr	r9, [sp, #104]
+ 252 0014 08A8     		add	r0, sp, #32
+ 253 0016 F0EE408A 		vmov.f32	s17, s0
+ 254 001a CDF80090 		str	r9, [sp]
+ 255 001e FFF7FEFF 		bl	_ZN8AudioLib9ShaRandom8GenerateExi
+ 256 0022 E343     		mvns	r3, r4
+ 257 0024 EA43     		mvns	r2, r5
+ 258 0026 0BA8     		add	r0, sp, #44
+ 259 0028 CDF80090 		str	r9, [sp]
+ 260 002c 089C     		ldr	r4, [sp, #32]
+ 261 002e FFF7FEFF 		bl	_ZN8AudioLib9ShaRandom8GenerateExi
+ 262 0032 0023     		movs	r3, #0
+ 263 0034 DDF82CB0 		ldr	fp, [sp, #44]
+ 264 0038 9945     		cmp	r9, r3
+ 265 003a C8F80830 		str	r3, [r8, #8]
+ 266 003e C8E90033 		strd	r3, r3, [r8]
+ 267 0042 60DD     		ble	.L64
+ 268 0044 B7EE008A 		vmov.f32	s16, #1.0e+0
+ 269 0048 2746     		mov	r7, r4
+ 270 004a 5E46     		mov	r6, fp
+ 271 004c 1A46     		mov	r2, r3
+ 272 004e 1D46     		mov	r5, r3
+ 273 0050 38EE688A 		vsub.f32	s16, s16, s17
+ 274 0054 CDE906B4 		strd	fp, r4, [sp, #24]
+ 275 0058 1C46     		mov	r4, r3
+ 276 005a 08E0     		b	.L63
+ 277              	.L78:
+ 278 005c 0135     		adds	r5, r5, #1
+ 279 005e E4EC017A 		vstmia.32	r4!, {s15}
+ 280 0062 0437     		adds	r7, r7, #4
+ 281 0064 0436     		adds	r6, r6, #4
+ 282 0066 A945     		cmp	r9, r5
+ 283 0068 C8F80440 		str	r4, [r8, #4]
+ 284 006c 49D0     		beq	.L77
+ARM GAS  /tmp/ccbS8C7p.s 			page 6
+
+
+ 285              	.L63:
+ 286 006e D6ED007A 		vldr.32	s15, [r6]
+ 287 0072 A242     		cmp	r2, r4
+ 288 0074 97ED007A 		vldr.32	s14, [r7]
+ 289 0078 68EEA77A 		vmul.f32	s15, s17, s15
+ 290 007c E7EE087A 		vfma.f32	s15, s14, s16
+ 291 0080 ECD1     		bne	.L78
+ 292 0082 D8F80030 		ldr	r3, [r8]
+ 293 0086 6FF06041 		mvn	r1, #-536870912
+ 294 008a D21A     		subs	r2, r2, r3
+ 295 008c B1EBA20F 		cmp	r1, r2, asr #2
+ 296 0090 4FEAA20A 		asr	r10, r2, #2
+ 297 0094 4CD0     		beq	.L79
+ 298 0096 BAF1010F 		cmp	r10, #1
+ 299 009a 2CBF     		ite	cs
+ 300 009c D244     		addcs	r10, r10, r10
+ 301 009e 0AF1010A 		addcc	r10, r10, #1
+ 302 00a2 CDED037A 		vstr.32	s15, [sp, #12]	@ int
+ 303 00a6 CDE90432 		strd	r3, r2, [sp, #16]
+ 304 00aa 6FF06043 		mvn	r3, #-536870912
+ 305 00ae 9A45     		cmp	r10, r3
+ 306 00b0 28BF     		it	cs
+ 307 00b2 9A46     		movcs	r10, r3
+ 308 00b4 4FEA8A0A 		lsl	r10, r10, #2
+ 309 00b8 5046     		mov	r0, r10
+ 310 00ba FFF7FEFF 		bl	_Znwj
+ 311 00be 059A     		ldr	r2, [sp, #20]
+ 312 00c0 DDED037A 		vldr.32	s15, [sp, #12]	@ int
+ 313 00c4 8346     		mov	fp, r0
+ 314 00c6 8118     		adds	r1, r0, r2
+ 315 00c8 049B     		ldr	r3, [sp, #16]
+ 316 00ca C1ED007A 		vstr.32	s15, [r1]
+ 317 00ce 32B1     		cbz	r2, .L61
+ 318 00d0 1946     		mov	r1, r3
+ 319 00d2 0492     		str	r2, [sp, #16]
+ 320 00d4 0393     		str	r3, [sp, #12]
+ 321 00d6 FFF7FEFF 		bl	memcpy
+ 322 00da DDE90332 		ldrd	r3, r2, [sp, #12]
+ 323              	.L61:
+ 324 00de 141D     		adds	r4, r2, #4
+ 325 00e0 5C44     		add	r4, r4, fp
+ 326 00e2 1BB1     		cbz	r3, .L62
+ 327 00e4 1146     		mov	r1, r2
+ 328 00e6 1846     		mov	r0, r3
+ 329 00e8 FFF7FEFF 		bl	_ZdlPvj
+ 330              	.L62:
+ 331 00ec 0135     		adds	r5, r5, #1
+ 332 00ee 0BEB0A02 		add	r2, fp, r10
+ 333 00f2 0437     		adds	r7, r7, #4
+ 334 00f4 0436     		adds	r6, r6, #4
+ 335 00f6 A945     		cmp	r9, r5
+ 336 00f8 C8F80820 		str	r2, [r8, #8]
+ 337 00fc C8E900B4 		strd	fp, r4, [r8]
+ 338 0100 B5D1     		bne	.L63
+ 339              	.L77:
+ 340 0102 DDE906B4 		ldrd	fp, r4, [sp, #24]
+ 341              	.L64:
+ARM GAS  /tmp/ccbS8C7p.s 			page 7
+
+
+ 342 0106 BBF1000F 		cmp	fp, #0
+ 343 010a 05D0     		beq	.L57
+ 344 010c 0D99     		ldr	r1, [sp, #52]
+ 345 010e 5846     		mov	r0, fp
+ 346 0110 A1EB0B01 		sub	r1, r1, fp
+ 347 0114 FFF7FEFF 		bl	_ZdlPvj
+ 348              	.L57:
+ 349 0118 24B1     		cbz	r4, .L54
+ 350 011a 0A99     		ldr	r1, [sp, #40]
+ 351 011c 2046     		mov	r0, r4
+ 352 011e 091B     		subs	r1, r1, r4
+ 353 0120 FFF7FEFF 		bl	_ZdlPvj
+ 354              	.L54:
+ 355 0124 4046     		mov	r0, r8
+ 356 0126 0FB0     		add	sp, sp, #60
+ 357              		@ sp needed
+ 358 0128 BDEC028B 		vldm	sp!, {d8}
+ 359 012c BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 360              	.L79:
+ 361 0130 0148     		ldr	r0, .L80
+ 362 0132 FFF7FEFF 		bl	_ZSt20__throw_length_errorPKc
+ 363              	.L81:
+ 364 0136 00BF     		.align	2
+ 365              	.L80:
+ 366 0138 00000000 		.word	.LC0
+ 368              		.ident	"GCC: (Fedora 15.2.0-1.fc43) 15.2.0"
+ARM GAS  /tmp/ccbS8C7p.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ShaRandom.cpp
+     /tmp/ccbS8C7p.s:17     .rodata._ZN8AudioLib9ShaRandom8GenerateExi.str1.4:00000000 $d
+     /tmp/ccbS8C7p.s:21     .text._ZN8AudioLib9ShaRandom8GenerateExi:00000000 $t
+     /tmp/ccbS8C7p.s:28     .text._ZN8AudioLib9ShaRandom8GenerateExi:00000000 _ZN8AudioLib9ShaRandom8GenerateExi
+     /tmp/ccbS8C7p.s:231    .text._ZN8AudioLib9ShaRandom8GenerateExi:000001dc $d
+     /tmp/ccbS8C7p.s:235    .text._ZN8AudioLib9ShaRandom8GenerateExif:00000000 $t
+     /tmp/ccbS8C7p.s:242    .text._ZN8AudioLib9ShaRandom8GenerateExif:00000000 _ZN8AudioLib9ShaRandom8GenerateExif
+     /tmp/ccbS8C7p.s:366    .text._ZN8AudioLib9ShaRandom8GenerateExif:00000138 $d
+
+UNDEFINED SYMBOLS
+_Znwj
+_Z6sha256Phi
+_ZdlPvj
+memcpy
+_ZSt20__throw_length_errorPKc

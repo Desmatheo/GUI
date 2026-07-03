@@ -43,10 +43,11 @@ public:
     void setModRate(float hz);       // 0..5
     void setModDepthMs(float ms);    // 0..10
     void setParams(float time_ms, float fb, float mix, float rate_hz, float depth_ms);
+    void setParameter(int param_id, float value);
 
     // ON/OFF soft basé sur le mix
-    void setEnabled(bool e)          { enabled_ = e; active_mix_ = enabled_ ? mix_ : 0.0f; }
-    bool isEnabled() const           { return enabled_; }
+    void setEnabled(bool e);
+    bool isEnabled() const           { return active; }
 
     // AudioStream
     void update() override;
@@ -70,6 +71,7 @@ private:
     uint32_t  buf_len_    = 0;       // fixé par begin()
     bool      use_extmem_ = false;   // true si PSRAM utilisée
     bool      ready_      = false;   // false => update() ignore (no-op)
+    bool      active      = false;
 
     // Paramètres utilisateur
     float time_ms_      = 400.0f;    // ms

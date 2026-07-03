@@ -9,8 +9,13 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 win = ctk.CTk()
-win.title("Pédale Hexa - Mode Hardware pur (Teensy)")
+win.title("Pédale Hexa - Contrôleur MIDI (Teensy/Daisy)")
 win.geometry("900x850")
+
+# --- CONSTANTES DE CONFIGURATION (façon "#define") ---
+USE_LOOPMIDI = False  # Mettre à True pour utiliser loopMIDI (Windows)
+NOM_PORT_BOUCLE = 'loopMIDI Port 1'
+# -----------------------------------------------------
 
 # Connexion midi
 try:
@@ -21,14 +26,33 @@ try:
         print(f" - {p}")
     print("---------------------------\n")
 
-    port = next((p for p in ports if "Daisy" in p or "USB" in p or "MIDI" in p and "loop" not in p), None)
-    if port:
-        port_midi = mido.open_output(port) 
-        print(f"Connecté DIRECTEMENT via RtMidi : {port}")
+    if USE_LOOPMIDI:
+        port_midi = mido.open_output(NOM_PORT_BOUCLE)
+        print(f"Connecté en SIMULATION sur : {NOM_PORT_BOUCLE}")
+        midi_ok = True
     else:
-        port_midi = mido.open_output('loopMIDI Port 1') 
-        print("Port MIDI non trouvée, repli sur loopMIDI")
-    midi_ok = True
+        port_midi = None
+        # Recherche matérielle (insensible à la casse), priorité à la Teensy
+        port_name = next((p for p in ports if "teensy" in p.lower()), None)
+        device_type = "TEENSY"
+
+        # Si pas de Teensy, on cherche une Daisy Seed
+        if not port_name:
+            port_name = next((p for p in ports if "daisy" in p.lower() or "usb" in p.lower()), None)
+            device_type = "DAISY (ou port USB générique)"
+
+        if port_name:
+            try:
+                port_midi = mido.open_output(port_name)
+                print(f"Connecté à {device_type} via RtMidi : {port_name}")
+                midi_ok = True
+            except Exception as e:
+                print(f"Erreur à l'ouverture du port '{port_name}': {e}")
+                port_midi = None
+                midi_ok = False
+
+        if not port_midi:
+            print("Port MIDI (Teensy ou Daisy) non trouvé, lancement de l'interface SANS MIDI.")
 except Exception as e:
     port_midi = None
     midi_ok = False
@@ -55,24 +79,28 @@ if MONO_MODE:
             "base_cc": 50,
             "params": ["Gain", "Tone", "Mix", "--", "--", "--"]
         },
-        "Reverb": {
+        # "Reverb": {
+        #     "base_cc": 90,
+        #     "params": ["Room Size", "Damping", "Mix", "--", "--", "--"]
+        # },
+        "Earth": {
             "base_cc": 90,
-            "params": ["Room Size", "Damping", "Mix", "--", "--", "--"]
+            "params": ["Mix", "--", "--", "--", "--", "--"]
         }
     }
 else:
     CONFIG_EFFETS = {
         "Delay": {
             "base_cc": 10,
-            "params": ["Time", "Feedback", "Mix", "Mod R.", "Mod D.", "--"]
+            "params": ["Mix", "DelayTime", "FeedBack", "--", "--", "Vol"]
         },
         "Distortion": {
             "base_cc": 50,
-            "params": ["Gain", "Tone", "Mix", "--", "--", "--"]
+            "params": ["Gain", "Tone", "Mix", "--", "--", "Vol"]
         },
-        "Reverb": {
+        "Earth": {
             "base_cc": 90,
-            "params": ["Room Size", "Damping", "Mix", "--", "--", "--"]
+            "params": ["Mix", "Octave", "--", "--", "--", "Vol"]
         }
     }
 
@@ -149,6 +177,36 @@ def slider_callback(valeur, index):
 def changer_effet(nouvel_effet):
     global effet_actif
     effet_actif = nouvel_effet
+
+    # Envoi du message MIDI pour notifier le changement d'effet
+    if midi_ok and port_midi:
+        try:
+            # On associe chaque effet à un index (0, 1, 2...)
+            effets_liste = list(CONFIG_EFFETS.keys())
+            effet_index = effets_liste.index(nouvel_effet)
+            
+            # On choisit un numéro de CC qui n'est pas utilisé par les paramètres.
+            # Ici, on utilise le CC 9 pour le changement d'effet.
+            cc_changement_effet = 9
+            
+            msg = mido.Message('control_change', control=cc_changement_effet, value=effet_index)
+            port_midi.send(msg)
+            print(f"MIDI OUT: Changement d'effet sur CC#{cc_changement_effet} -> {nouvel_effet} (valeur: {effet_index})")
+
+            # Envoi de tous les paramètres du nouvel effet (1 à 1)
+            base_cc = CONFIG_EFFETS[nouvel_effet]["base_cc"]
+            for corde, valeurs in memoire_effets[nouvel_effet].items():
+                for index, val in enumerate(valeurs):
+                    if MONO_MODE:
+                        cc_num = base_cc + index
+                    else:
+                        cc_num = base_cc + (corde * 6) + index
+                    port_midi.send(mido.Message('control_change', control=cc_num, value=int(val)))
+            print(f"MIDI OUT: Tous les paramètres pour l'effet {nouvel_effet} ont été envoyés.")
+
+        except Exception as e:
+            print(f"Erreur lors de l'envoi MIDI pour changement d'effet : {e}")
+
     maj_sliders_visuels()
 
 def action_random():

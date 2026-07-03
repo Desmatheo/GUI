@@ -1,0 +1,3707 @@
+ARM GAS  /tmp/ccqGY1VW.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 2
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"EffectPhaseShifter.cpp"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "EffectPhaseShifter.cpp"
+  19              		.section	.text._ZN16PitchShiftEffect10updateTestEffi,"ax",%progbits
+  20              		.align	1
+  21              		.p2align 2,,3
+  22              		.global	_ZN16PitchShiftEffect10updateTestEffi
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	_ZN16PitchShiftEffect10updateTestEffi:
+  28              	.LVL0:
+  29              	.LFB5895:
+   1:EffectPhaseShifter.cpp **** #include "EffectPhaseShifter.h"
+   2:EffectPhaseShifter.cpp **** 
+   3:EffectPhaseShifter.cpp **** using namespace daisy;
+   4:EffectPhaseShifter.cpp **** using namespace daisysp;
+   5:EffectPhaseShifter.cpp **** 
+   6:EffectPhaseShifter.cpp **** PitchShiftEffect::PitchShiftEffect(daisy::DaisySeed& hw, float sampleRate) : hardware(hw) {
+   7:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+   8:EffectPhaseShifter.cpp ****     pitchShifterL.Init(sampleRate);
+   9:EffectPhaseShifter.cpp ****     pitchShifterR.Init(sampleRate);
+  10:EffectPhaseShifter.cpp **** 
+  11:EffectPhaseShifter.cpp ****     // Paramétrage par défaut : transposition en demi-tons
+  12:EffectPhaseShifter.cpp ****     // Exemple: 12.0f = une octave au-dessus, -12.0f = une octave en-dessous
+  13:EffectPhaseShifter.cpp ****     pitchShifterL.SetTransposition(12.0f);
+  14:EffectPhaseShifter.cpp ****     // pitchShifterR.SetTransposition(12.0f);
+  15:EffectPhaseShifter.cpp **** 
+  16:EffectPhaseShifter.cpp ****     // Optionnel : ajuste la taille du delay utilisé pour l'effet.
+  17:EffectPhaseShifter.cpp ****     // Un delai très court donne un effet robotique, un delai long donne de l'écho.
+  18:EffectPhaseShifter.cpp ****     // pitchShifterL.SetDelSize(4800); 
+  19:EffectPhaseShifter.cpp **** }
+  20:EffectPhaseShifter.cpp **** 
+  21:EffectPhaseShifter.cpp **** void PitchShiftEffect::update(const float** in, float** out, int idx) {
+  22:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+  23:EffectPhaseShifter.cpp ****     float inputR = in[1][idx];
+  24:EffectPhaseShifter.cpp **** 
+  25:EffectPhaseShifter.cpp ****     // Traitement du signal par les PitchShifters
+  26:EffectPhaseShifter.cpp ****     float pitch_outL = pitchShifterL.Process(inputL);
+  27:EffectPhaseShifter.cpp ****     // float pitch_outR = pitchShifterR.Process(inputR);
+  28:EffectPhaseShifter.cpp **** 
+  29:EffectPhaseShifter.cpp ****     // Mixage Dry/Wet
+ARM GAS  /tmp/ccqGY1VW.s 			page 2
+
+
+  30:EffectPhaseShifter.cpp ****     out[0][idx] = inputL * dryMix + pitch_outL * wetMix;
+  31:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+  32:EffectPhaseShifter.cpp **** }
+  33:EffectPhaseShifter.cpp **** 
+  34:EffectPhaseShifter.cpp **** float PitchShiftEffect::updateTest(const float in, float out, int idx) {
+  30              		.loc 1 34 72 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  35:EffectPhaseShifter.cpp ****     return in;
+  35              		.loc 1 35 5 view .LVU1
+  36:EffectPhaseShifter.cpp **** }
+  36              		.loc 1 36 1 is_stmt 0 view .LVU2
+  37 0000 7047     		bx	lr
+  38              		.cfi_endproc
+  39              	.LFE5895:
+  41 0002 00BF     		.section	.text._ZN16PitchShiftEffectD2Ev,"axG",%progbits,_ZN16PitchShiftEffectD5Ev,comdat
+  42              		.align	1
+  43              		.p2align 2,,3
+  44              		.weak	_ZN16PitchShiftEffectD2Ev
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  49              	_ZN16PitchShiftEffectD2Ev:
+  50              	.LVL1:
+  51              	.LFB6651:
+  52              		.file 2 "EffectPhaseShifter.h"
+   1:EffectPhaseShifter.h **** #pragma once
+   2:EffectPhaseShifter.h **** 
+   3:EffectPhaseShifter.h **** #include "daisy_seed.h"
+   4:EffectPhaseShifter.h **** #include "daisysp.h"
+   5:EffectPhaseShifter.h **** #include "../Effect.h"
+   6:EffectPhaseShifter.h **** 
+   7:EffectPhaseShifter.h **** using namespace daisy;
+   8:EffectPhaseShifter.h **** using namespace daisysp;
+   9:EffectPhaseShifter.h **** 
+  10:EffectPhaseShifter.h **** class PitchShiftEffect : public Effect {
+  53              		.loc 2 10 7 is_stmt 1 view -0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 0, uses_anonymous_args = 0
+  57              		@ link register save eliminated.
+  58              	.LBB106:
+  59              	.LBB107:
+  60              	.LBI107:
+  61              		.file 3 "../../DaisySP/Source/Effects/pitchshifter.h"
+   1:../../DaisySP/Source/Effects/pitchshifter.h **** /*
+   2:../../DaisySP/Source/Effects/pitchshifter.h **** Copyright (c) 2020 Electrosmith, Corp
+   3:../../DaisySP/Source/Effects/pitchshifter.h **** 
+   4:../../DaisySP/Source/Effects/pitchshifter.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Effects/pitchshifter.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Effects/pitchshifter.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Effects/pitchshifter.h **** */
+   8:../../DaisySP/Source/Effects/pitchshifter.h **** 
+   9:../../DaisySP/Source/Effects/pitchshifter.h **** #pragma once
+  10:../../DaisySP/Source/Effects/pitchshifter.h **** #ifndef DSY_PITCHSHIFTER_H
+ARM GAS  /tmp/ccqGY1VW.s 			page 3
+
+
+  11:../../DaisySP/Source/Effects/pitchshifter.h **** #define DSY_PITCHSHIFTER_H
+  12:../../DaisySP/Source/Effects/pitchshifter.h **** #include <stdint.h>
+  13:../../DaisySP/Source/Effects/pitchshifter.h **** #include <cmath>
+  14:../../DaisySP/Source/Effects/pitchshifter.h **** #ifdef USE_ARM_DSP
+  15:../../DaisySP/Source/Effects/pitchshifter.h **** #include "arm_math.h"
+  16:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+  17:../../DaisySP/Source/Effects/pitchshifter.h **** #include "Utility/dsp.h"
+  18:../../DaisySP/Source/Effects/pitchshifter.h **** #include "Utility/delayline.h"
+  19:../../DaisySP/Source/Effects/pitchshifter.h **** #include "Control/phasor.h"
+  20:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  21:../../DaisySP/Source/Effects/pitchshifter.h **** /** Shift can be 30-100 ms lets just start with 50 for now.
+  22:../../DaisySP/Source/Effects/pitchshifter.h **** 0.050 * SR = 2400 samples (at 48kHz)
+  23:../../DaisySP/Source/Effects/pitchshifter.h **** */
+  24:../../DaisySP/Source/Effects/pitchshifter.h **** #define SHIFT_BUFFER_SIZE 16384
+  25:../../DaisySP/Source/Effects/pitchshifter.h **** //#define SHIFT_BUFFER_SIZE 4800
+  26:../../DaisySP/Source/Effects/pitchshifter.h **** //#define SHIFT_BUFFER_SIZE 8192
+  27:../../DaisySP/Source/Effects/pitchshifter.h **** //#define SHIFT_BUFFER_SIZE 1024
+  28:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  29:../../DaisySP/Source/Effects/pitchshifter.h **** namespace daisysp
+  30:../../DaisySP/Source/Effects/pitchshifter.h **** {
+  31:../../DaisySP/Source/Effects/pitchshifter.h **** static inline uint32_t hash_xs32(uint32_t x)
+  32:../../DaisySP/Source/Effects/pitchshifter.h **** {
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 13;
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+  36:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+  37:../../DaisySP/Source/Effects/pitchshifter.h **** }
+  38:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  39:../../DaisySP/Source/Effects/pitchshifter.h **** inline uint32_t myrand()
+  40:../../DaisySP/Source/Effects/pitchshifter.h **** {
+  41:../../DaisySP/Source/Effects/pitchshifter.h ****     static uint32_t seed = 1;
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     seed                 = hash_xs32(seed);
+  43:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+  44:../../DaisySP/Source/Effects/pitchshifter.h **** }
+  45:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  46:../../DaisySP/Source/Effects/pitchshifter.h **** /**  time-domain pitchshifter
+  47:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  48:../../DaisySP/Source/Effects/pitchshifter.h **** Author: shensley
+  49:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  50:../../DaisySP/Source/Effects/pitchshifter.h **** Based on "Pitch Shifting" from ucsd.edu 
+  51:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  52:../../DaisySP/Source/Effects/pitchshifter.h **** t = 1 - ((s *f) / R)
+  53:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  54:../../DaisySP/Source/Effects/pitchshifter.h **** where:
+  55:../../DaisySP/Source/Effects/pitchshifter.h ****     s is the size of the delay
+  56:../../DaisySP/Source/Effects/pitchshifter.h ****     f is the frequency of the lfo
+  57:../../DaisySP/Source/Effects/pitchshifter.h ****     r is the sample_rate
+  58:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  59:../../DaisySP/Source/Effects/pitchshifter.h **** solving for t = 12.0
+  60:../../DaisySP/Source/Effects/pitchshifter.h **** f = (12 - 1) * 48000 / SHIFT_BUFFER_SIZE;
+  61:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  62:../../DaisySP/Source/Effects/pitchshifter.h **** \todo - move hash_xs32 and myrand to dsp.h and give appropriate names
+  63:../../DaisySP/Source/Effects/pitchshifter.h **** */
+  64:../../DaisySP/Source/Effects/pitchshifter.h **** class PitchShifter
+  65:../../DaisySP/Source/Effects/pitchshifter.h **** {
+  66:../../DaisySP/Source/Effects/pitchshifter.h ****   public:
+  67:../../DaisySP/Source/Effects/pitchshifter.h ****     PitchShifter() {}
+ARM GAS  /tmp/ccqGY1VW.s 			page 4
+
+
+  68:../../DaisySP/Source/Effects/pitchshifter.h ****     ~PitchShifter() {}
+  62              		.loc 3 68 5 view .LVU4
+  63              		.loc 3 68 5 is_stmt 0 view .LVU5
+  64              	.LBE107:
+  65              	.LBB108:
+  66              	.LBI108:
+  67              		.loc 3 68 5 is_stmt 1 view .LVU6
+  68              		.loc 3 68 5 is_stmt 0 view .LVU7
+  69              	.LBE108:
+  70              	.LBB109:
+  71              	.LBI109:
+  72              		.file 4 "../Effect.h"
+   1:../Effect.h   **** #pragma once
+   2:../Effect.h   **** 
+   3:../Effect.h   **** #include "daisy_seed.h"
+   4:../Effect.h   **** 
+   5:../Effect.h   **** #define CPU_LoadEffect 1
+   6:../Effect.h   **** #define CPU_LoadAll 1
+   7:../Effect.h   **** 
+   8:../Effect.h   **** class Effect {
+   9:../Effect.h   **** public:
+  10:../Effect.h   **** 
+  11:../Effect.h   **** #if CPU_LoadEffect
+  12:../Effect.h   ****     uint32_t profiled_ticks = 0;
+  13:../Effect.h   ****     uint32_t last_profiled_ticks = 0;
+  14:../Effect.h   **** #endif
+  15:../Effect.h   **** 
+  16:../Effect.h   **** 
+  17:../Effect.h   ****     virtual ~Effect() = default;
+  73              		.loc 4 17 13 is_stmt 1 view .LVU8
+  74              		.loc 4 17 13 is_stmt 0 view .LVU9
+  75              	.LBE109:
+  76              	.LBE106:
+  77              		.loc 2 10 7 view .LVU10
+  78 0000 7047     		bx	lr
+  79              		.cfi_endproc
+  80              	.LFE6651:
+  82              		.weak	_ZN16PitchShiftEffectD1Ev
+  83              		.thumb_set _ZN16PitchShiftEffectD1Ev,_ZN16PitchShiftEffectD2Ev
+  84 0002 00BF     		.section	.text._ZN16PitchShiftEffectD0Ev,"axG",%progbits,_ZN16PitchShiftEffectD5Ev,comdat
+  85              		.align	1
+  86              		.p2align 2,,3
+  87              		.weak	_ZN16PitchShiftEffectD0Ev
+  88              		.syntax unified
+  89              		.thumb
+  90              		.thumb_func
+  92              	_ZN16PitchShiftEffectD0Ev:
+  93              	.LVL2:
+  94              	.LFB6653:
+  95              		.loc 2 10 7 is_stmt 1 view -0
+  96              		.cfi_startproc
+  97              		@ args = 0, pretend = 0, frame = 8
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99              		.loc 2 10 7 is_stmt 0 view .LVU12
+ 100 0000 00B5     		push	{lr}
+ 101              		.cfi_def_cfa_offset 4
+ 102              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccqGY1VW.s 			page 5
+
+
+ 103 0002 83B0     		sub	sp, sp, #12
+ 104              		.cfi_def_cfa_offset 16
+ 105              		.loc 2 10 7 discriminator 1 view .LVU13
+ 106 0004 0349     		ldr	r1, .L6
+ 107              		.loc 2 10 7 view .LVU14
+ 108 0006 0190     		str	r0, [sp, #4]
+ 109              	.LVL3:
+ 110              	.LBB110:
+ 111              	.LBI110:
+ 112              		.loc 2 10 7 is_stmt 1 view .LVU15
+ 113              	.LBB111:
+ 114              	.LBB112:
+ 115              	.LBI112:
+ 116              		.loc 3 68 5 view .LVU16
+ 117              		.loc 3 68 5 is_stmt 0 view .LVU17
+ 118              	.LBE112:
+ 119              	.LBB113:
+ 120              	.LBI113:
+ 121              		.loc 3 68 5 is_stmt 1 view .LVU18
+ 122              		.loc 3 68 5 is_stmt 0 view .LVU19
+ 123              	.LBE113:
+ 124              	.LBB114:
+ 125              	.LBI114:
+ 126              		.loc 4 17 13 is_stmt 1 view .LVU20
+ 127              		.loc 4 17 13 is_stmt 0 view .LVU21
+ 128              	.LBE114:
+ 129              	.LBE111:
+ 130              	.LBE110:
+ 131              		.loc 2 10 7 discriminator 1 view .LVU22
+ 132 0008 FFF7FEFF 		bl	_ZdlPvj
+ 133              	.LVL4:
+ 134              		.loc 2 10 7 view .LVU23
+ 135 000c 0198     		ldr	r0, [sp, #4]
+ 136 000e 03B0     		add	sp, sp, #12
+ 137              		.cfi_def_cfa_offset 4
+ 138              		@ sp needed
+ 139 0010 00BD     		pop	{pc}
+ 140              	.LVL5:
+ 141              	.L7:
+ 142              		.loc 2 10 7 view .LVU24
+ 143 0012 00BF     		.align	2
+ 144              	.L6:
+ 145 0014 88010400 		.word	262536
+ 146              		.cfi_endproc
+ 147              	.LFE6653:
+ 149              		.section	.text._ZN7daisysp12PitchShifter7ProcessERf,"axG",%progbits,_ZN7daisysp12PitchShifter7Proc
+ 150              		.align	1
+ 151              		.p2align 2,,3
+ 152              		.weak	_ZN7daisysp12PitchShifter7ProcessERf
+ 153              		.syntax unified
+ 154              		.thumb
+ 155              		.thumb_func
+ 157              	_ZN7daisysp12PitchShifter7ProcessERf:
+ 158              	.LVL6:
+ 159              	.LFB5595:
+  69:../../DaisySP/Source/Effects/pitchshifter.h ****     /** Initialize pitch shifter
+  70:../../DaisySP/Source/Effects/pitchshifter.h ****     */
+ARM GAS  /tmp/ccqGY1VW.s 			page 6
+
+
+  71:../../DaisySP/Source/Effects/pitchshifter.h ****     void Init(float sr)
+  72:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         force_recalc_ = false;
+  74:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_freq_     = 5.0f;
+  76:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         for(uint8_t i = 0; i < 2; i++)
+  78:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             gain_[i] = 0.0f;
+  80:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[i].Init(sr, 50, i == 0 ? 0 : PI_F);
+  82:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+  83:../../DaisySP/Source/Effects/pitchshifter.h ****         shift_up_ = true;
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         del_size_ = SHIFT_BUFFER_SIZE;
+  85:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****         fun_ = 0.0f;
+  87:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+  88:../../DaisySP/Source/Effects/pitchshifter.h **** 
+  89:../../DaisySP/Source/Effects/pitchshifter.h ****     /** process pitch shifter
+  90:../../DaisySP/Source/Effects/pitchshifter.h ****     */
+  91:../../DaisySP/Source/Effects/pitchshifter.h ****     float Process(float &in)
+ 160              		.loc 3 91 11 is_stmt 1 view -0
+ 161              		.cfi_startproc
+ 162              		@ args = 0, pretend = 0, frame = 0
+ 163              		@ frame_needed = 0, uses_anonymous_args = 0
+  92:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+  93:../../DaisySP/Source/Effects/pitchshifter.h ****         float val, fade1, fade2;
+ 164              		.loc 3 93 9 view .LVU26
+  94:../../DaisySP/Source/Effects/pitchshifter.h ****         // First Process delay mod/crossfade
+  95:../../DaisySP/Source/Effects/pitchshifter.h ****         fade1 = phs_[0].Process();
+ 165              		.loc 3 95 9 view .LVU27
+  91:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 166              		.loc 3 91 11 is_stmt 0 view .LVU28
+ 167 0000 70B5     		push	{r4, r5, r6, lr}
+ 168              		.cfi_def_cfa_offset 16
+ 169              		.cfi_offset 4, -16
+ 170              		.cfi_offset 5, -12
+ 171              		.cfi_offset 6, -8
+ 172              		.cfi_offset 14, -4
+ 173 0002 0546     		mov	r5, r0
+ 174              		.loc 3 95 32 view .LVU29
+ 175 0004 AB48     		ldr	r0, .L18
+ 176              	.LVL7:
+  91:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 177              		.loc 3 91 11 view .LVU30
+ 178 0006 0E46     		mov	r6, r1
+ 179              		.loc 3 95 32 view .LVU31
+ 180 0008 2818     		adds	r0, r5, r0
+  96:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+  97:../../DaisySP/Source/Effects/pitchshifter.h ****         if(prev_phs_a_ > fade1)
+  98:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_a_amt_ = fun_ * ((float)(myrand() % 255) / 255.0f)
+ 100:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 181              		.loc 3 100 29 view .LVU32
+ 182 000a 05F50034 		add	r4, r5, #131072
+  91:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 183              		.loc 3 91 11 view .LVU33
+ARM GAS  /tmp/ccqGY1VW.s 			page 7
+
+
+ 184 000e 2DED088B 		vpush.64	{d8, d9, d10, d11}
+ 185              		.cfi_def_cfa_offset 48
+ 186              		.cfi_offset 80, -48
+ 187              		.cfi_offset 81, -44
+ 188              		.cfi_offset 82, -40
+ 189              		.cfi_offset 83, -36
+ 190              		.cfi_offset 84, -32
+ 191              		.cfi_offset 85, -28
+ 192              		.cfi_offset 86, -24
+ 193              		.cfi_offset 87, -20
+  95:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 194              		.loc 3 95 32 view .LVU34
+ 195 0012 FFF7FEFF 		bl	_ZN7daisysp6Phasor7ProcessEv
+ 196              	.LVL8:
+  96:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 197              		.loc 3 96 32 view .LVU35
+ 198 0016 A848     		ldr	r0, .L18+4
+  95:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 199              		.loc 3 95 32 view .LVU36
+ 200 0018 F0EE409A 		vmov.f32	s19, s0
+ 201              	.LVL9:
+  96:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 202              		.loc 3 96 9 is_stmt 1 view .LVU37
+  96:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 203              		.loc 3 96 32 is_stmt 0 view .LVU38
+ 204 001c 2818     		adds	r0, r5, r0
+ 205 001e FFF7FEFF 		bl	_ZN7daisysp6Phasor7ProcessEv
+ 206              	.LVL10:
+  97:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 207              		.loc 3 97 9 view .LVU39
+ 208 0022 D4ED1C7A 		vldr.32	s15, [r4, #112]
+  96:../../DaisySP/Source/Effects/pitchshifter.h ****         fade2 = phs_[1].Process();
+ 209              		.loc 3 96 32 view .LVU40
+ 210 0026 B0EE40AA 		vmov.f32	s20, s0
+ 211              	.LVL11:
+  97:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 212              		.loc 3 97 9 is_stmt 1 view .LVU41
+ 213              		.loc 3 100 29 is_stmt 0 view .LVU42
+ 214 002a 236A     		ldr	r3, [r4, #32]
+  97:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 215              		.loc 3 97 9 view .LVU43
+ 216 002c F4EEE97A 		vcmpe.f32	s15, s19
+ 217 0030 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 218 0034 00F3F980 		bgt	.L9
+ 101:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[0]
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****                 = 0.0002f + (((float)(myrand() % 255) / 255.0f) * 0.001f);
+ 103:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 104:../../DaisySP/Source/Effects/pitchshifter.h ****         if(prev_phs_b_ > fade2)
+ 105:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_b_amt_ = fun_ * ((float)(myrand() % 255) / 255.0f)
+ 107:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 108:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[1]
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****                 = 0.0002f + (((float)(myrand() % 255) / 255.0f) * 0.001f);
+ 110:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[0] += mod_coeff_[0] * (mod_a_amt_ - slewed_mod_[0]);
+ 219              		.loc 3 111 39 view .LVU44
+ 220 0038 D4ED205A 		vldr.32	s11, [r4, #128]
+ARM GAS  /tmp/ccqGY1VW.s 			page 8
+
+
+ 221              		.loc 3 111 44 view .LVU45
+ 222 003c 94ED1A7A 		vldr.32	s14, [r4, #104]
+ 223              	.L10:
+ 104:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 224              		.loc 3 104 9 is_stmt 1 view .LVU46
+ 225 0040 D4ED1D7A 		vldr.32	s15, [r4, #116]
+ 226 0044 F4EECA7A 		vcmpe.f32	s15, s20
+ 227 0048 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 228 004c 00F3A980 		bgt	.L11
+ 112:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 229              		.loc 3 112 39 is_stmt 0 view .LVU47
+ 230 0050 D4ED216A 		vldr.32	s13, [r4, #132]
+ 231              		.loc 3 112 44 view .LVU48
+ 232 0054 D4ED1B7A 		vldr.32	s15, [r4, #108]
+ 233              	.L12:
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 234              		.loc 3 111 9 is_stmt 1 view .LVU49
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 235              		.loc 3 111 22 is_stmt 0 view .LVU50
+ 236 0058 D4ED1E8A 		vldr.32	s17, [r4, #120]
+ 237              		.loc 3 112 22 view .LVU51
+ 238 005c 94ED1F8A 		vldr.32	s16, [r4, #124]
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 239              		.loc 3 111 55 view .LVU52
+ 240 0060 37EE687A 		vsub.f32	s14, s14, s17
+ 113:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 114:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_b_ = fade2;
+ 115:../../DaisySP/Source/Effects/pitchshifter.h ****         if(shift_up_)
+ 241              		.loc 3 115 9 view .LVU53
+ 242 0064 94F82C20 		ldrb	r2, [r4, #44]	@ zero_extendqisi2
+ 112:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 243              		.loc 3 112 55 view .LVU54
+ 244 0068 77EEC87A 		vsub.f32	s15, s15, s16
+ 113:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 245              		.loc 3 113 21 view .LVU55
+ 246 006c C4ED1C9A 		vstr.32	s19, [r4, #112]
+ 114:../../DaisySP/Source/Effects/pitchshifter.h ****         if(shift_up_)
+ 247              		.loc 3 114 21 view .LVU56
+ 248 0070 84ED1DAA 		vstr.32	s20, [r4, #116]
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 249              		.loc 3 111 24 view .LVU57
+ 250 0074 E7EE258A 		vfma.f32	s17, s14, s11
+ 112:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 251              		.loc 3 112 24 view .LVU58
+ 252 0078 A7EEA68A 		vfma.f32	s16, s15, s13
+ 111:../../DaisySP/Source/Effects/pitchshifter.h ****         slewed_mod_[1] += mod_coeff_[1] * (mod_b_amt_ - slewed_mod_[1]);
+ 253              		.loc 3 111 24 view .LVU59
+ 254 007c C4ED1E8A 		vstr.32	s17, [r4, #120]
+ 112:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 255              		.loc 3 112 9 is_stmt 1 view .LVU60
+ 112:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_a_ = fade1;
+ 256              		.loc 3 112 24 is_stmt 0 view .LVU61
+ 257 0080 84ED1F8A 		vstr.32	s16, [r4, #124]
+ 113:../../DaisySP/Source/Effects/pitchshifter.h ****         prev_phs_b_ = fade2;
+ 258              		.loc 3 113 9 is_stmt 1 view .LVU62
+ 114:../../DaisySP/Source/Effects/pitchshifter.h ****         if(shift_up_)
+ 259              		.loc 3 114 9 view .LVU63
+ARM GAS  /tmp/ccqGY1VW.s 			page 9
+
+
+ 260              		.loc 3 115 9 view .LVU64
+ 261 0084 2AB1     		cbz	r2, .L13
+ 116:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 117:../../DaisySP/Source/Effects/pitchshifter.h ****             fade1 = 1.0f - fade1;
+ 262              		.loc 3 117 13 view .LVU65
+ 263              		.loc 3 117 19 is_stmt 0 view .LVU66
+ 264 0086 F7EE007A 		vmov.f32	s15, #1.0e+0
+ 265 008a 77EEE99A 		vsub.f32	s19, s15, s19
+ 266              	.LVL12:
+ 118:../../DaisySP/Source/Effects/pitchshifter.h ****             fade2 = 1.0f - fade2;
+ 267              		.loc 3 118 13 is_stmt 1 view .LVU67
+ 268              		.loc 3 118 19 is_stmt 0 view .LVU68
+ 269 008e 37EECAAA 		vsub.f32	s20, s15, s20
+ 270              	.L13:
+ 271              	.LVL13:
+ 119:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 120:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[0] = fade1 * (del_size_ - 1);
+ 272              		.loc 3 120 9 is_stmt 1 view .LVU69
+ 273              		.loc 3 120 38 is_stmt 0 view .LVU70
+ 274 0092 013B     		subs	r3, r3, #1
+ 121:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 122:../../DaisySP/Source/Effects/pitchshifter.h **** #ifdef USE_ARM_DSP
+ 123:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[0] = arm_sin_f32(fade1 * (float)M_PI);
+ 124:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[1] = arm_sin_f32(fade2 * (float)M_PI);
+ 125:../../DaisySP/Source/Effects/pitchshifter.h **** #else
+ 126:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[0] = sinf(fade1 * PI_F);
+ 275              		.loc 3 126 24 view .LVU71
+ 276 0094 9FED89BA 		vldr.32	s22, .L18+8
+ 120:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 277              		.loc 3 120 38 view .LVU72
+ 278 0098 09EE103A 		vmov	s18, r3	@ int
+ 279              		.loc 3 126 24 view .LVU73
+ 280 009c 29EE8B0A 		vmul.f32	s0, s19, s22
+ 120:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 281              		.loc 3 120 25 view .LVU74
+ 282 00a0 B8EE499A 		vcvt.f32.u32	s18, s18
+ 283 00a4 69EE299A 		vmul.f32	s19, s18, s19
+ 284              	.LVL14:
+ 121:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 285              		.loc 3 121 25 view .LVU75
+ 286 00a8 29EE0A9A 		vmul.f32	s18, s18, s20
+ 120:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 287              		.loc 3 120 17 view .LVU76
+ 288 00ac C4ED169A 		vstr.32	s19, [r4, #88]
+ 121:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_[1] = fade2 * (del_size_ - 1);
+ 289              		.loc 3 121 9 is_stmt 1 view .LVU77
+ 127:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[1] = sinf(fade2 * PI_F);
+ 128:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+ 129:../../DaisySP/Source/Effects/pitchshifter.h **** 
+ 130:../../DaisySP/Source/Effects/pitchshifter.h ****         // Handle Delay Writing
+ 131:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[0].Write(in);
+ 132:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].Write(in);
+ 133:../../DaisySP/Source/Effects/pitchshifter.h ****         // Modulate Delay Lines
+ 134:../../DaisySP/Source/Effects/pitchshifter.h ****         //mod_a_amt = mod_b_amt = 0.0f;
+ 135:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[0].SetDelay(mod_[0] + mod_a_amt_);
+ 136:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].SetDelay(mod_[1] + mod_b_amt_);
+ 137:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[0].SetDelay(mod_[0] + slewed_mod_[0]);
+ARM GAS  /tmp/ccqGY1VW.s 			page 10
+
+
+ 290              		.loc 3 137 23 is_stmt 0 view .LVU78
+ 291 00b0 78EEA98A 		vadd.f32	s17, s17, s19
+ 121:../../DaisySP/Source/Effects/pitchshifter.h **** #ifdef USE_ARM_DSP
+ 292              		.loc 3 121 17 view .LVU79
+ 293 00b4 84ED179A 		vstr.32	s18, [r4, #92]
+ 126:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[1] = sinf(fade2 * PI_F);
+ 294              		.loc 3 126 9 is_stmt 1 view .LVU80
+ 138:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].SetDelay(mod_[1] + slewed_mod_[1]);
+ 295              		.loc 3 138 23 is_stmt 0 view .LVU81
+ 296 00b8 38EE098A 		vadd.f32	s16, s16, s18
+ 126:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[1] = sinf(fade2 * PI_F);
+ 297              		.loc 3 126 24 view .LVU82
+ 298 00bc FFF7FEFF 		bl	sinf
+ 299              	.LVL15:
+ 300 00c0 F0EE40AA 		vmov.f32	s21, s0
+ 127:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+ 301              		.loc 3 127 24 view .LVU83
+ 302 00c4 2AEE0B0A 		vmul.f32	s0, s20, s22
+ 126:../../DaisySP/Source/Effects/pitchshifter.h ****         gain_[1] = sinf(fade2 * PI_F);
+ 303              		.loc 3 126 18 discriminator 1 view .LVU84
+ 304 00c8 C4ED14AA 		vstr.32	s21, [r4, #80]
+ 127:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+ 305              		.loc 3 127 9 is_stmt 1 view .LVU85
+ 127:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+ 306              		.loc 3 127 24 is_stmt 0 view .LVU86
+ 307 00cc FFF7FEFF 		bl	sinf
+ 308              	.LVL16:
+ 309              	.LBB143:
+ 310              	.LBB144:
+ 311              		.file 5 "../../DaisySP/Source/Utility/delayline.h"
+   1:../../DaisySP/Source/Utility/delayline.h **** /*
+   2:../../DaisySP/Source/Utility/delayline.h **** Copyright (c) 2020 Electrosmith, Corp
+   3:../../DaisySP/Source/Utility/delayline.h **** 
+   4:../../DaisySP/Source/Utility/delayline.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Utility/delayline.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Utility/delayline.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Utility/delayline.h **** */
+   8:../../DaisySP/Source/Utility/delayline.h **** 
+   9:../../DaisySP/Source/Utility/delayline.h **** #pragma once
+  10:../../DaisySP/Source/Utility/delayline.h **** #ifndef DSY_DELAY_H
+  11:../../DaisySP/Source/Utility/delayline.h **** #define DSY_DELAY_H
+  12:../../DaisySP/Source/Utility/delayline.h **** #include <stdlib.h>
+  13:../../DaisySP/Source/Utility/delayline.h **** #include <stdint.h>
+  14:../../DaisySP/Source/Utility/delayline.h **** namespace daisysp
+  15:../../DaisySP/Source/Utility/delayline.h **** {
+  16:../../DaisySP/Source/Utility/delayline.h **** /** Simple Delay line.
+  17:../../DaisySP/Source/Utility/delayline.h **** November 2019
+  18:../../DaisySP/Source/Utility/delayline.h **** 
+  19:../../DaisySP/Source/Utility/delayline.h **** Converted to Template December 2019
+  20:../../DaisySP/Source/Utility/delayline.h **** 
+  21:../../DaisySP/Source/Utility/delayline.h **** declaration example: (1 second of floats)
+  22:../../DaisySP/Source/Utility/delayline.h **** 
+  23:../../DaisySP/Source/Utility/delayline.h **** DelayLine<float, SAMPLE_RATE> del;
+  24:../../DaisySP/Source/Utility/delayline.h **** 
+  25:../../DaisySP/Source/Utility/delayline.h **** By: shensley
+  26:../../DaisySP/Source/Utility/delayline.h **** */
+  27:../../DaisySP/Source/Utility/delayline.h **** template <typename T, size_t max_size>
+ARM GAS  /tmp/ccqGY1VW.s 			page 11
+
+
+  28:../../DaisySP/Source/Utility/delayline.h **** class DelayLine
+  29:../../DaisySP/Source/Utility/delayline.h **** {
+  30:../../DaisySP/Source/Utility/delayline.h ****   public:
+  31:../../DaisySP/Source/Utility/delayline.h ****     DelayLine() {}
+  32:../../DaisySP/Source/Utility/delayline.h ****     ~DelayLine() {}
+  33:../../DaisySP/Source/Utility/delayline.h ****     /** initializes the delay line by clearing the values within, and setting delay to 1 sample.
+  34:../../DaisySP/Source/Utility/delayline.h ****     */
+  35:../../DaisySP/Source/Utility/delayline.h ****     void Init() { Reset(); }
+  36:../../DaisySP/Source/Utility/delayline.h ****     /** clears buffer, sets write ptr to 0, and delay to 1 sample.
+  37:../../DaisySP/Source/Utility/delayline.h ****     */
+  38:../../DaisySP/Source/Utility/delayline.h ****     void Reset()
+  39:../../DaisySP/Source/Utility/delayline.h ****     {
+  40:../../DaisySP/Source/Utility/delayline.h ****         for(size_t i = 0; i < max_size; i++)
+  41:../../DaisySP/Source/Utility/delayline.h ****         {
+  42:../../DaisySP/Source/Utility/delayline.h ****             line_[i] = T(0);
+  43:../../DaisySP/Source/Utility/delayline.h ****         }
+  44:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_ = 0;
+  45:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+  46:../../DaisySP/Source/Utility/delayline.h ****     }
+  47:../../DaisySP/Source/Utility/delayline.h **** 
+  48:../../DaisySP/Source/Utility/delayline.h ****     /** sets the delay time in samples
+  49:../../DaisySP/Source/Utility/delayline.h ****         If a float is passed in, a fractional component will be calculated for interpolating the de
+  50:../../DaisySP/Source/Utility/delayline.h ****     */
+  51:../../DaisySP/Source/Utility/delayline.h ****     inline void SetDelay(size_t delay)
+  52:../../DaisySP/Source/Utility/delayline.h ****     {
+  53:../../DaisySP/Source/Utility/delayline.h ****         frac_  = 0.0f;
+  54:../../DaisySP/Source/Utility/delayline.h ****         delay_ = delay < max_size ? delay : max_size - 1;
+  55:../../DaisySP/Source/Utility/delayline.h ****     }
+  56:../../DaisySP/Source/Utility/delayline.h **** 
+  57:../../DaisySP/Source/Utility/delayline.h ****     /** sets the delay time in samples
+  58:../../DaisySP/Source/Utility/delayline.h ****         If a float is passed in, a fractional component will be calculated for interpolating the de
+  59:../../DaisySP/Source/Utility/delayline.h ****     */
+  60:../../DaisySP/Source/Utility/delayline.h ****     inline void SetDelay(float delay)
+  61:../../DaisySP/Source/Utility/delayline.h ****     {
+  62:../../DaisySP/Source/Utility/delayline.h ****         int32_t int_delay = static_cast<int32_t>(delay);
+ 312              		.loc 5 62 17 view .LVU87
+ 313 00d0 FDEEE87A 		vcvt.s32.f32	s15, s17
+ 314              	.LBE144:
+ 315              	.LBE143:
+ 316              	.LBB152:
+ 317              	.LBB153:
+  63:../../DaisySP/Source/Utility/delayline.h ****         frac_             = delay - static_cast<float>(int_delay);
+  64:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+  65:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+  66:../../DaisySP/Source/Utility/delayline.h ****     }
+  67:../../DaisySP/Source/Utility/delayline.h **** 
+  68:../../DaisySP/Source/Utility/delayline.h ****     /** writes the sample of type T to the delay line, and advances the write ptr
+  69:../../DaisySP/Source/Utility/delayline.h ****     */
+  70:../../DaisySP/Source/Utility/delayline.h ****     inline void Write(const T sample)
+  71:../../DaisySP/Source/Utility/delayline.h ****     {
+  72:../../DaisySP/Source/Utility/delayline.h ****         line_[write_ptr_] = sample;
+ 318              		.loc 5 72 15 view .LVU88
+ 319 00d4 6968     		ldr	r1, [r5, #4]
+  73:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 320              		.loc 5 73 45 view .LVU89
+ 321 00d6 43F6FF73 		movw	r3, #16383
+ 322              	.LBE153:
+ARM GAS  /tmp/ccqGY1VW.s 			page 12
+
+
+ 323              	.LBE152:
+ 127:../../DaisySP/Source/Effects/pitchshifter.h **** #endif
+ 324              		.loc 3 127 18 discriminator 1 view .LVU90
+ 325 00da 84ED150A 		vstr.32	s0, [r4, #84]
+ 131:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].Write(in);
+ 326              		.loc 3 131 9 is_stmt 1 view .LVU91
+ 327              	.LBB158:
+ 328              	.LBB159:
+  62:../../DaisySP/Source/Utility/delayline.h ****         frac_             = delay - static_cast<float>(int_delay);
+ 329              		.loc 5 62 17 is_stmt 0 view .LVU92
+ 330 00de BDEEC86A 		vcvt.s32.f32	s12, s16
+ 331              	.LBE159:
+ 332              	.LBE158:
+ 333              	.LBB166:
+ 334              	.LBB145:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 335              		.loc 5 64 60 view .LVU93
+ 336 00e2 17EE90CA 		vmov	ip, s15	@ int
+ 337              	.LBE145:
+ 338              	.LBE166:
+ 339              	.LBB167:
+ 340              	.LBB154:
+ 341              		.loc 5 73 45 view .LVU94
+ 342 00e6 CA18     		adds	r2, r1, r3
+ 343              	.LBE154:
+ 344              	.LBE167:
+ 131:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].Write(in);
+ 345              		.loc 3 131 20 view .LVU95
+ 346 00e8 96ED007A 		vldr.32	s14, [r6]
+ 347              	.LVL17:
+ 348              	.LBB168:
+ 349              	.LBI152:
+  70:../../DaisySP/Source/Utility/delayline.h ****     {
+ 350              		.loc 5 70 17 is_stmt 1 view .LVU96
+ 351              	.LBB155:
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 352              		.loc 5 72 27 is_stmt 0 view .LVU97
+ 353 00ec 05EB8101 		add	r1, r5, r1, lsl #2
+ 354              	.LBE155:
+ 355              	.LBE168:
+ 356              	.LBB169:
+ 357              	.LBB146:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 358              		.loc 5 64 60 view .LVU98
+ 359 00f0 9C45     		cmp	ip, r3
+ 360              	.LBE146:
+ 361              	.LBE169:
+ 362              	.LBB170:
+ 363              	.LBB156:
+ 364              		.loc 5 73 57 view .LVU99
+ 365 00f2 C2F30D02 		ubfx	r2, r2, #0, #14
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 366              		.loc 5 72 27 view .LVU100
+ 367 00f6 81ED037A 		vstr.32	s14, [r1, #12]
+ 368              	.LBE156:
+ 369              	.LBE170:
+ 370              	.LBB171:
+ARM GAS  /tmp/ccqGY1VW.s 			page 13
+
+
+ 371              	.LBB160:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 372              		.loc 5 64 60 view .LVU101
+ 373 00fa 16EE10EA 		vmov	lr, s12	@ int
+ 374              	.LBE160:
+ 375              	.LBE171:
+ 376              	.LBB172:
+ 377              	.LBB147:
+ 378 00fe 28BF     		it	cs
+ 379 0100 9C46     		movcs	ip, r3
+ 380              	.LBE147:
+ 381              	.LBE172:
+ 382              	.LBB173:
+ 383              	.LBB157:
+ 384              		.loc 5 73 27 view .LVU102
+ 385 0102 6A60     		str	r2, [r5, #4]
+ 386              	.LVL18:
+ 387              		.loc 5 73 27 view .LVU103
+ 388              	.LBE157:
+ 389              	.LBE173:
+ 132:../../DaisySP/Source/Effects/pitchshifter.h ****         // Modulate Delay Lines
+ 390              		.loc 3 132 9 is_stmt 1 view .LVU104
+ 391              	.LBB174:
+ 392              	.LBI174:
+  70:../../DaisySP/Source/Utility/delayline.h ****     {
+ 393              		.loc 5 70 17 view .LVU105
+ 394              	.LBB175:
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 395              		.loc 5 72 15 is_stmt 0 view .LVU106
+ 396 0104 05F58031 		add	r1, r5, #65536
+ 397              	.LBE175:
+ 398              	.LBE174:
+ 399              	.LBB181:
+ 400              	.LBB161:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 401              		.loc 5 64 60 view .LVU107
+ 402 0108 9E45     		cmp	lr, r3
+ 403              	.LBE161:
+ 404              	.LBE181:
+ 405              	.LBB182:
+ 406              	.LBB183:
+  74:../../DaisySP/Source/Utility/delayline.h ****     }
+  75:../../DaisySP/Source/Utility/delayline.h **** 
+  76:../../DaisySP/Source/Utility/delayline.h ****     /** returns the next sample of type T in the delay line, interpolated if necessary.
+  77:../../DaisySP/Source/Utility/delayline.h ****     */
+  78:../../DaisySP/Source/Utility/delayline.h ****     inline const T Read() const
+  79:../../DaisySP/Source/Utility/delayline.h ****     {
+  80:../../DaisySP/Source/Utility/delayline.h ****         T a = line_[(write_ptr_ + delay_) % max_size];
+ 407              		.loc 5 80 33 view .LVU108
+ 408 010a 6244     		add	r2, r2, ip
+ 409              	.LBE183:
+ 410              	.LBE182:
+ 411              	.LBB189:
+ 412              	.LBB148:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 413              		.loc 5 63 37 view .LVU109
+ 414 010c F8EEE77A 		vcvt.f32.s32	s15, s15
+ARM GAS  /tmp/ccqGY1VW.s 			page 14
+
+
+ 415              	.LBE148:
+ 416              	.LBE189:
+ 417              	.LBB190:
+ 418              	.LBB176:
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 419              		.loc 5 72 15 view .LVU110
+ 420 0110 0C69     		ldr	r4, [r1, #16]
+ 421              	.LBE176:
+ 422              	.LBE190:
+ 423              	.LBB191:
+ 424              	.LBB162:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 425              		.loc 5 64 60 view .LVU111
+ 426 0112 28BF     		it	cs
+ 427 0114 9E46     		movcs	lr, r3
+ 428              	.LBE162:
+ 429              	.LBE191:
+ 430              	.LBB192:
+ 431              	.LBB184:
+  81:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 432              		.loc 5 81 42 view .LVU112
+ 433 0116 501C     		adds	r0, r2, #1
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 434              		.loc 5 80 43 view .LVU113
+ 435 0118 C2F30D02 		ubfx	r2, r2, #0, #14
+ 436              	.LBE184:
+ 437              	.LBE192:
+ 438              	.LBB193:
+ 439              	.LBB177:
+  73:../../DaisySP/Source/Utility/delayline.h ****     }
+ 440              		.loc 5 73 45 view .LVU114
+ 441 011c 2344     		add	r3, r3, r4
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 442              		.loc 5 72 27 view .LVU115
+ 443 011e 01EB8404 		add	r4, r1, r4, lsl #2
+ 444              	.LBE177:
+ 445              	.LBE193:
+ 446              	.LBB194:
+ 447              	.LBB185:
+ 448              		.loc 5 81 47 view .LVU116
+ 449 0122 C0F30D00 		ubfx	r0, r0, #0, #14
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 450              		.loc 5 80 11 view .LVU117
+ 451 0126 05EB8202 		add	r2, r5, r2, lsl #2
+ 452              	.LBE185:
+ 453              	.LBE194:
+ 454              	.LBB195:
+ 455              	.LBB178:
+  72:../../DaisySP/Source/Utility/delayline.h ****         write_ptr_        = (write_ptr_ - 1 + max_size) % max_size;
+ 456              		.loc 5 72 27 view .LVU118
+ 457 012a 84ED067A 		vstr.32	s14, [r4, #24]
+ 458              	.LBE178:
+ 459              	.LBE195:
+ 460              	.LBB196:
+ 461              	.LBB149:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 462              		.loc 5 63 35 view .LVU119
+ARM GAS  /tmp/ccqGY1VW.s 			page 15
+
+
+ 463 012e 78EEE78A 		vsub.f32	s17, s17, s15
+ 464              	.LBE149:
+ 465              	.LBE196:
+ 466              	.LBB197:
+ 467              	.LBB186:
+ 468              		.loc 5 81 11 view .LVU120
+ 469 0132 05EB8000 		add	r0, r5, r0, lsl #2
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 470              		.loc 5 80 11 view .LVU121
+ 471 0136 D2ED037A 		vldr.32	s15, [r2, #12]
+ 472              	.LBE186:
+ 473              	.LBE197:
+ 474              	.LBB198:
+ 475              	.LBB163:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 476              		.loc 5 63 37 view .LVU122
+ 477 013a F8EEC65A 		vcvt.f32.s32	s11, s12
+ 478              	.LBE163:
+ 479              	.LBE198:
+ 480              	.LBB199:
+ 481              	.LBB179:
+  73:../../DaisySP/Source/Utility/delayline.h ****     }
+ 482              		.loc 5 73 57 view .LVU123
+ 483 013e C3F30D03 		ubfx	r3, r3, #0, #14
+ 484              	.LBE179:
+ 485              	.LBE199:
+ 486              	.LBB200:
+ 487              	.LBB187:
+  82:../../DaisySP/Source/Utility/delayline.h ****         return a + (b - a) * frac_;
+ 488              		.loc 5 82 23 view .LVU124
+ 489 0142 90ED036A 		vldr.32	s12, [r0, #12]
+ 490              	.LBE187:
+ 491              	.LBE200:
+ 492              	.LBB201:
+ 493              	.LBB180:
+  73:../../DaisySP/Source/Utility/delayline.h ****     }
+ 494              		.loc 5 73 27 view .LVU125
+ 495 0146 0B61     		str	r3, [r1, #16]
+ 496              	.LVL19:
+  73:../../DaisySP/Source/Utility/delayline.h ****     }
+ 497              		.loc 5 73 27 view .LVU126
+ 498              	.LBE180:
+ 499              	.LBE201:
+ 135:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].SetDelay(mod_[1] + mod_b_amt_);
+ 500              		.loc 3 135 9 is_stmt 1 view .LVU127
+ 136:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[0].SetDelay(mod_[0] + slewed_mod_[0]);
+ 501              		.loc 3 136 9 view .LVU128
+ 137:../../DaisySP/Source/Effects/pitchshifter.h ****         d_[1].SetDelay(mod_[1] + slewed_mod_[1]);
+ 502              		.loc 3 137 9 view .LVU129
+ 503              	.LBB202:
+ 504              	.LBI143:
+  60:../../DaisySP/Source/Utility/delayline.h ****     {
+ 505              		.loc 5 60 17 view .LVU130
+  60:../../DaisySP/Source/Utility/delayline.h ****     {
+ 506              		.loc 5 60 17 is_stmt 0 view .LVU131
+ 507              	.LBE202:
+ 508              	.LBB203:
+ARM GAS  /tmp/ccqGY1VW.s 			page 16
+
+
+ 509              	.LBB204:
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 510              		.loc 5 80 33 view .LVU132
+ 511 0148 7344     		add	r3, r3, lr
+ 512              	.LBE204:
+ 513              	.LBE203:
+ 514              	.LBB210:
+ 515              	.LBB188:
+ 516              		.loc 5 82 23 view .LVU133
+ 517 014a 36EE676A 		vsub.f32	s12, s12, s15
+ 518              	.LBE188:
+ 519              	.LBE210:
+ 139:../../DaisySP/Source/Effects/pitchshifter.h ****         val = 0.0f;
+ 140:../../DaisySP/Source/Effects/pitchshifter.h ****         val += (d_[0].Read() * gain_[0]);
+ 520              		.loc 3 140 13 discriminator 1 view .LVU134
+ 521 014e DFED5C6A 		vldr.32	s13, .L18+12
+ 522              	.LBB211:
+ 523              	.LBB205:
+  81:../../DaisySP/Source/Utility/delayline.h ****         return a + (b - a) * frac_;
+ 524              		.loc 5 81 42 view .LVU135
+ 525 0152 5A1C     		adds	r2, r3, #1
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 526              		.loc 5 80 43 view .LVU136
+ 527 0154 C3F30D03 		ubfx	r3, r3, #0, #14
+ 528              	.LBE205:
+ 529              	.LBE211:
+ 530              	.LBB212:
+ 531              	.LBB164:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 532              		.loc 5 63 35 view .LVU137
+ 533 0158 38EE658A 		vsub.f32	s16, s16, s11
+ 534              	.LBE164:
+ 535              	.LBE212:
+ 536              	.LBB213:
+ 537              	.LBB150:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 538              		.loc 5 63 27 view .LVU138
+ 539 015c C5ED008A 		vstr.32	s17, [r5]
+ 540              	.LBE150:
+ 541              	.LBE213:
+ 542              		.loc 3 140 13 discriminator 1 view .LVU139
+ 543 0160 E8EE867A 		vfma.f32	s15, s17, s12
+ 544              	.LBB214:
+ 545              	.LBB206:
+  81:../../DaisySP/Source/Utility/delayline.h ****         return a + (b - a) * frac_;
+ 546              		.loc 5 81 47 view .LVU140
+ 547 0164 C2F30D02 		ubfx	r2, r2, #0, #14
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 548              		.loc 5 80 11 view .LVU141
+ 549 0168 01EB8303 		add	r3, r1, r3, lsl #2
+ 550              	.LBE206:
+ 551              	.LBE214:
+ 552              	.LBB215:
+ 553              	.LBB151:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 554              		.loc 5 64 16 view .LVU142
+ 555 016c C5F808C0 		str	ip, [r5, #8]
+ARM GAS  /tmp/ccqGY1VW.s 			page 17
+
+
+ 556              	.LVL20:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 557              		.loc 5 64 16 view .LVU143
+ 558              	.LBE151:
+ 559              	.LBE215:
+ 138:../../DaisySP/Source/Effects/pitchshifter.h ****         val = 0.0f;
+ 560              		.loc 3 138 9 is_stmt 1 view .LVU144
+ 561              	.LBB216:
+ 562              	.LBI158:
+  60:../../DaisySP/Source/Utility/delayline.h ****     {
+ 563              		.loc 5 60 17 view .LVU145
+  60:../../DaisySP/Source/Utility/delayline.h ****     {
+ 564              		.loc 5 60 17 is_stmt 0 view .LVU146
+ 565              	.LBE216:
+ 566              	.LBB217:
+ 567              	.LBB207:
+  81:../../DaisySP/Source/Utility/delayline.h ****         return a + (b - a) * frac_;
+ 568              		.loc 5 81 11 view .LVU147
+ 569 0170 01EB8202 		add	r2, r1, r2, lsl #2
+ 570              	.LBE207:
+ 571              	.LBE217:
+ 572              	.LBB218:
+ 573              	.LBB165:
+  63:../../DaisySP/Source/Utility/delayline.h ****         delay_ = static_cast<size_t>(int_delay) < max_size ? int_delay
+ 574              		.loc 5 63 27 view .LVU148
+ 575 0174 81ED038A 		vstr.32	s16, [r1, #12]
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 576              		.loc 5 64 16 view .LVU149
+ 577 0178 C1F814E0 		str	lr, [r1, #20]
+ 578              	.LVL21:
+  64:../../DaisySP/Source/Utility/delayline.h ****                                                            : max_size - 1;
+ 579              		.loc 5 64 16 view .LVU150
+ 580              	.LBE165:
+ 581              	.LBE218:
+ 139:../../DaisySP/Source/Effects/pitchshifter.h ****         val += (d_[0].Read() * gain_[0]);
+ 582              		.loc 3 139 9 is_stmt 1 view .LVU151
+ 583              		.loc 3 140 9 view .LVU152
+ 584              	.LBB219:
+ 585              	.LBI182:
+  78:../../DaisySP/Source/Utility/delayline.h ****     {
+ 586              		.loc 5 78 20 view .LVU153
+  78:../../DaisySP/Source/Utility/delayline.h ****     {
+ 587              		.loc 5 78 20 is_stmt 0 view .LVU154
+ 588              	.LBE219:
+ 589              		.loc 3 140 13 discriminator 1 view .LVU155
+ 590 017c B0EE677A 		vmov.f32	s14, s15
+ 591              	.LBB220:
+ 592              	.LBB208:
+  80:../../DaisySP/Source/Utility/delayline.h ****         T b = line_[(write_ptr_ + delay_ + 1) % max_size];
+ 593              		.loc 5 80 11 view .LVU156
+ 594 0180 D3ED067A 		vldr.32	s15, [r3, #24]
+ 595              	.LBE208:
+ 596              	.LBE220:
+ 597              		.loc 3 140 13 discriminator 1 view .LVU157
+ 598 0184 EAEE876A 		vfma.f32	s13, s21, s14
+ 599              	.LVL22:
+ 141:../../DaisySP/Source/Effects/pitchshifter.h ****         val += (d_[1].Read() * gain_[1]);
+ARM GAS  /tmp/ccqGY1VW.s 			page 18
+
+
+ 600              		.loc 3 141 9 is_stmt 1 view .LVU158
+ 601              	.LBB221:
+ 602              	.LBI203:
+  78:../../DaisySP/Source/Utility/delayline.h ****     {
+ 603              		.loc 5 78 20 view .LVU159
+ 604              	.LBB209:
+ 605              		.loc 5 82 23 is_stmt 0 view .LVU160
+ 606 0188 92ED067A 		vldr.32	s14, [r2, #24]
+ 607 018c 37EE677A 		vsub.f32	s14, s14, s15
+ 608              	.LBE209:
+ 609              	.LBE221:
+ 610              		.loc 3 141 13 discriminator 1 view .LVU161
+ 611 0190 E8EE077A 		vfma.f32	s15, s16, s14
+ 612              	.LVL23:
+ 142:../../DaisySP/Source/Effects/pitchshifter.h ****         return val;
+ 613              		.loc 3 142 9 is_stmt 1 view .LVU162
+ 143:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 614              		.loc 3 143 5 is_stmt 0 view .LVU163
+ 615 0194 BDEC088B 		vldm	sp!, {d8-d11}
+ 616              		.cfi_remember_state
+ 617              		.cfi_restore 86
+ 618              		.cfi_restore 87
+ 619              		.cfi_restore 84
+ 620              		.cfi_restore 85
+ 621              		.cfi_restore 82
+ 622              		.cfi_restore 83
+ 623              		.cfi_restore 80
+ 624              		.cfi_restore 81
+ 625              		.cfi_def_cfa_offset 16
+ 626              	.LVL24:
+ 627              		.loc 3 143 5 view .LVU164
+ 628 0198 E0EE276A 		vfma.f32	s13, s0, s15
+ 629              	.LVL25:
+ 630              		.loc 3 143 5 view .LVU165
+ 631 019c B0EE660A 		vmov.f32	s0, s13
+ 632 01a0 70BD     		pop	{r4, r5, r6, pc}
+ 633              	.LVL26:
+ 634              	.L11:
+ 635              		.cfi_restore_state
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 636              		.loc 3 106 13 is_stmt 1 view .LVU166
+ 637              	.LBB222:
+ 638              	.LBI222:
+  39:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 639              		.loc 3 39 17 view .LVU167
+ 640              	.LBB223:
+  41:../../DaisySP/Source/Effects/pitchshifter.h ****     seed                 = hash_xs32(seed);
+ 641              		.loc 3 41 5 view .LVU168
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 642              		.loc 3 42 5 view .LVU169
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 643              		.loc 3 42 37 is_stmt 0 view .LVU170
+ 644 01a2 DFF830C1 		ldr	ip, .L18+32
+ 645              	.LBE223:
+ 646              	.LBE222:
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 647              		.loc 3 106 51 discriminator 1 view .LVU171
+ARM GAS  /tmp/ccqGY1VW.s 			page 19
+
+
+ 648 01a6 4749     		ldr	r1, .L18+16
+ 649              	.LBB233:
+ 650              	.LBB230:
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 651              		.loc 3 42 37 view .LVU172
+ 652 01a8 DCF80020 		ldr	r2, [ip]
+ 653              	.LVL27:
+ 654              	.LBB224:
+ 655              	.LBI224:
+  31:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 656              		.loc 3 31 24 is_stmt 1 view .LVU173
+ 657              	.LBB225:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 658              		.loc 3 33 5 view .LVU174
+ 659              	.LBE225:
+ 660              	.LBE224:
+ 661              	.LBE230:
+ 662              	.LBE233:
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 663              		.loc 3 106 58 is_stmt 0 discriminator 1 view .LVU175
+ 664 01ac 9FED465A 		vldr.32	s10, .L18+20
+ 665              	.LBB234:
+ 666              	.LBB231:
+ 667              	.LBB228:
+ 668              	.LBB226:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 669              		.loc 3 33 7 view .LVU176
+ 670 01b0 82EA4232 		eor	r2, r2, r2, lsl #13
+ 671              	.LVL28:
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 672              		.loc 3 34 5 is_stmt 1 view .LVU177
+ 673              	.LBE226:
+ 674              	.LBE228:
+ 675              	.LBE231:
+ 676              	.LBE234:
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 677              		.loc 3 106 31 is_stmt 0 discriminator 1 view .LVU178
+ 678 01b4 D4ED193A 		vldr.32	s7, [r4, #100]
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 679              		.loc 3 109 27 discriminator 1 view .LVU179
+ 680 01b8 DFED444A 		vldr.32	s9, .L18+24
+ 681              	.LBB235:
+ 682              	.LBB232:
+ 683              	.LBB229:
+ 684              	.LBB227:
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 685              		.loc 3 34 7 view .LVU180
+ 686 01bc 82EA5242 		eor	r2, r2, r2, lsr #17
+ 687              	.LVL29:
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 688              		.loc 3 35 5 is_stmt 1 view .LVU181
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 689              		.loc 3 35 7 is_stmt 0 view .LVU182
+ 690 01c0 82EA4212 		eor	r2, r2, r2, lsl #5
+ 691              	.LVL30:
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 692              		.loc 3 36 5 is_stmt 1 view .LVU183
+ARM GAS  /tmp/ccqGY1VW.s 			page 20
+
+
+ 693              	.LBE227:
+ 694              	.LBE229:
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 695              		.loc 3 43 5 view .LVU184
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 696              		.loc 3 43 5 is_stmt 0 view .LVU185
+ 697              	.LBE232:
+ 698              	.LBE235:
+ 699              	.LBB236:
+ 700              	.LBB237:
+ 701              	.LBB238:
+ 702              	.LBB239:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 703              		.loc 3 33 7 view .LVU186
+ 704 01c4 82EA4230 		eor	r0, r2, r2, lsl #13
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 705              		.loc 3 34 7 view .LVU187
+ 706 01c8 80EA5040 		eor	r0, r0, r0, lsr #17
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 707              		.loc 3 35 7 view .LVU188
+ 708 01cc 80EA4010 		eor	r0, r0, r0, lsl #5
+ 709              	.LBE239:
+ 710              	.LBE238:
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 711              		.loc 3 42 26 discriminator 1 view .LVU189
+ 712 01d0 CCF80000 		str	r0, [ip]
+ 713              	.LBE237:
+ 714              	.LBE236:
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 715              		.loc 3 106 51 discriminator 1 view .LVU190
+ 716 01d4 A1FB02EC 		umull	lr, ip, r1, r2
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 717              		.loc 3 109 48 discriminator 1 view .LVU191
+ 718 01d8 A1FB00E1 		umull	lr, r1, r1, r0
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 719              		.loc 3 106 51 discriminator 1 view .LVU192
+ 720 01dc 4FEADC1C 		lsr	ip, ip, #7
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 721              		.loc 3 109 48 discriminator 1 view .LVU193
+ 722 01e0 C909     		lsrs	r1, r1, #7
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 723              		.loc 3 106 51 discriminator 1 view .LVU194
+ 724 01e2 CCEB0C2C 		rsb	ip, ip, ip, lsl #8
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 725              		.loc 3 109 48 discriminator 1 view .LVU195
+ 726 01e6 C1EB0121 		rsb	r1, r1, r1, lsl #8
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 727              		.loc 3 106 51 discriminator 1 view .LVU196
+ 728 01ea A2EB0C02 		sub	r2, r2, ip
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 729              		.loc 3 109 48 discriminator 1 view .LVU197
+ 730 01ee 401A     		subs	r0, r0, r1
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 731              		.loc 3 106 34 discriminator 1 view .LVU198
+ 732 01f0 07EE902A 		vmov	s15, r2	@ int
+ 733 01f4 F8EEE76A 		vcvt.f32.s32	s13, s15
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ARM GAS  /tmp/ccqGY1VW.s 			page 21
+
+
+ 734              		.loc 3 106 58 discriminator 1 view .LVU199
+ 735 01f8 C6EE857A 		vdiv.f32	s15, s13, s10
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 736              		.loc 3 109 31 discriminator 1 view .LVU200
+ 737 01fc 06EE900A 		vmov	s13, r0	@ int
+ 738 0200 F8EEE66A 		vcvt.f32.s32	s13, s13
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 739              		.loc 3 109 55 discriminator 1 view .LVU201
+ 740 0204 86EE854A 		vdiv.f32	s8, s13, s10
+ 107:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[1]
+ 741              		.loc 3 107 26 view .LVU202
+ 742 0208 06EE903A 		vmov	s13, r3	@ int
+ 743 020c FBEEEF6A 		vcvt.f32.u32	s13, s13, #1
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 744              		.loc 3 106 31 discriminator 1 view .LVU203
+ 745 0210 67EEA37A 		vmul.f32	s15, s15, s7
+ 107:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[1]
+ 746              		.loc 3 107 26 view .LVU204
+ 747 0214 67EEA67A 		vmul.f32	s15, s15, s13
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 748              		.loc 3 109 27 discriminator 1 view .LVU205
+ 749 0218 DFED2D6A 		vldr.32	s13, .L18+28
+ 106:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 750              		.loc 3 106 24 view .LVU206
+ 751 021c C4ED1B7A 		vstr.32	s15, [r4, #108]
+ 108:../../DaisySP/Source/Effects/pitchshifter.h ****                 = 0.0002f + (((float)(myrand() % 255) / 255.0f) * 0.001f);
+ 752              		.loc 3 108 13 is_stmt 1 view .LVU207
+ 753              	.LBB243:
+ 754              	.LBI236:
+  39:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 755              		.loc 3 39 17 view .LVU208
+ 756              	.LBB242:
+  41:../../DaisySP/Source/Effects/pitchshifter.h ****     seed                 = hash_xs32(seed);
+ 757              		.loc 3 41 5 view .LVU209
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 758              		.loc 3 42 5 view .LVU210
+ 759              	.LVL31:
+ 760              	.LBB241:
+ 761              	.LBI238:
+  31:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 762              		.loc 3 31 24 view .LVU211
+ 763              	.LBB240:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 764              		.loc 3 33 5 view .LVU212
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 765              		.loc 3 34 5 view .LVU213
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 766              		.loc 3 35 5 view .LVU214
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 767              		.loc 3 36 5 view .LVU215
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 768              		.loc 3 36 5 is_stmt 0 view .LVU216
+ 769              	.LBE240:
+ 770              	.LBE241:
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 771              		.loc 3 43 5 is_stmt 1 view .LVU217
+ 772              	.LBE242:
+ARM GAS  /tmp/ccqGY1VW.s 			page 22
+
+
+ 773              	.LBE243:
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 774              		.loc 3 109 27 is_stmt 0 discriminator 1 view .LVU218
+ 775 0220 E4EE246A 		vfma.f32	s13, s8, s9
+ 109:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 776              		.loc 3 109 17 discriminator 1 view .LVU219
+ 777 0224 C4ED216A 		vstr.32	s13, [r4, #132]
+ 778 0228 16E7     		b	.L12
+ 779              	.L9:
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 780              		.loc 3 99 13 is_stmt 1 view .LVU220
+ 781              	.LBB244:
+ 782              	.LBI244:
+  39:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 783              		.loc 3 39 17 view .LVU221
+ 784              	.LBB245:
+  41:../../DaisySP/Source/Effects/pitchshifter.h ****     seed                 = hash_xs32(seed);
+ 785              		.loc 3 41 5 view .LVU222
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 786              		.loc 3 42 5 view .LVU223
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 787              		.loc 3 42 37 is_stmt 0 view .LVU224
+ 788 022a DFF8A8C0 		ldr	ip, .L18+32
+ 789              	.LBE245:
+ 790              	.LBE244:
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 791              		.loc 3 99 51 discriminator 1 view .LVU225
+ 792 022e 2548     		ldr	r0, .L18+16
+ 793              	.LBB258:
+ 794              	.LBB254:
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 795              		.loc 3 42 37 view .LVU226
+ 796 0230 DCF80020 		ldr	r2, [ip]
+ 797              	.LVL32:
+ 798              	.LBB246:
+ 799              	.LBI246:
+  31:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 800              		.loc 3 31 24 is_stmt 1 view .LVU227
+ 801              	.LBB247:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 802              		.loc 3 33 5 view .LVU228
+ 803              	.LBE247:
+ 804              	.LBE246:
+ 805              	.LBE254:
+ 806              	.LBE258:
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 807              		.loc 3 99 58 is_stmt 0 discriminator 1 view .LVU229
+ 808 0234 DFED246A 		vldr.32	s13, .L18+20
+ 809              	.LBB259:
+ 810              	.LBB255:
+ 811              	.LBB251:
+ 812              	.LBB248:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 813              		.loc 3 33 7 view .LVU230
+ 814 0238 82EA4232 		eor	r2, r2, r2, lsl #13
+ 815              	.LVL33:
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ARM GAS  /tmp/ccqGY1VW.s 			page 23
+
+
+ 816              		.loc 3 34 5 is_stmt 1 view .LVU231
+ 817              	.LBE248:
+ 818              	.LBE251:
+ 819              	.LBE255:
+ 820              	.LBE259:
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 821              		.loc 3 99 31 is_stmt 0 discriminator 1 view .LVU232
+ 822 023c D4ED194A 		vldr.32	s9, [r4, #100]
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 823              		.loc 3 102 27 discriminator 1 view .LVU233
+ 824 0240 9FED226A 		vldr.32	s12, .L18+24
+ 825              	.LBB260:
+ 826              	.LBB256:
+ 827              	.LBB252:
+ 828              	.LBB249:
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 829              		.loc 3 34 7 view .LVU234
+ 830 0244 82EA5242 		eor	r2, r2, r2, lsr #17
+ 831              	.LVL34:
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 832              		.loc 3 35 5 is_stmt 1 view .LVU235
+ 833              	.LBE249:
+ 834              	.LBE252:
+ 835              	.LBE256:
+ 836              	.LBE260:
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 837              		.loc 3 102 27 is_stmt 0 discriminator 1 view .LVU236
+ 838 0248 DFED215A 		vldr.32	s11, .L18+28
+ 839              	.LBB261:
+ 840              	.LBB257:
+ 841              	.LBB253:
+ 842              	.LBB250:
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 843              		.loc 3 35 7 view .LVU237
+ 844 024c 82EA4212 		eor	r2, r2, r2, lsl #5
+ 845              	.LVL35:
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 846              		.loc 3 36 5 is_stmt 1 view .LVU238
+ 847              	.LBE250:
+ 848              	.LBE253:
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 849              		.loc 3 43 5 view .LVU239
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 850              		.loc 3 43 5 is_stmt 0 view .LVU240
+ 851              	.LBE257:
+ 852              	.LBE261:
+ 853              	.LBB262:
+ 854              	.LBB263:
+ 855              	.LBB264:
+ 856              	.LBB265:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 857              		.loc 3 33 7 view .LVU241
+ 858 0250 82EA4231 		eor	r1, r2, r2, lsl #13
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 859              		.loc 3 34 7 view .LVU242
+ 860 0254 81EA5141 		eor	r1, r1, r1, lsr #17
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ARM GAS  /tmp/ccqGY1VW.s 			page 24
+
+
+ 861              		.loc 3 35 7 view .LVU243
+ 862 0258 81EA4111 		eor	r1, r1, r1, lsl #5
+ 863              	.LBE265:
+ 864              	.LBE264:
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 865              		.loc 3 42 26 discriminator 1 view .LVU244
+ 866 025c CCF80010 		str	r1, [ip]
+ 867              	.LBE263:
+ 868              	.LBE262:
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 869              		.loc 3 99 51 discriminator 1 view .LVU245
+ 870 0260 A0FB02EC 		umull	lr, ip, r0, r2
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 871              		.loc 3 102 48 discriminator 1 view .LVU246
+ 872 0264 A0FB01E0 		umull	lr, r0, r0, r1
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 873              		.loc 3 99 51 discriminator 1 view .LVU247
+ 874 0268 4FEADC1C 		lsr	ip, ip, #7
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 875              		.loc 3 102 48 discriminator 1 view .LVU248
+ 876 026c C009     		lsrs	r0, r0, #7
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 877              		.loc 3 99 51 discriminator 1 view .LVU249
+ 878 026e CCEB0C2C 		rsb	ip, ip, ip, lsl #8
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 879              		.loc 3 102 48 discriminator 1 view .LVU250
+ 880 0272 C0EB0020 		rsb	r0, r0, r0, lsl #8
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 881              		.loc 3 99 51 discriminator 1 view .LVU251
+ 882 0276 A2EB0C02 		sub	r2, r2, ip
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 883              		.loc 3 102 48 discriminator 1 view .LVU252
+ 884 027a 091A     		subs	r1, r1, r0
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 885              		.loc 3 99 34 discriminator 1 view .LVU253
+ 886 027c 07EE902A 		vmov	s15, r2	@ int
+ 887 0280 F8EEE77A 		vcvt.f32.s32	s15, s15
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 888              		.loc 3 99 58 discriminator 1 view .LVU254
+ 889 0284 87EEA67A 		vdiv.f32	s14, s15, s13
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 890              		.loc 3 102 31 discriminator 1 view .LVU255
+ 891 0288 07EE901A 		vmov	s15, r1	@ int
+ 892 028c F8EEE77A 		vcvt.f32.s32	s15, s15
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 893              		.loc 3 102 55 discriminator 1 view .LVU256
+ 894 0290 87EEA65A 		vdiv.f32	s10, s15, s13
+ 100:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[0]
+ 895              		.loc 3 100 26 view .LVU257
+ 896 0294 07EE903A 		vmov	s15, r3	@ int
+ 897 0298 FBEEEF7A 		vcvt.f32.u32	s15, s15, #1
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 898              		.loc 3 99 31 discriminator 1 view .LVU258
+ 899 029c 27EE247A 		vmul.f32	s14, s14, s9
+ 100:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_coeff_[0]
+ 900              		.loc 3 100 26 view .LVU259
+ 901 02a0 27EE277A 		vmul.f32	s14, s14, s15
+ARM GAS  /tmp/ccqGY1VW.s 			page 25
+
+
+  99:../../DaisySP/Source/Effects/pitchshifter.h ****                          * (del_size_ * 0.5f);
+ 902              		.loc 3 99 24 view .LVU260
+ 903 02a4 84ED1A7A 		vstr.32	s14, [r4, #104]
+ 101:../../DaisySP/Source/Effects/pitchshifter.h ****                 = 0.0002f + (((float)(myrand() % 255) / 255.0f) * 0.001f);
+ 904              		.loc 3 101 13 is_stmt 1 view .LVU261
+ 905              	.LBB269:
+ 906              	.LBI262:
+  39:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 907              		.loc 3 39 17 view .LVU262
+ 908              	.LBB268:
+  41:../../DaisySP/Source/Effects/pitchshifter.h ****     seed                 = hash_xs32(seed);
+ 909              		.loc 3 41 5 view .LVU263
+  42:../../DaisySP/Source/Effects/pitchshifter.h ****     return seed;
+ 910              		.loc 3 42 5 view .LVU264
+ 911              	.LVL36:
+ 912              	.LBB267:
+ 913              	.LBI264:
+  31:../../DaisySP/Source/Effects/pitchshifter.h **** {
+ 914              		.loc 3 31 24 view .LVU265
+ 915              	.LBB266:
+  33:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x >> 17;
+ 916              		.loc 3 33 5 view .LVU266
+  34:../../DaisySP/Source/Effects/pitchshifter.h ****     x ^= x << 5;
+ 917              		.loc 3 34 5 view .LVU267
+  35:../../DaisySP/Source/Effects/pitchshifter.h ****     return x;
+ 918              		.loc 3 35 5 view .LVU268
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 919              		.loc 3 36 5 view .LVU269
+  36:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 920              		.loc 3 36 5 is_stmt 0 view .LVU270
+ 921              	.LBE266:
+ 922              	.LBE267:
+  43:../../DaisySP/Source/Effects/pitchshifter.h **** }
+ 923              		.loc 3 43 5 is_stmt 1 view .LVU271
+ 924              	.LBE268:
+ 925              	.LBE269:
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 926              		.loc 3 102 27 is_stmt 0 discriminator 1 view .LVU272
+ 927 02a8 E5EE065A 		vfma.f32	s11, s10, s12
+ 102:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 928              		.loc 3 102 17 discriminator 1 view .LVU273
+ 929 02ac C4ED205A 		vstr.32	s11, [r4, #128]
+ 930 02b0 C6E6     		b	.L10
+ 931              	.L19:
+ 932 02b2 00BF     		.align	2
+ 933              	.L18:
+ 934 02b4 30000200 		.word	131120
+ 935 02b8 40000200 		.word	131136
+ 936 02bc DB0F4940 		.word	1078530011
+ 937 02c0 00000000 		.word	0
+ 938 02c4 81808080 		.word	-2139062143
+ 939 02c8 00007F43 		.word	1132396544
+ 940 02cc 6F12833A 		.word	981668463
+ 941 02d0 17B75139 		.word	961656599
+ 942 02d4 00000000 		.word	_ZZN7daisysp6myrandEvE4seed
+ 943              		.cfi_endproc
+ 944              	.LFE5595:
+ARM GAS  /tmp/ccqGY1VW.s 			page 26
+
+
+ 946              		.section	.text._ZN16PitchShiftEffect6updateEPPKfPPfi,"ax",%progbits
+ 947              		.align	1
+ 948              		.p2align 2,,3
+ 949              		.global	_ZN16PitchShiftEffect6updateEPPKfPPfi
+ 950              		.syntax unified
+ 951              		.thumb
+ 952              		.thumb_func
+ 954              	_ZN16PitchShiftEffect6updateEPPKfPPfi:
+ 955              	.LVL37:
+ 956              	.LFB5894:
+  21:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+ 957              		.loc 1 21 71 is_stmt 1 view -0
+ 958              		.cfi_startproc
+ 959              		@ args = 0, pretend = 0, frame = 16
+ 960              		@ frame_needed = 0, uses_anonymous_args = 0
+  22:EffectPhaseShifter.cpp ****     float inputR = in[1][idx];
+ 961              		.loc 1 22 5 view .LVU275
+  21:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+ 962              		.loc 1 21 71 is_stmt 0 view .LVU276
+ 963 0000 10B5     		push	{r4, lr}
+ 964              		.cfi_def_cfa_offset 8
+ 965              		.cfi_offset 4, -8
+ 966              		.cfi_offset 14, -4
+ 967 0002 0446     		mov	r4, r0
+  23:EffectPhaseShifter.cpp **** 
+ 968              		.loc 1 23 11 view .LVU277
+ 969 0004 D1E90001 		ldrd	r0, r1, [r1]
+ 970              	.LVL38:
+  21:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+ 971              		.loc 1 21 71 view .LVU278
+ 972 0008 2DED028B 		vpush.64	{d8}
+ 973              		.cfi_def_cfa_offset 16
+ 974              		.cfi_offset 80, -16
+ 975              		.cfi_offset 81, -12
+  22:EffectPhaseShifter.cpp ****     float inputR = in[1][idx];
+ 976              		.loc 1 22 29 view .LVU279
+ 977 000c 00EB8300 		add	r0, r0, r3, lsl #2
+  21:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+ 978              		.loc 1 21 71 view .LVU280
+ 979 0010 84B0     		sub	sp, sp, #16
+ 980              		.cfi_def_cfa_offset 32
+  23:EffectPhaseShifter.cpp **** 
+ 981              		.loc 1 23 11 view .LVU281
+ 982 0012 01EB8301 		add	r1, r1, r3, lsl #2
+  22:EffectPhaseShifter.cpp ****     float inputR = in[1][idx];
+ 983              		.loc 1 22 29 view .LVU282
+ 984 0016 90ED008A 		vldr.32	s16, [r0]
+  26:EffectPhaseShifter.cpp ****     // float pitch_outR = pitchShifterR.Process(inputR);
+ 985              		.loc 1 26 45 view .LVU283
+ 986 001a 04F11000 		add	r0, r4, #16
+  23:EffectPhaseShifter.cpp **** 
+ 987              		.loc 1 23 11 view .LVU284
+ 988 001e D1ED008A 		vldr.32	s17, [r1]
+  26:EffectPhaseShifter.cpp ****     // float pitch_outR = pitchShifterR.Process(inputR);
+ 989              		.loc 1 26 45 view .LVU285
+ 990 0022 03A9     		add	r1, sp, #12
+  21:EffectPhaseShifter.cpp ****     float inputL = in[0][idx];
+ARM GAS  /tmp/ccqGY1VW.s 			page 27
+
+
+ 991              		.loc 1 21 71 view .LVU286
+ 992 0024 0192     		str	r2, [sp, #4]
+  23:EffectPhaseShifter.cpp **** 
+ 993              		.loc 1 23 11 view .LVU287
+ 994 0026 0093     		str	r3, [sp]
+  22:EffectPhaseShifter.cpp ****     float inputR = in[1][idx];
+ 995              		.loc 1 22 11 view .LVU288
+ 996 0028 8DED038A 		vstr.32	s16, [sp, #12]
+  23:EffectPhaseShifter.cpp **** 
+ 997              		.loc 1 23 5 is_stmt 1 view .LVU289
+ 998              	.LVL39:
+  26:EffectPhaseShifter.cpp ****     // float pitch_outR = pitchShifterR.Process(inputR);
+ 999              		.loc 1 26 5 view .LVU290
+  26:EffectPhaseShifter.cpp ****     // float pitch_outR = pitchShifterR.Process(inputR);
+ 1000              		.loc 1 26 45 is_stmt 0 view .LVU291
+ 1001 002c FFF7FEFF 		bl	_ZN7daisysp12PitchShifter7ProcessERf
+ 1002              	.LVL40:
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1003              		.loc 1 30 5 is_stmt 1 view .LVU292
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1004              		.loc 1 30 28 is_stmt 0 view .LVU293
+ 1005 0030 04F58020 		add	r0, r4, #262144
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1006              		.loc 1 30 15 view .LVU294
+ 1007 0034 019A     		ldr	r2, [sp, #4]
+ 1008 0036 009B     		ldr	r3, [sp]
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1009              		.loc 1 30 48 view .LVU295
+ 1010 0038 D0ED617A 		vldr.32	s15, [r0, #388]
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1011              		.loc 1 30 17 view .LVU296
+ 1012 003c 90ED607A 		vldr.32	s14, [r0, #384]
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1013              		.loc 1 30 48 view .LVU297
+ 1014 0040 60EE277A 		vmul.f32	s15, s0, s15
+  31:EffectPhaseShifter.cpp **** }
+ 1015              		.loc 1 31 15 view .LVU298
+ 1016 0044 D2E90012 		ldrd	r1, r2, [r2]
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1017              		.loc 1 30 17 view .LVU299
+ 1018 0048 E8EE077A 		vfma.f32	s15, s16, s14
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1019              		.loc 1 30 15 view .LVU300
+ 1020 004c 01EB8301 		add	r1, r1, r3, lsl #2
+  31:EffectPhaseShifter.cpp **** }
+ 1021              		.loc 1 31 15 view .LVU301
+ 1022 0050 02EB8302 		add	r2, r2, r3, lsl #2
+  30:EffectPhaseShifter.cpp ****     out[1][idx] = inputR * dryMix + pitch_outL * wetMix;
+ 1023              		.loc 1 30 17 view .LVU302
+ 1024 0054 C1ED007A 		vstr.32	s15, [r1]
+  31:EffectPhaseShifter.cpp **** }
+ 1025              		.loc 1 31 5 is_stmt 1 view .LVU303
+  31:EffectPhaseShifter.cpp **** }
+ 1026              		.loc 1 31 48 is_stmt 0 view .LVU304
+ 1027 0058 90ED617A 		vldr.32	s14, [r0, #388]
+  31:EffectPhaseShifter.cpp **** }
+ 1028              		.loc 1 31 17 view .LVU305
+ARM GAS  /tmp/ccqGY1VW.s 			page 28
+
+
+ 1029 005c D0ED607A 		vldr.32	s15, [r0, #384]
+  31:EffectPhaseShifter.cpp **** }
+ 1030              		.loc 1 31 48 view .LVU306
+ 1031 0060 20EE070A 		vmul.f32	s0, s0, s14
+ 1032              	.LVL41:
+  31:EffectPhaseShifter.cpp **** }
+ 1033              		.loc 1 31 17 view .LVU307
+ 1034 0064 A7EEA80A 		vfma.f32	s0, s15, s17
+ 1035 0068 82ED000A 		vstr.32	s0, [r2]
+  32:EffectPhaseShifter.cpp **** 
+ 1036              		.loc 1 32 1 view .LVU308
+ 1037 006c 04B0     		add	sp, sp, #16
+ 1038              		.cfi_def_cfa_offset 16
+ 1039              	.LVL42:
+  32:EffectPhaseShifter.cpp **** 
+ 1040              		.loc 1 32 1 view .LVU309
+ 1041              		@ sp needed
+ 1042 006e BDEC028B 		vldm	sp!, {d8}
+ 1043              		.cfi_restore 80
+ 1044              		.cfi_restore 81
+ 1045              		.cfi_def_cfa_offset 8
+ 1046 0072 10BD     		pop	{r4, pc}
+  32:EffectPhaseShifter.cpp **** 
+ 1047              		.loc 1 32 1 view .LVU310
+ 1048              		.cfi_endproc
+ 1049              	.LFE5894:
+ 1051              		.section	.text._ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf,"ax",%progbits
+ 1052              		.align	1
+ 1053              		.p2align 2,,3
+ 1054              		.global	_ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf
+ 1055              		.syntax unified
+ 1056              		.thumb
+ 1057              		.thumb_func
+ 1059              	_ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf:
+ 1060              	.LVL43:
+ 1061              	.LFB5892:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1062              		.loc 1 6 1 is_stmt 1 view -0
+ 1063              		.cfi_startproc
+ 1064              		@ args = 0, pretend = 0, frame = 16
+ 1065              		@ frame_needed = 0, uses_anonymous_args = 0
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1066              		.loc 1 6 1 is_stmt 0 view .LVU312
+ 1067 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1068              		.cfi_def_cfa_offset 36
+ 1069              		.cfi_offset 4, -36
+ 1070              		.cfi_offset 5, -32
+ 1071              		.cfi_offset 6, -28
+ 1072              		.cfi_offset 7, -24
+ 1073              		.cfi_offset 8, -20
+ 1074              		.cfi_offset 9, -16
+ 1075              		.cfi_offset 10, -12
+ 1076              		.cfi_offset 11, -8
+ 1077              		.cfi_offset 14, -4
+ 1078              	.LBB315:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1079              		.loc 1 6 89 discriminator 3 view .LVU313
+ARM GAS  /tmp/ccqGY1VW.s 			page 29
+
+
+ 1080 0004 4FF07C53 		mov	r3, #1056964608
+ 1081              	.LBB316:
+ 1082              	.LBB317:
+   8:../Effect.h   **** public:
+ 1083              		.loc 4 8 7 view .LVU314
+ 1084 0008 0026     		movs	r6, #0
+ 1085              	.LBE317:
+ 1086              	.LBE316:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1087              		.loc 1 6 89 discriminator 3 view .LVU315
+ 1088 000a 00F5802A 		add	r10, r0, #262144
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1089              		.loc 1 6 89 discriminator 1 view .LVU316
+ 1090 000e DD4A     		ldr	r2, .L42
+ 1091 0010 DD4F     		ldr	r7, .L42+4
+ 1092              	.LBB320:
+ 1093              	.LBB321:
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1094              		.loc 3 73 23 view .LVU317
+ 1095 0012 00F50034 		add	r4, r0, #131072
+ 1096              	.LBE321:
+ 1097              	.LBE320:
+ 1098              	.LBE315:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1099              		.loc 1 6 1 view .LVU318
+ 1100 0016 0546     		mov	r5, r0
+ 1101              	.LVL44:
+ 1102              	.LBB458:
+ 1103              	.LBB379:
+ 1104              	.LBI316:
+   8:../Effect.h   **** public:
+ 1105              		.loc 4 8 7 is_stmt 1 view .LVU319
+ 1106 0018 0744     		add	r7, r7, r0
+ 1107              	.LBE379:
+ 1108              	.LBE458:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1109              		.loc 1 6 1 is_stmt 0 view .LVU320
+ 1110 001a 2DED048B 		vpush.64	{d8, d9}
+ 1111              		.cfi_def_cfa_offset 52
+ 1112              		.cfi_offset 80, -52
+ 1113              		.cfi_offset 81, -48
+ 1114              		.cfi_offset 82, -44
+ 1115              		.cfi_offset 83, -40
+ 1116 001e B0EE409A 		vmov.f32	s18, s0
+ 1117 0022 85B0     		sub	sp, sp, #20
+ 1118              		.cfi_def_cfa_offset 72
+ 1119              	.LBB459:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1120              		.loc 1 6 78 discriminator 1 view .LVU321
+ 1121 0024 C160     		str	r1, [r0, #12]
+ 1122              	.LBB380:
+ 1123              	.LBB318:
+   8:../Effect.h   **** public:
+ 1124              		.loc 4 8 7 view .LVU322
+ 1125 0026 8660     		str	r6, [r0, #8]
+ 1126              	.LVL45:
+   8:../Effect.h   **** public:
+ARM GAS  /tmp/ccqGY1VW.s 			page 30
+
+
+ 1127              		.loc 4 8 7 view .LVU323
+ 1128              	.LBE318:
+ 1129              	.LBE380:
+ 1130              	.LBB381:
+ 1131              	.LBI381:
+  67:../../DaisySP/Source/Effects/pitchshifter.h ****     ~PitchShifter() {}
+ 1132              		.loc 3 67 5 is_stmt 1 view .LVU324
+  67:../../DaisySP/Source/Effects/pitchshifter.h ****     ~PitchShifter() {}
+ 1133              		.loc 3 67 5 is_stmt 0 view .LVU325
+ 1134              	.LBE381:
+ 1135              	.LBB382:
+ 1136              	.LBI382:
+  67:../../DaisySP/Source/Effects/pitchshifter.h ****     ~PitchShifter() {}
+ 1137              		.loc 3 67 5 is_stmt 1 view .LVU326
+  67:../../DaisySP/Source/Effects/pitchshifter.h ****     ~PitchShifter() {}
+ 1138              		.loc 3 67 5 is_stmt 0 view .LVU327
+ 1139              	.LBE382:
+ 1140              	.LBB383:
+ 1141              	.LBB319:
+   8:../Effect.h   **** public:
+ 1142              		.loc 4 8 7 view .LVU328
+ 1143 0028 C0E90026 		strd	r2, r6, [r0]
+ 1144              	.LBE319:
+ 1145              	.LBE383:
+   6:EffectPhaseShifter.cpp ****     // Initialisation avec la fréquence d'échantillonnage
+ 1146              		.loc 1 6 89 discriminator 3 view .LVU329
+ 1147 002c CAF88031 		str	r3, [r10, #384]	@ float
+ 1148 0030 CAF88431 		str	r3, [r10, #388]	@ float
+   8:EffectPhaseShifter.cpp ****     pitchShifterR.Init(sampleRate);
+ 1149              		.loc 1 8 5 is_stmt 1 view .LVU330
+ 1150              	.LVL46:
+ 1151              	.LBB384:
+ 1152              	.LBI320:
+  71:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1153              		.loc 3 71 10 view .LVU331
+ 1154              	.LBB377:
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1155              		.loc 3 73 9 view .LVU332
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ 1156              		.loc 3 75 23 is_stmt 0 view .LVU333
+ 1157 0034 D54B     		ldr	r3, .L42+8
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1158              		.loc 3 73 23 view .LVU334
+ 1159 0036 84F83460 		strb	r6, [r4, #52]
+  74:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_freq_     = 5.0f;
+ 1160              		.loc 3 74 9 is_stmt 1 view .LVU335
+  74:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_freq_     = 5.0f;
+ 1161              		.loc 3 74 23 is_stmt 0 view .LVU336
+ 1162 003a 84ED0E0A 		vstr.32	s0, [r4, #56]
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ 1163              		.loc 3 75 9 is_stmt 1 view .LVU337
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ 1164              		.loc 3 75 23 is_stmt 0 view .LVU338
+ 1165 003e E362     		str	r3, [r4, #44]	@ float
+  76:../../DaisySP/Source/Effects/pitchshifter.h ****         for(uint8_t i = 0; i < 2; i++)
+ 1166              		.loc 3 76 9 is_stmt 1 view .LVU339
+ 1167              	.LVL47:
+ARM GAS  /tmp/ccqGY1VW.s 			page 31
+
+
+ 1168              	.LBB322:
+ 1169              	.LBI322:
+ 144:../../DaisySP/Source/Effects/pitchshifter.h **** 
+ 145:../../DaisySP/Source/Effects/pitchshifter.h ****     /** sets transposition in semitones
+ 146:../../DaisySP/Source/Effects/pitchshifter.h ****     */
+ 147:../../DaisySP/Source/Effects/pitchshifter.h ****     void SetTransposition(const float &transpose)
+ 148:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 149:../../DaisySP/Source/Effects/pitchshifter.h ****         float   ratio;
+ 150:../../DaisySP/Source/Effects/pitchshifter.h ****         uint8_t idx;
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         if(transpose_ != transpose || force_recalc_)
+ 152:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             transpose_ = transpose;
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 158:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 159:../../DaisySP/Source/Effects/pitchshifter.h ****                 shift_up_ = true;
+ 160:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 161:../../DaisySP/Source/Effects/pitchshifter.h ****             else
+ 162:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 163:../../DaisySP/Source/Effects/pitchshifter.h ****                 shift_up_ = false;
+ 164:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             mod_freq_ = ((ratio - 1.0f) * sr_) / del_size_;
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 167:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 168:../../DaisySP/Source/Effects/pitchshifter.h ****                 mod_freq_ = 0.0f;
+ 169:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[0].SetFreq(mod_freq_);
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 172:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 173:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****                 force_recalc_ = false;
+ 175:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 176:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 177:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 178:../../DaisySP/Source/Effects/pitchshifter.h **** 
+ 179:../../DaisySP/Source/Effects/pitchshifter.h ****     /** sets delay size changing the timbre of the pitchshifting 
+ 180:../../DaisySP/Source/Effects/pitchshifter.h ****     */
+ 181:../../DaisySP/Source/Effects/pitchshifter.h ****     void SetDelSize(uint32_t size)
+ 182:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 183:../../DaisySP/Source/Effects/pitchshifter.h ****         del_size_     = size < SHIFT_BUFFER_SIZE ? size : SHIFT_BUFFER_SIZE;
+ 184:../../DaisySP/Source/Effects/pitchshifter.h ****         force_recalc_ = true;
+ 185:../../DaisySP/Source/Effects/pitchshifter.h ****         SetTransposition(transpose_);
+ 186:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 187:../../DaisySP/Source/Effects/pitchshifter.h **** 
+ 188:../../DaisySP/Source/Effects/pitchshifter.h ****     /** sets an amount of internal random modulation, kind of sounds like tape-flutter
+ 189:../../DaisySP/Source/Effects/pitchshifter.h ****     */
+ 190:../../DaisySP/Source/Effects/pitchshifter.h ****     inline void SetFun(float f) { fun_ = f; }
+ 191:../../DaisySP/Source/Effects/pitchshifter.h **** 
+ 192:../../DaisySP/Source/Effects/pitchshifter.h ****   private:
+ 193:../../DaisySP/Source/Effects/pitchshifter.h ****     inline void SetSemitones()
+ 1170              		.loc 3 193 17 view .LVU340
+ 194:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         for(size_t i = 0; i < 12; i++)
+ 1171              		.loc 3 195 9 view .LVU341
+ 1172              	.LBB323:
+ARM GAS  /tmp/ccqGY1VW.s 			page 32
+
+
+ 1173              		.loc 3 195 29 discriminator 1 view .LVU342
+ 1174              	.L23:
+ 196:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 197:../../DaisySP/Source/Effects/pitchshifter.h ****             semitone_ratios_[i] = powf(2.0f, (float)i / 12);
+ 1175              		.loc 3 197 13 view .LVU343
+ 1176              		.loc 3 197 46 is_stmt 0 view .LVU344
+ 1177 0040 07EE906A 		vmov	s15, r6	@ int
+ 1178              		.loc 3 197 39 view .LVU345
+ 1179 0044 B2EE088A 		vmov.f32	s16, #1.2e+1
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1180              		.loc 3 195 9 discriminator 3 view .LVU346
+ 1181 0048 0136     		adds	r6, r6, #1
+ 1182              	.LVL48:
+ 1183              		.loc 3 197 39 view .LVU347
+ 1184 004a B0EE000A 		vmov.f32	s0, #2.0e+0
+ 1185              		.loc 3 197 46 view .LVU348
+ 1186 004e F8EEE70A 		vcvt.f32.s32	s1, s15
+ 1187              		.loc 3 197 39 view .LVU349
+ 1188 0052 C0EE880A 		vdiv.f32	s1, s1, s16
+ 1189 0056 FFF7FEFF 		bl	powf
+ 1190              	.LVL49:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1191              		.loc 3 195 29 discriminator 1 view .LVU350
+ 1192 005a 0C2E     		cmp	r6, #12
+ 1193              		.loc 3 197 33 discriminator 1 view .LVU351
+ 1194 005c A7EC010A 		vstmia.32	r7!, {s0}
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1195              		.loc 3 195 9 is_stmt 1 discriminator 3 view .LVU352
+ 1196              	.LVL50:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1197              		.loc 3 195 29 discriminator 1 view .LVU353
+ 1198 0060 EED1     		bne	.L23
+ 1199              	.LVL51:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1200              		.loc 3 195 29 is_stmt 0 discriminator 1 view .LVU354
+ 1201              	.LBE323:
+ 1202              	.LBE322:
+ 1203              	.LBB324:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1204              		.loc 3 79 13 is_stmt 1 view .LVU355
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1205              		.loc 3 81 25 is_stmt 0 view .LVU356
+ 1206 0062 DFF86483 		ldr	r8, .L42+68
+ 1207              	.LBB325:
+ 1208              	.LBB326:
+ 1209              	.LBB327:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1210              		.loc 5 44 20 view .LVU357
+ 1211 0066 4FF00109 		mov	r9, #1
+ 1212              	.LBE327:
+ 1213              	.LBE326:
+ 1214              	.LBE325:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1215              		.loc 3 79 22 view .LVU358
+ 1216 006a DFEDC98A 		vldr.32	s17, .L42+12
+ 1217              	.LBB346:
+ 1218              	.LBB339:
+ARM GAS  /tmp/ccqGY1VW.s 			page 33
+
+
+ 1219              	.LBB332:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1220              		.loc 5 44 20 view .LVU359
+ 1221 006e 0026     		movs	r6, #0
+ 1222              	.LBE332:
+ 1223              	.LBE339:
+ 1224              	.LBE346:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1225              		.loc 3 81 25 view .LVU360
+ 1226 0070 A844     		add	r8, r5, r8
+ 1227              	.LBB347:
+ 1228              	.LBB340:
+ 1229              	.LBB333:
+ 1230              	.LBB328:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1231              		.loc 5 42 22 view .LVU361
+ 1232 0072 4FF48032 		mov	r2, #65536
+ 1233 0076 0021     		movs	r1, #0
+ 1234 0078 05F11C00 		add	r0, r5, #28
+ 1235              	.LBE328:
+ 1236              	.LBE333:
+ 1237              	.LBE340:
+ 1238              	.LBE347:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1239              		.loc 3 79 22 view .LVU362
+ 1240 007c C4ED188A 		vstr.32	s17, [r4, #96]
+  80:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[i].Init(sr, 50, i == 0 ? 0 : PI_F);
+ 1241              		.loc 3 80 13 is_stmt 1 view .LVU363
+ 1242              	.LVL52:
+ 1243              	.LBB348:
+ 1244              	.LBI325:
+  35:../../DaisySP/Source/Utility/delayline.h ****     /** clears buffer, sets write ptr to 0, and delay to 1 sample.
+ 1245              		.loc 5 35 10 view .LVU364
+ 1246              	.LBB341:
+ 1247              	.LBI326:
+  38:../../DaisySP/Source/Utility/delayline.h ****     {
+ 1248              		.loc 5 38 10 view .LVU365
+ 1249              	.LBB334:
+ 1250              	.LBB329:
+  40:../../DaisySP/Source/Utility/delayline.h ****         {
+ 1251              		.loc 5 40 29 discriminator 1 view .LVU366
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1252              		.loc 5 42 22 is_stmt 0 view .LVU367
+ 1253 0080 FFF7FEFF 		bl	memset
+ 1254              	.LVL53:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1255              		.loc 5 42 22 view .LVU368
+ 1256              	.LBE329:
+ 1257              	.LBE334:
+ 1258              	.LBE341:
+ 1259              	.LBE348:
+ 1260              	.LBB349:
+ 1261              	.LBB350:
+ 1262              		.file 6 "../../DaisySP/Source/Control/phasor.h"
+   1:../../DaisySP/Source/Control/phasor.h **** /*
+   2:../../DaisySP/Source/Control/phasor.h **** Copyright (c) 2020 Electrosmith, Corp
+   3:../../DaisySP/Source/Control/phasor.h **** 
+ARM GAS  /tmp/ccqGY1VW.s 			page 34
+
+
+   4:../../DaisySP/Source/Control/phasor.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Control/phasor.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Control/phasor.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Control/phasor.h **** */
+   8:../../DaisySP/Source/Control/phasor.h **** 
+   9:../../DaisySP/Source/Control/phasor.h **** #pragma once
+  10:../../DaisySP/Source/Control/phasor.h **** #ifndef DSY_PHASOR_H
+  11:../../DaisySP/Source/Control/phasor.h **** #define DSY_PHASOR_H
+  12:../../DaisySP/Source/Control/phasor.h **** #ifdef __cplusplus
+  13:../../DaisySP/Source/Control/phasor.h **** 
+  14:../../DaisySP/Source/Control/phasor.h **** namespace daisysp
+  15:../../DaisySP/Source/Control/phasor.h **** {
+  16:../../DaisySP/Source/Control/phasor.h **** /** Generates a normalized signal moving from 0-1 at the specified frequency.
+  17:../../DaisySP/Source/Control/phasor.h **** 
+  18:../../DaisySP/Source/Control/phasor.h **** \todo Selecting which channels should be initialized/included in the sequence conversion.
+  19:../../DaisySP/Source/Control/phasor.h **** \todo Setup a similar start function for an external mux, but that seems outside the scope of this 
+  20:../../DaisySP/Source/Control/phasor.h **** 
+  21:../../DaisySP/Source/Control/phasor.h **** */
+  22:../../DaisySP/Source/Control/phasor.h **** class Phasor
+  23:../../DaisySP/Source/Control/phasor.h **** {
+  24:../../DaisySP/Source/Control/phasor.h ****   public:
+  25:../../DaisySP/Source/Control/phasor.h ****     Phasor() {}
+  26:../../DaisySP/Source/Control/phasor.h ****     ~Phasor() {}
+  27:../../DaisySP/Source/Control/phasor.h ****     /** Initializes the Phasor module
+  28:../../DaisySP/Source/Control/phasor.h ****     sample rate, and freq are in Hz
+  29:../../DaisySP/Source/Control/phasor.h ****     initial phase is in radians
+  30:../../DaisySP/Source/Control/phasor.h ****     Additional Init functions have defaults when arg is not specified:
+  31:../../DaisySP/Source/Control/phasor.h ****     - phs = 0.0f
+  32:../../DaisySP/Source/Control/phasor.h ****     - freq = 1.0f
+  33:../../DaisySP/Source/Control/phasor.h ****     */
+  34:../../DaisySP/Source/Control/phasor.h ****     inline void Init(float sample_rate, float freq, float initial_phase)
+  35:../../DaisySP/Source/Control/phasor.h ****     {
+  36:../../DaisySP/Source/Control/phasor.h ****         sample_rate_ = sample_rate;
+  37:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+  38:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1263              		.loc 6 38 16 view .LVU369
+ 1264 0084 9FEDC30A 		vldr.32	s0, .L42+16
+ 1265 0088 4046     		mov	r0, r8
+ 1266              	.LBE350:
+ 1267              	.LBE349:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1268              		.loc 3 81 25 view .LVU370
+ 1269 008a C34F     		ldr	r7, .L42+20
+ 1270              	.LBB355:
+ 1271              	.LBB342:
+ 1272              	.LBB335:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1273              		.loc 5 44 20 view .LVU371
+ 1274 008c C5E90569 		strd	r6, r9, [r5, #20]
+ 1275              	.LVL54:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1276              		.loc 5 44 20 view .LVU372
+ 1277              	.LBE335:
+ 1278              	.LBE342:
+ 1279              	.LBE355:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1280              		.loc 3 81 13 is_stmt 1 view .LVU373
+ARM GAS  /tmp/ccqGY1VW.s 			page 35
+
+
+ 1281              	.LBB356:
+ 1282              	.LBI349:
+  34:../../DaisySP/Source/Control/phasor.h ****     {
+ 1283              		.loc 6 34 17 view .LVU374
+ 1284              	.LBB351:
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1285              		.loc 6 36 9 view .LVU375
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1286              		.loc 6 37 9 view .LVU376
+ 1287              		.loc 6 38 9 view .LVU377
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1288              		.loc 6 36 22 is_stmt 0 view .LVU378
+ 1289 0090 84ED119A 		vstr.32	s18, [r4, #68]
+ 1290              	.LBE351:
+ 1291              	.LBE356:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1292              		.loc 3 81 25 view .LVU379
+ 1293 0094 2F44     		add	r7, r7, r5
+ 1294              	.LBB357:
+ 1295              	.LBB352:
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1296              		.loc 6 37 22 view .LVU380
+ 1297 0096 C4ED138A 		vstr.32	s17, [r4, #76]
+ 1298              		.loc 6 38 16 view .LVU381
+ 1299 009a FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1300              	.LVL55:
+ 1301              		.loc 6 38 16 view .LVU382
+ 1302              	.LBE352:
+ 1303              	.LBE357:
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1304              		.loc 3 77 9 is_stmt 1 discriminator 2 view .LVU383
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1305              		.loc 3 77 30 discriminator 1 view .LVU384
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1306              		.loc 3 79 13 view .LVU385
+ 1307              	.LBB358:
+ 1308              	.LBB343:
+ 1309              	.LBB336:
+ 1310              	.LBB330:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1311              		.loc 5 42 22 is_stmt 0 view .LVU386
+ 1312 009e BF48     		ldr	r0, .L42+24
+ 1313 00a0 3146     		mov	r1, r6
+ 1314 00a2 4FF48032 		mov	r2, #65536
+ 1315 00a6 2818     		adds	r0, r5, r0
+ 1316              	.LBE330:
+ 1317              	.LBE336:
+ 1318              	.LBE343:
+ 1319              	.LBE358:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1320              		.loc 3 79 22 view .LVU387
+ 1321 00a8 C4ED198A 		vstr.32	s17, [r4, #100]
+  80:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[i].Init(sr, 50, i == 0 ? 0 : PI_F);
+ 1322              		.loc 3 80 13 is_stmt 1 view .LVU388
+ 1323              	.LVL56:
+ 1324              	.LBB359:
+  35:../../DaisySP/Source/Utility/delayline.h ****     /** clears buffer, sets write ptr to 0, and delay to 1 sample.
+ARM GAS  /tmp/ccqGY1VW.s 			page 36
+
+
+ 1325              		.loc 5 35 10 view .LVU389
+ 1326              	.LBB344:
+  38:../../DaisySP/Source/Utility/delayline.h ****     {
+ 1327              		.loc 5 38 10 view .LVU390
+ 1328              	.LBB337:
+ 1329              	.LBB331:
+  40:../../DaisySP/Source/Utility/delayline.h ****         {
+ 1330              		.loc 5 40 29 discriminator 1 view .LVU391
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1331              		.loc 5 42 22 is_stmt 0 view .LVU392
+ 1332 00ac FFF7FEFF 		bl	memset
+ 1333              	.LVL57:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1334              		.loc 5 42 22 view .LVU393
+ 1335              	.LBE331:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1336              		.loc 5 44 20 view .LVU394
+ 1337 00b0 BB4B     		ldr	r3, .L42+28
+ 1338              	.LBE337:
+ 1339              	.LBE344:
+ 1340              	.LBE359:
+ 1341              	.LBB360:
+ 1342              	.LBB353:
+ 1343              		.loc 6 38 16 view .LVU395
+ 1344 00b2 9FEDB80A 		vldr.32	s0, .L42+16
+ 1345 00b6 3846     		mov	r0, r7
+ 1346              	.LBE353:
+ 1347              	.LBE360:
+ 1348              	.LBB361:
+ 1349              	.LBB345:
+ 1350              	.LBB338:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1351              		.loc 5 44 20 view .LVU396
+ 1352 00b8 EE50     		str	r6, [r5, r3]
+ 1353 00ba 2B44     		add	r3, r3, r5
+ 1354 00bc C3F80490 		str	r9, [r3, #4]
+ 1355              	.LVL58:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1356              		.loc 5 44 20 view .LVU397
+ 1357              	.LBE338:
+ 1358              	.LBE345:
+ 1359              	.LBE361:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1360              		.loc 3 81 13 is_stmt 1 view .LVU398
+ 1361              	.LBB362:
+  34:../../DaisySP/Source/Control/phasor.h ****     {
+ 1362              		.loc 6 34 17 view .LVU399
+ 1363              	.LBB354:
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1364              		.loc 6 36 9 view .LVU400
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1365              		.loc 6 37 9 view .LVU401
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1366              		.loc 6 37 22 is_stmt 0 view .LVU402
+ 1367 00c0 B84B     		ldr	r3, .L42+32
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1368              		.loc 6 36 22 view .LVU403
+ARM GAS  /tmp/ccqGY1VW.s 			page 37
+
+
+ 1369 00c2 84ED159A 		vstr.32	s18, [r4, #84]
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1370              		.loc 6 37 22 view .LVU404
+ 1371 00c6 E365     		str	r3, [r4, #92]	@ float
+ 1372              		.loc 6 38 9 is_stmt 1 view .LVU405
+ 1373              		.loc 6 38 16 is_stmt 0 view .LVU406
+ 1374 00c8 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1375              	.LVL59:
+ 1376              		.loc 6 38 16 view .LVU407
+ 1377              	.LBE354:
+ 1378              	.LBE362:
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1379              		.loc 3 77 9 is_stmt 1 discriminator 2 view .LVU408
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1380              		.loc 3 77 30 discriminator 1 view .LVU409
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1381              		.loc 3 77 30 is_stmt 0 discriminator 1 view .LVU410
+ 1382              	.LBE324:
+  83:../../DaisySP/Source/Effects/pitchshifter.h ****         del_size_ = SHIFT_BUFFER_SIZE;
+ 1383              		.loc 3 83 9 is_stmt 1 view .LVU411
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1384              		.loc 3 84 9 view .LVU412
+ 1385 00cc 94ED1C7A 		vldr.32	s14, [r4, #112]
+ 1386              	.LBB363:
+ 1387              	.LBB364:
+ 1388              	.LBB365:
+ 1389              	.LBB366:
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1390              		.loc 3 155 47 is_stmt 0 view .LVU413
+ 1391 00d0 B54A     		ldr	r2, .L42+36
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1392              		.loc 3 165 41 view .LVU414
+ 1393 00d2 FFEE007A 		vmov.f32	s15, #-1.0e+0
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1394              		.loc 3 154 40 view .LVU415
+ 1395 00d6 F0EEC76A 		vabs.f32	s13, s14
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1396              		.loc 3 153 24 view .LVU416
+ 1397 00da 84ED1C7A 		vstr.32	s14, [r4, #112]
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1398              		.loc 3 157 13 view .LVU417
+ 1399 00de B4EEE87A 		vcmpe.f32	s14, s17
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1400              		.loc 3 165 41 view .LVU418
+ 1401 00e2 D4ED0E5A 		vldr.32	s11, [r4, #56]
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1402              		.loc 3 165 48 view .LVU419
+ 1403 00e6 9FEDB16A 		vldr.32	s12, .L42+40
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1404              		.loc 3 170 28 view .LVU420
+ 1405 00ea 4046     		mov	r0, r8
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1406              		.loc 3 156 49 view .LVU421
+ 1407 00ec 86EE887A 		vdiv.f32	s14, s13, s16
+ 1408              	.LBE366:
+ 1409              	.LBE365:
+ 184:../../DaisySP/Source/Effects/pitchshifter.h ****         SetTransposition(transpose_);
+ARM GAS  /tmp/ccqGY1VW.s 			page 38
+
+
+ 1410              		.loc 3 184 23 view .LVU422
+ 1411 00f0 84F83490 		strb	r9, [r4, #52]
+ 1412              	.LBB370:
+ 1413              	.LBB367:
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1414              		.loc 3 154 24 view .LVU423
+ 1415 00f4 FCEEE66A 		vcvt.u32.f32	s13, s13
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1416              		.loc 3 157 13 view .LVU424
+ 1417 00f8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1418              		.loc 3 154 24 view .LVU425
+ 1419 00fc CDED016A 		vstr.32	s13, [sp, #4]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1420              		.loc 3 155 47 view .LVU426
+ 1421 0100 9DF80430 		ldrb	r3, [sp, #4]	@ zero_extendqisi2
+ 1422 0104 A2FB0312 		umull	r1, r2, r2, r3
+ 1423 0108 4FEAD202 		lsr	r2, r2, #3
+ 1424 010c 02EB4202 		add	r2, r2, r2, lsl #1
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1425              		.loc 3 156 22 view .LVU427
+ 1426 0110 BCEEC77A 		vcvt.u32.f32	s14, s14
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1427              		.loc 3 155 47 view .LVU428
+ 1428 0114 A3EB8203 		sub	r3, r3, r2, lsl #2
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1429              		.loc 3 155 24 view .LVU429
+ 1430 0118 48F22202 		movw	r2, #32802
+ 1431 011c 52FA83F3 		uxtab	r3, r2, r3
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1432              		.loc 3 156 22 view .LVU430
+ 1433 0120 8DED027A 		vstr.32	s14, [sp, #8]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1434              		.loc 3 155 24 view .LVU431
+ 1435 0124 05EB8303 		add	r3, r5, r3, lsl #2
+ 1436 0128 D3ED046A 		vldr.32	s13, [r3, #16]
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1437              		.loc 3 156 22 view .LVU432
+ 1438 012c 9DF80830 		ldrb	r3, [sp, #8]	@ zero_extendqisi2
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1439              		.loc 3 156 55 view .LVU433
+ 1440 0130 4B44     		add	r3, r3, r9
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1441              		.loc 3 156 19 view .LVU434
+ 1442 0132 07EE103A 		vmov	s14, r3	@ int
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1443              		.loc 3 157 13 view .LVU435
+ 1444 0136 CCBF     		ite	gt
+ 1445 0138 4B46     		movgt	r3, r9
+ 1446 013a 3346     		movle	r3, r6
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1447              		.loc 3 156 19 view .LVU436
+ 1448 013c B8EEC77A 		vcvt.f32.s32	s14, s14
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1449              		.loc 3 157 13 view .LVU437
+ 1450 0140 84F83C30 		strb	r3, [r4, #60]
+ 1451              	.LBE367:
+ARM GAS  /tmp/ccqGY1VW.s 			page 39
+
+
+ 1452              	.LBE370:
+ 1453              	.LBE364:
+ 1454              	.LBE363:
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1455              		.loc 3 84 19 view .LVU438
+ 1456 0144 4FF48043 		mov	r3, #16384
+ 1457              	.LBB375:
+ 1458              	.LBB373:
+ 1459              	.LBB371:
+ 1460              	.LBB368:
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1461              		.loc 3 165 41 view .LVU439
+ 1462 0148 E6EE877A 		vfma.f32	s15, s13, s14
+ 1463              	.LBE368:
+ 1464              	.LBE371:
+ 1465              	.LBE373:
+ 1466              	.LBE375:
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1467              		.loc 3 84 19 view .LVU440
+ 1468 014c 2363     		str	r3, [r4, #48]
+  85:../../DaisySP/Source/Effects/pitchshifter.h ****         fun_ = 0.0f;
+ 1469              		.loc 3 85 9 is_stmt 1 view .LVU441
+ 1470              	.LVL60:
+ 1471              	.LBB376:
+ 1472              	.LBI363:
+ 181:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1473              		.loc 3 181 10 view .LVU442
+ 1474              	.LBB374:
+ 183:../../DaisySP/Source/Effects/pitchshifter.h ****         force_recalc_ = true;
+ 1475              		.loc 3 183 9 view .LVU443
+ 184:../../DaisySP/Source/Effects/pitchshifter.h ****         SetTransposition(transpose_);
+ 1476              		.loc 3 184 9 view .LVU444
+ 185:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1477              		.loc 3 185 9 view .LVU445
+ 1478              	.LBB372:
+ 1479              	.LBI365:
+ 147:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1480              		.loc 3 147 10 view .LVU446
+ 1481              	.LBB369:
+ 149:../../DaisySP/Source/Effects/pitchshifter.h ****         uint8_t idx;
+ 1482              		.loc 3 149 9 view .LVU447
+ 150:../../DaisySP/Source/Effects/pitchshifter.h ****         if(transpose_ != transpose || force_recalc_)
+ 1483              		.loc 3 150 9 view .LVU448
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1484              		.loc 3 151 9 view .LVU449
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1485              		.loc 3 153 13 view .LVU450
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1486              		.loc 3 154 13 view .LVU451
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1487              		.loc 3 155 13 view .LVU452
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1488              		.loc 3 156 13 view .LVU453
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1489              		.loc 3 157 13 view .LVU454
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1490              		.loc 3 165 13 view .LVU455
+ARM GAS  /tmp/ccqGY1VW.s 			page 40
+
+
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1491              		.loc 3 166 13 view .LVU456
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1492              		.loc 3 170 13 view .LVU457
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1493              		.loc 3 165 41 is_stmt 0 view .LVU458
+ 1494 014e 67EEA57A 		vmul.f32	s15, s15, s11
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1495              		.loc 3 165 48 view .LVU459
+ 1496 0152 67EE867A 		vmul.f32	s15, s15, s12
+ 1497 0156 F4EEE87A 		vcmpe.f32	s15, s17
+ 1498 015a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1499 015e 54BF     		ite	pl
+ 1500 0160 B0EE670A 		vmovpl.f32	s0, s15
+ 1501 0164 B0EE680A 		vmovmi.f32	s0, s17
+ 1502 0168 84ED0B0A 		vstr.32	s0, [r4, #44]
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1503              		.loc 3 170 28 view .LVU460
+ 1504 016c FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1505              	.LVL61:
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 1506              		.loc 3 171 13 is_stmt 1 view .LVU461
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 1507              		.loc 3 171 28 is_stmt 0 view .LVU462
+ 1508 0170 94ED0B0A 		vldr.32	s0, [r4, #44]
+ 1509 0174 3846     		mov	r0, r7
+ 1510 0176 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1511              	.LVL62:
+ 172:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1512              		.loc 3 172 13 is_stmt 1 view .LVU463
+ 1513 017a 94F83430 		ldrb	r3, [r4, #52]	@ zero_extendqisi2
+ 1514 017e 0BB1     		cbz	r3, .L24
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1515              		.loc 3 174 17 view .LVU464
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1516              		.loc 3 174 31 is_stmt 0 view .LVU465
+ 1517 0180 84F83460 		strb	r6, [r4, #52]
+ 1518              	.L24:
+ 1519              	.LVL63:
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1520              		.loc 3 174 31 view .LVU466
+ 1521              	.LBE369:
+ 1522              	.LBE372:
+ 1523              	.LBE374:
+ 1524              	.LBE376:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1525              		.loc 3 86 9 is_stmt 1 view .LVU467
+ 1526 0184 DFF84492 		ldr	r9, .L42+72
+ 1527              	.LBE377:
+ 1528              	.LBE384:
+ 1529              	.LBB385:
+ 1530              	.LBB386:
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1531              		.loc 3 73 23 is_stmt 0 view .LVU468
+ 1532 0188 04F50033 		add	r3, r4, #131072
+ 1533 018c 0026     		movs	r6, #0
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ARM GAS  /tmp/ccqGY1VW.s 			page 41
+
+
+ 1534              		.loc 3 75 23 view .LVU469
+ 1535 018e 7F4A     		ldr	r2, .L42+8
+ 1536              	.LBE386:
+ 1537              	.LBE385:
+ 1538              	.LBB448:
+ 1539              	.LBB378:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1540              		.loc 3 86 14 view .LVU470
+ 1541 0190 0021     		movs	r1, #0
+ 1542 0192 A944     		add	r9, r5, r9
+ 1543 0194 6167     		str	r1, [r4, #116]	@ float
+ 1544              	.LVL64:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1545              		.loc 3 86 14 view .LVU471
+ 1546              	.LBE378:
+ 1547              	.LBE448:
+   9:EffectPhaseShifter.cpp **** 
+ 1548              		.loc 1 9 5 is_stmt 1 view .LVU472
+ 1549              	.LBB449:
+ 1550              	.LBI385:
+  71:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1551              		.loc 3 71 10 view .LVU473
+ 1552              	.LBB445:
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1553              		.loc 3 73 9 view .LVU474
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ 1554              		.loc 3 75 23 is_stmt 0 view .LVU475
+ 1555 0196 C3F8E420 		str	r2, [r3, #228]	@ float
+  73:../../DaisySP/Source/Effects/pitchshifter.h ****         sr_           = sr;
+ 1556              		.loc 3 73 23 view .LVU476
+ 1557 019a 83F8EC60 		strb	r6, [r3, #236]
+  74:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_freq_     = 5.0f;
+ 1558              		.loc 3 74 9 is_stmt 1 view .LVU477
+  74:../../DaisySP/Source/Effects/pitchshifter.h ****         mod_freq_     = 5.0f;
+ 1559              		.loc 3 74 23 is_stmt 0 view .LVU478
+ 1560 019e 83ED3C9A 		vstr.32	s18, [r3, #240]
+  75:../../DaisySP/Source/Effects/pitchshifter.h ****         SetSemitones();
+ 1561              		.loc 3 75 9 is_stmt 1 view .LVU479
+  76:../../DaisySP/Source/Effects/pitchshifter.h ****         for(uint8_t i = 0; i < 2; i++)
+ 1562              		.loc 3 76 9 view .LVU480
+ 1563              	.LVL65:
+ 1564              	.LBB387:
+ 1565              	.LBI387:
+ 193:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1566              		.loc 3 193 17 view .LVU481
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1567              		.loc 3 195 9 view .LVU482
+ 1568              	.LBB388:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1569              		.loc 3 195 29 discriminator 1 view .LVU483
+ 1570              	.L25:
+ 1571              		.loc 3 197 13 view .LVU484
+ 1572              		.loc 3 197 46 is_stmt 0 view .LVU485
+ 1573 01a2 07EE906A 		vmov	s15, r6	@ int
+ 1574              		.loc 3 197 39 view .LVU486
+ 1575 01a6 B2EE088A 		vmov.f32	s16, #1.2e+1
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ARM GAS  /tmp/ccqGY1VW.s 			page 42
+
+
+ 1576              		.loc 3 195 9 discriminator 3 view .LVU487
+ 1577 01aa 0136     		adds	r6, r6, #1
+ 1578              	.LVL66:
+ 1579              		.loc 3 197 39 view .LVU488
+ 1580 01ac B0EE000A 		vmov.f32	s0, #2.0e+0
+ 1581              		.loc 3 197 46 view .LVU489
+ 1582 01b0 F8EEE70A 		vcvt.f32.s32	s1, s15
+ 1583              		.loc 3 197 39 view .LVU490
+ 1584 01b4 C0EE880A 		vdiv.f32	s1, s1, s16
+ 1585 01b8 FFF7FEFF 		bl	powf
+ 1586              	.LVL67:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1587              		.loc 3 195 29 discriminator 1 view .LVU491
+ 1588 01bc 0C2E     		cmp	r6, #12
+ 1589              		.loc 3 197 33 discriminator 1 view .LVU492
+ 1590 01be A9EC010A 		vstmia.32	r9!, {s0}
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1591              		.loc 3 195 9 is_stmt 1 discriminator 3 view .LVU493
+ 1592              	.LVL68:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1593              		.loc 3 195 29 discriminator 1 view .LVU494
+ 1594 01c2 EED1     		bne	.L25
+ 1595              	.LVL69:
+ 195:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1596              		.loc 3 195 29 is_stmt 0 discriminator 1 view .LVU495
+ 1597              	.LBE388:
+ 1598              	.LBE387:
+ 1599              	.LBB389:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1600              		.loc 3 79 13 is_stmt 1 view .LVU496
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1601              		.loc 3 79 22 is_stmt 0 view .LVU497
+ 1602 01c4 04F50036 		add	r6, r4, #131072
+ 1603 01c8 DFED718A 		vldr.32	s17, .L42+12
+ 1604              	.LBB390:
+ 1605              	.LBB391:
+ 1606              	.LBB392:
+ 1607              	.LBB393:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1608              		.loc 5 42 22 view .LVU498
+ 1609 01cc 7848     		ldr	r0, .L42+44
+ 1610 01ce 4FF48032 		mov	r2, #65536
+ 1611 01d2 0021     		movs	r1, #0
+ 1612              	.LBE393:
+ 1613              	.LBE392:
+ 1614              	.LBE391:
+ 1615              	.LBE390:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1616              		.loc 3 79 22 view .LVU499
+ 1617 01d4 C6ED468A 		vstr.32	s17, [r6, #280]
+  80:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[i].Init(sr, 50, i == 0 ? 0 : PI_F);
+ 1618              		.loc 3 80 13 is_stmt 1 view .LVU500
+ 1619              	.LVL70:
+ 1620              	.LBB412:
+ 1621              	.LBI390:
+  35:../../DaisySP/Source/Utility/delayline.h ****     /** clears buffer, sets write ptr to 0, and delay to 1 sample.
+ 1622              		.loc 5 35 10 view .LVU501
+ARM GAS  /tmp/ccqGY1VW.s 			page 43
+
+
+ 1623              	.LBB405:
+ 1624              	.LBI391:
+  38:../../DaisySP/Source/Utility/delayline.h ****     {
+ 1625              		.loc 5 38 10 view .LVU502
+ 1626              	.LBB398:
+ 1627              	.LBB394:
+  40:../../DaisySP/Source/Utility/delayline.h ****         {
+ 1628              		.loc 5 40 29 discriminator 1 view .LVU503
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1629              		.loc 5 42 22 is_stmt 0 view .LVU504
+ 1630 01d8 2818     		adds	r0, r5, r0
+ 1631              	.LBE394:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1632              		.loc 5 44 20 view .LVU505
+ 1633 01da 4FF0010B 		mov	fp, #1
+ 1634              	.LBB395:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1635              		.loc 5 42 22 view .LVU506
+ 1636 01de FFF7FEFF 		bl	memset
+ 1637              	.LVL71:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1638              		.loc 5 42 22 view .LVU507
+ 1639              	.LBE395:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1640              		.loc 5 44 20 view .LVU508
+ 1641 01e2 744B     		ldr	r3, .L42+48
+ 1642 01e4 0021     		movs	r1, #0
+ 1643              	.LBE398:
+ 1644              	.LBE405:
+ 1645              	.LBE412:
+ 1646              	.LBB413:
+ 1647              	.LBB414:
+ 1648              		.loc 6 38 16 view .LVU509
+ 1649 01e6 7448     		ldr	r0, .L42+52
+ 1650              	.LBE414:
+ 1651              	.LBE413:
+ 1652              	.LBB420:
+ 1653              	.LBB406:
+ 1654              	.LBB399:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1655              		.loc 5 44 20 view .LVU510
+ 1656 01e8 EA18     		adds	r2, r5, r3
+ 1657              	.LBE399:
+ 1658              	.LBE406:
+ 1659              	.LBE420:
+ 1660              	.LBB421:
+ 1661              	.LBB415:
+ 1662              		.loc 6 38 16 view .LVU511
+ 1663 01ea 9FED6A0A 		vldr.32	s0, .L42+16
+ 1664 01ee 2818     		adds	r0, r5, r0
+ 1665              	.LBE415:
+ 1666              	.LBE421:
+ 1667              	.LBB422:
+ 1668              	.LBB407:
+ 1669              	.LBB400:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1670              		.loc 5 44 20 view .LVU512
+ARM GAS  /tmp/ccqGY1VW.s 			page 44
+
+
+ 1671 01f0 42F8041C 		str	r1, [r2, #-4]
+ 1672 01f4 45F803B0 		str	fp, [r5, r3]
+ 1673              	.LVL72:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1674              		.loc 5 44 20 view .LVU513
+ 1675              	.LBE400:
+ 1676              	.LBE407:
+ 1677              	.LBE422:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1678              		.loc 3 81 13 is_stmt 1 view .LVU514
+ 1679              	.LBB423:
+ 1680              	.LBI413:
+  34:../../DaisySP/Source/Control/phasor.h ****     {
+ 1681              		.loc 6 34 17 view .LVU515
+ 1682              	.LBB416:
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1683              		.loc 6 36 9 view .LVU516
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1684              		.loc 6 36 22 is_stmt 0 view .LVU517
+ 1685 01f8 86ED3F9A 		vstr.32	s18, [r6, #252]
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1686              		.loc 6 37 9 is_stmt 1 view .LVU518
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1687              		.loc 6 37 22 is_stmt 0 view .LVU519
+ 1688 01fc C6ED418A 		vstr.32	s17, [r6, #260]
+ 1689              		.loc 6 38 9 is_stmt 1 view .LVU520
+ 1690              		.loc 6 38 16 is_stmt 0 view .LVU521
+ 1691 0200 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1692              	.LVL73:
+ 1693              	.LBE416:
+ 1694              	.LBE423:
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1695              		.loc 3 77 9 is_stmt 1 discriminator 2 view .LVU522
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1696              		.loc 3 77 30 discriminator 1 view .LVU523
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1697              		.loc 3 79 13 view .LVU524
+ 1698              	.LBB424:
+ 1699              	.LBB408:
+ 1700              	.LBB401:
+ 1701              	.LBB396:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1702              		.loc 5 42 22 is_stmt 0 view .LVU525
+ 1703 0204 6D48     		ldr	r0, .L42+56
+ 1704 0206 4FF48032 		mov	r2, #65536
+ 1705 020a 0021     		movs	r1, #0
+ 1706 020c 2818     		adds	r0, r5, r0
+ 1707              	.LBE396:
+ 1708              	.LBE401:
+ 1709              	.LBE408:
+ 1710              	.LBE424:
+  79:../../DaisySP/Source/Effects/pitchshifter.h ****             d_[i].Init();
+ 1711              		.loc 3 79 22 view .LVU526
+ 1712 020e C6ED478A 		vstr.32	s17, [r6, #284]
+  80:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[i].Init(sr, 50, i == 0 ? 0 : PI_F);
+ 1713              		.loc 3 80 13 is_stmt 1 view .LVU527
+ 1714              	.LVL74:
+ARM GAS  /tmp/ccqGY1VW.s 			page 45
+
+
+ 1715              	.LBB425:
+  35:../../DaisySP/Source/Utility/delayline.h ****     /** clears buffer, sets write ptr to 0, and delay to 1 sample.
+ 1716              		.loc 5 35 10 view .LVU528
+ 1717              	.LBB409:
+  38:../../DaisySP/Source/Utility/delayline.h ****     {
+ 1718              		.loc 5 38 10 view .LVU529
+ 1719              	.LBB402:
+ 1720              	.LBB397:
+  40:../../DaisySP/Source/Utility/delayline.h ****         {
+ 1721              		.loc 5 40 29 discriminator 1 view .LVU530
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1722              		.loc 5 42 22 is_stmt 0 view .LVU531
+ 1723 0212 FFF7FEFF 		bl	memset
+ 1724              	.LVL75:
+  42:../../DaisySP/Source/Utility/delayline.h ****         }
+ 1725              		.loc 5 42 22 view .LVU532
+ 1726              	.LBE397:
+ 1727              	.LBE402:
+ 1728              	.LBE409:
+ 1729              	.LBE425:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1730              		.loc 3 81 25 view .LVU533
+ 1731 0216 6A4A     		ldr	r2, .L42+60
+ 1732              	.LBB426:
+ 1733              	.LBB410:
+ 1734              	.LBB403:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1735              		.loc 5 44 20 view .LVU534
+ 1736 0218 0021     		movs	r1, #0
+ 1737              	.LBE403:
+ 1738              	.LBE410:
+ 1739              	.LBE426:
+ 1740              	.LBB427:
+ 1741              	.LBB417:
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1742              		.loc 6 37 22 view .LVU535
+ 1743 021a 624B     		ldr	r3, .L42+32
+ 1744              	.LBE417:
+ 1745              	.LBE427:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1746              		.loc 3 81 25 view .LVU536
+ 1747 021c AA18     		adds	r2, r5, r2
+ 1748              	.LBB428:
+ 1749              	.LBB418:
+ 1750              		.loc 6 38 16 view .LVU537
+ 1751 021e 9FED5D0A 		vldr.32	s0, .L42+16
+ 1752              	.LBE418:
+ 1753              	.LBE428:
+ 1754              	.LBB429:
+ 1755              	.LBB411:
+ 1756              	.LBB404:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1757              		.loc 5 44 20 view .LVU538
+ 1758 0222 40E9021B 		strd	r1, fp, [r0, #-8]
+ 1759              	.LVL76:
+  44:../../DaisySP/Source/Utility/delayline.h ****         delay_     = 1;
+ 1760              		.loc 5 44 20 view .LVU539
+ARM GAS  /tmp/ccqGY1VW.s 			page 46
+
+
+ 1761              	.LBE404:
+ 1762              	.LBE411:
+ 1763              	.LBE429:
+  81:../../DaisySP/Source/Effects/pitchshifter.h ****         }
+ 1764              		.loc 3 81 13 is_stmt 1 view .LVU540
+ 1765              	.LBB430:
+  34:../../DaisySP/Source/Control/phasor.h ****     {
+ 1766              		.loc 6 34 17 view .LVU541
+ 1767              	.LBB419:
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1768              		.loc 6 36 9 view .LVU542
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1769              		.loc 6 37 9 view .LVU543
+ 1770              		.loc 6 38 16 is_stmt 0 view .LVU544
+ 1771 0226 1046     		mov	r0, r2
+  37:../../DaisySP/Source/Control/phasor.h ****         SetFreq(freq);
+ 1772              		.loc 6 37 22 view .LVU545
+ 1773 0228 C6F81431 		str	r3, [r6, #276]	@ float
+ 1774              		.loc 6 38 9 is_stmt 1 view .LVU546
+  36:../../DaisySP/Source/Control/phasor.h ****         phs_         = initial_phase;
+ 1775              		.loc 6 36 22 is_stmt 0 view .LVU547
+ 1776 022c 86ED439A 		vstr.32	s18, [r6, #268]
+ 1777              		.loc 6 38 16 view .LVU548
+ 1778 0230 0392     		str	r2, [sp, #12]
+ 1779 0232 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1780              	.LVL77:
+ 1781              		.loc 6 38 16 view .LVU549
+ 1782              	.LBE419:
+ 1783              	.LBE430:
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1784              		.loc 3 77 9 is_stmt 1 discriminator 2 view .LVU550
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1785              		.loc 3 77 30 discriminator 1 view .LVU551
+  77:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1786              		.loc 3 77 30 is_stmt 0 discriminator 1 view .LVU552
+ 1787              	.LBE389:
+  83:../../DaisySP/Source/Effects/pitchshifter.h ****         del_size_ = SHIFT_BUFFER_SIZE;
+ 1788              		.loc 3 83 9 is_stmt 1 view .LVU553
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1789              		.loc 3 84 9 view .LVU554
+ 1790 0236 9AED4A7A 		vldr.32	s14, [r10, #296]
+ 1791              	.LBB431:
+ 1792              	.LBB432:
+ 1793              	.LBB433:
+ 1794              	.LBB434:
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1795              		.loc 3 165 41 is_stmt 0 view .LVU555
+ 1796 023a FFEE007A 		vmov.f32	s15, #-1.0e+0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1797              		.loc 3 155 47 view .LVU556
+ 1798 023e 5A49     		ldr	r1, .L42+36
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1799              		.loc 3 154 40 view .LVU557
+ 1800 0240 F0EEC76A 		vabs.f32	s13, s14
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1801              		.loc 3 153 24 view .LVU558
+ 1802 0244 86ED4A7A 		vstr.32	s14, [r6, #296]
+ARM GAS  /tmp/ccqGY1VW.s 			page 47
+
+
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1803              		.loc 3 157 13 view .LVU559
+ 1804 0248 B4EEE87A 		vcmpe.f32	s14, s17
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1805              		.loc 3 165 41 view .LVU560
+ 1806 024c D6ED3C5A 		vldr.32	s11, [r6, #240]
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1807              		.loc 3 165 48 view .LVU561
+ 1808 0250 9FED566A 		vldr.32	s12, .L42+40
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1809              		.loc 3 156 49 view .LVU562
+ 1810 0254 86EE887A 		vdiv.f32	s14, s13, s16
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1811              		.loc 3 170 28 view .LVU563
+ 1812 0258 5748     		ldr	r0, .L42+52
+ 1813              	.LBE434:
+ 1814              	.LBE433:
+ 184:../../DaisySP/Source/Effects/pitchshifter.h ****         SetTransposition(transpose_);
+ 1815              		.loc 3 184 23 view .LVU564
+ 1816 025a 86F8ECB0 		strb	fp, [r6, #236]
+ 1817              	.LBB438:
+ 1818              	.LBB435:
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1819              		.loc 3 170 28 view .LVU565
+ 1820 025e 2818     		adds	r0, r5, r0
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1821              		.loc 3 154 24 view .LVU566
+ 1822 0260 FCEEE66A 		vcvt.u32.f32	s13, s13
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1823              		.loc 3 157 13 view .LVU567
+ 1824 0264 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1825              		.loc 3 154 24 view .LVU568
+ 1826 0268 CDED016A 		vstr.32	s13, [sp, #4]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1827              		.loc 3 155 47 view .LVU569
+ 1828 026c 9DF80430 		ldrb	r3, [sp, #4]	@ zero_extendqisi2
+ 1829 0270 A1FB03C1 		umull	ip, r1, r1, r3
+ 1830 0274 4FEAD101 		lsr	r1, r1, #3
+ 1831 0278 01EB4101 		add	r1, r1, r1, lsl #1
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1832              		.loc 3 156 22 view .LVU570
+ 1833 027c BCEEC77A 		vcvt.u32.f32	s14, s14
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1834              		.loc 3 155 47 view .LVU571
+ 1835 0280 A3EB8103 		sub	r3, r3, r1, lsl #2
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1836              		.loc 3 155 24 view .LVU572
+ 1837 0284 48F22201 		movw	r1, #32802
+ 1838 0288 51FA83F3 		uxtab	r3, r1, r3
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1839              		.loc 3 156 22 view .LVU573
+ 1840 028c 8DED027A 		vstr.32	s14, [sp, #8]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1841              		.loc 3 155 24 view .LVU574
+ 1842 0290 04EB8303 		add	r3, r4, r3, lsl #2
+ 1843 0294 D3ED326A 		vldr.32	s13, [r3, #200]
+ARM GAS  /tmp/ccqGY1VW.s 			page 48
+
+
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1844              		.loc 3 156 22 view .LVU575
+ 1845 0298 9DF80830 		ldrb	r3, [sp, #8]	@ zero_extendqisi2
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1846              		.loc 3 156 55 view .LVU576
+ 1847 029c 5B44     		add	r3, r3, fp
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1848              		.loc 3 156 19 view .LVU577
+ 1849 029e 07EE103A 		vmov	s14, r3	@ int
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1850              		.loc 3 157 13 view .LVU578
+ 1851 02a2 CCBF     		ite	gt
+ 1852 02a4 5B46     		movgt	r3, fp
+ 1853 02a6 0023     		movle	r3, #0
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1854              		.loc 3 156 19 view .LVU579
+ 1855 02a8 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1856              		.loc 3 157 13 view .LVU580
+ 1857 02ac 86F8F430 		strb	r3, [r6, #244]
+ 1858              	.LBE435:
+ 1859              	.LBE438:
+ 1860              	.LBE432:
+ 1861              	.LBE431:
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1862              		.loc 3 84 19 view .LVU581
+ 1863 02b0 4FF48043 		mov	r3, #16384
+ 1864              	.LBB443:
+ 1865              	.LBB441:
+ 1866              	.LBB439:
+ 1867              	.LBB436:
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1868              		.loc 3 165 41 view .LVU582
+ 1869 02b4 E6EE877A 		vfma.f32	s15, s13, s14
+ 1870              	.LBE436:
+ 1871              	.LBE439:
+ 1872              	.LBE441:
+ 1873              	.LBE443:
+  84:../../DaisySP/Source/Effects/pitchshifter.h ****         SetDelSize(del_size_);
+ 1874              		.loc 3 84 19 view .LVU583
+ 1875 02b8 C6F8E830 		str	r3, [r6, #232]
+  85:../../DaisySP/Source/Effects/pitchshifter.h ****         fun_ = 0.0f;
+ 1876              		.loc 3 85 9 is_stmt 1 view .LVU584
+ 1877              	.LVL78:
+ 1878              	.LBB444:
+ 1879              	.LBI431:
+ 181:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1880              		.loc 3 181 10 view .LVU585
+ 1881              	.LBB442:
+ 183:../../DaisySP/Source/Effects/pitchshifter.h ****         force_recalc_ = true;
+ 1882              		.loc 3 183 9 view .LVU586
+ 184:../../DaisySP/Source/Effects/pitchshifter.h ****         SetTransposition(transpose_);
+ 1883              		.loc 3 184 9 view .LVU587
+ 185:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1884              		.loc 3 185 9 view .LVU588
+ 1885              	.LBB440:
+ 1886              	.LBI433:
+ARM GAS  /tmp/ccqGY1VW.s 			page 49
+
+
+ 147:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1887              		.loc 3 147 10 view .LVU589
+ 1888              	.LBB437:
+ 149:../../DaisySP/Source/Effects/pitchshifter.h ****         uint8_t idx;
+ 1889              		.loc 3 149 9 view .LVU590
+ 150:../../DaisySP/Source/Effects/pitchshifter.h ****         if(transpose_ != transpose || force_recalc_)
+ 1890              		.loc 3 150 9 view .LVU591
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1891              		.loc 3 151 9 view .LVU592
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1892              		.loc 3 153 13 view .LVU593
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1893              		.loc 3 154 13 view .LVU594
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1894              		.loc 3 155 13 view .LVU595
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 1895              		.loc 3 156 13 view .LVU596
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1896              		.loc 3 157 13 view .LVU597
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1897              		.loc 3 165 13 view .LVU598
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1898              		.loc 3 166 13 view .LVU599
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1899              		.loc 3 170 13 view .LVU600
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1900              		.loc 3 165 41 is_stmt 0 view .LVU601
+ 1901 02bc 67EEA57A 		vmul.f32	s15, s15, s11
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1902              		.loc 3 165 48 view .LVU602
+ 1903 02c0 67EE867A 		vmul.f32	s15, s15, s12
+ 1904 02c4 F4EEE87A 		vcmpe.f32	s15, s17
+ 1905 02c8 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1906 02cc 54BF     		ite	pl
+ 1907 02ce B0EE670A 		vmovpl.f32	s0, s15
+ 1908 02d2 B0EE680A 		vmovmi.f32	s0, s17
+ 1909 02d6 86ED390A 		vstr.32	s0, [r6, #228]
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1910              		.loc 3 170 28 view .LVU603
+ 1911 02da FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1912              	.LVL79:
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 1913              		.loc 3 171 13 is_stmt 1 view .LVU604
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 1914              		.loc 3 171 28 is_stmt 0 view .LVU605
+ 1915 02de 96ED390A 		vldr.32	s0, [r6, #228]
+ 1916 02e2 0398     		ldr	r0, [sp, #12]
+ 1917 02e4 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 1918              	.LVL80:
+ 172:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 1919              		.loc 3 172 13 is_stmt 1 view .LVU606
+ 1920 02e8 96F8EC30 		ldrb	r3, [r6, #236]	@ zero_extendqisi2
+ 1921 02ec 1BB1     		cbz	r3, .L26
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1922              		.loc 3 174 17 view .LVU607
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1923              		.loc 3 174 31 is_stmt 0 view .LVU608
+ARM GAS  /tmp/ccqGY1VW.s 			page 50
+
+
+ 1924 02ee 4FF00003 		mov	r3, #0
+ 1925 02f2 86F8EC30 		strb	r3, [r6, #236]
+ 1926              	.L26:
+ 1927              	.LVL81:
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 1928              		.loc 3 174 31 view .LVU609
+ 1929              	.LBE437:
+ 1930              	.LBE440:
+ 1931              	.LBE442:
+ 1932              	.LBE444:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1933              		.loc 3 86 9 is_stmt 1 view .LVU610
+ 1934              	.LBE445:
+ 1935              	.LBE449:
+ 1936              	.LBB450:
+ 1937              	.LBB451:
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1938              		.loc 3 151 9 is_stmt 0 view .LVU611
+ 1939 02f6 F2EE087A 		vmov.f32	s15, #1.2e+1
+ 1940 02fa 94ED1C7A 		vldr.32	s14, [r4, #112]
+ 1941              	.LBE451:
+ 1942              	.LBE450:
+ 1943              	.LBB454:
+ 1944              	.LBB446:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1945              		.loc 3 86 14 view .LVU612
+ 1946 02fe 04F50033 		add	r3, r4, #131072
+ 1947 0302 0022     		movs	r2, #0
+ 1948              	.LBE446:
+ 1949              	.LBE454:
+ 1950              	.LBB455:
+ 1951              	.LBB452:
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1952              		.loc 3 151 9 view .LVU613
+ 1953 0304 B4EE677A 		vcmp.f32	s14, s15
+ 1954              	.LBE452:
+ 1955              	.LBE455:
+ 1956              	.LBB456:
+ 1957              	.LBB447:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1958              		.loc 3 86 14 view .LVU614
+ 1959 0308 C3F82C21 		str	r2, [r3, #300]	@ float
+ 1960              	.LVL82:
+  86:../../DaisySP/Source/Effects/pitchshifter.h ****     }
+ 1961              		.loc 3 86 14 view .LVU615
+ 1962              	.LBE447:
+ 1963              	.LBE456:
+  13:EffectPhaseShifter.cpp ****     // pitchShifterR.SetTransposition(12.0f);
+ 1964              		.loc 1 13 5 is_stmt 1 view .LVU616
+ 1965              	.LBB457:
+ 1966              	.LBI450:
+ 147:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 1967              		.loc 3 147 10 view .LVU617
+ 1968              	.LBB453:
+ 149:../../DaisySP/Source/Effects/pitchshifter.h ****         uint8_t idx;
+ 1969              		.loc 3 149 9 view .LVU618
+ 150:../../DaisySP/Source/Effects/pitchshifter.h ****         if(transpose_ != transpose || force_recalc_)
+ARM GAS  /tmp/ccqGY1VW.s 			page 51
+
+
+ 1970              		.loc 3 150 9 view .LVU619
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1971              		.loc 3 151 9 view .LVU620
+ 1972 030c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 1973 0310 02D1     		bne	.L27
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 1974              		.loc 3 151 36 is_stmt 0 discriminator 1 view .LVU621
+ 1975 0312 94F83430 		ldrb	r3, [r4, #52]	@ zero_extendqisi2
+ 1976 0316 7BB3     		cbz	r3, .L28
+ 1977              	.L27:
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1978              		.loc 3 153 13 is_stmt 1 view .LVU622
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1979              		.loc 3 165 41 is_stmt 0 view .LVU623
+ 1980 0318 B0EE007A 		vmov.f32	s14, #2.0e+0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1981              		.loc 3 155 24 view .LVU624
+ 1982 031c 94ED266A 		vldr.32	s12, [r4, #152]
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1983              		.loc 3 165 41 view .LVU625
+ 1984 0320 FFEE007A 		vmov.f32	s15, #-1.0e+0
+ 1985 0324 D4ED0E6A 		vldr.32	s13, [r4, #56]
+ 1986 0328 9FED190A 		vldr.32	s0, .L42+12
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 1987              		.loc 3 170 28 view .LVU626
+ 1988 032c 4046     		mov	r0, r8
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1989              		.loc 3 153 24 view .LVU627
+ 1990 032e 254B     		ldr	r3, .L42+64
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1991              		.loc 3 165 41 view .LVU628
+ 1992 0330 E6EE077A 		vfma.f32	s15, s12, s14
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 1993              		.loc 3 165 48 view .LVU629
+ 1994 0334 94ED0C7A 		vldr.32	s14, [r4, #48]	@ int
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 1995              		.loc 3 153 24 view .LVU630
+ 1996 0338 2367     		str	r3, [r4, #112]	@ float
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 1997              		.loc 3 154 13 is_stmt 1 view .LVU631
+ 1998              	.LVL83:
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 1999              		.loc 3 155 13 view .LVU632
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2000              		.loc 3 156 13 view .LVU633
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2001              		.loc 3 157 13 view .LVU634
+ 159:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2002              		.loc 3 159 17 view .LVU635
+ 159:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2003              		.loc 3 159 27 is_stmt 0 view .LVU636
+ 2004 033a 0123     		movs	r3, #1
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2005              		.loc 3 165 48 view .LVU637
+ 2006 033c B8EE477A 		vcvt.f32.u32	s14, s14
+ 159:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2007              		.loc 3 159 27 view .LVU638
+ARM GAS  /tmp/ccqGY1VW.s 			page 52
+
+
+ 2008 0340 84F83C30 		strb	r3, [r4, #60]
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2009              		.loc 3 165 13 is_stmt 1 view .LVU639
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2010              		.loc 3 165 41 is_stmt 0 view .LVU640
+ 2011 0344 67EEA67A 		vmul.f32	s15, s15, s13
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2012              		.loc 3 165 48 view .LVU641
+ 2013 0348 C7EE876A 		vdiv.f32	s13, s15, s14
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2014              		.loc 3 166 13 is_stmt 1 view .LVU642
+ 2015 034c F4EEC06A 		vcmpe.f32	s13, s0
+ 2016 0350 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 2017 0354 58BF     		it	pl
+ 2018 0356 B0EE660A 		vmovpl.f32	s0, s13
+ 2019 035a 84ED0B0A 		vstr.32	s0, [r4, #44]
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2020              		.loc 3 170 13 view .LVU643
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2021              		.loc 3 170 28 is_stmt 0 view .LVU644
+ 2022 035e FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 2023              	.LVL84:
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 2024              		.loc 3 171 13 is_stmt 1 view .LVU645
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 2025              		.loc 3 171 28 is_stmt 0 view .LVU646
+ 2026 0362 94ED0B0A 		vldr.32	s0, [r4, #44]
+ 2027 0366 3846     		mov	r0, r7
+ 2028 0368 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 2029              	.LVL85:
+ 172:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2030              		.loc 3 172 13 is_stmt 1 view .LVU647
+ 2031 036c 94F83430 		ldrb	r3, [r4, #52]	@ zero_extendqisi2
+ 2032 0370 13B1     		cbz	r3, .L28
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2033              		.loc 3 174 17 view .LVU648
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2034              		.loc 3 174 31 is_stmt 0 view .LVU649
+ 2035 0372 0023     		movs	r3, #0
+ 2036 0374 84F83430 		strb	r3, [r4, #52]
+ 2037              	.LVL86:
+ 2038              	.L28:
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2039              		.loc 3 174 31 view .LVU650
+ 2040              	.LBE453:
+ 2041              	.LBE457:
+ 2042              	.LBE459:
+  19:EffectPhaseShifter.cpp **** 
+ 2043              		.loc 1 19 1 view .LVU651
+ 2044 0378 2846     		mov	r0, r5
+ 2045 037a 05B0     		add	sp, sp, #20
+ 2046              		.cfi_def_cfa_offset 52
+ 2047              		@ sp needed
+ 2048 037c BDEC048B 		vldm	sp!, {d8-d9}
+ 2049              		.cfi_restore 82
+ 2050              		.cfi_restore 83
+ 2051              		.cfi_restore 80
+ARM GAS  /tmp/ccqGY1VW.s 			page 53
+
+
+ 2052              		.cfi_restore 81
+ 2053              		.cfi_def_cfa_offset 36
+ 2054              	.LVL87:
+  19:EffectPhaseShifter.cpp **** 
+ 2055              		.loc 1 19 1 view .LVU652
+ 2056 0380 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 2057              	.LVL88:
+ 2058              	.L43:
+  19:EffectPhaseShifter.cpp **** 
+ 2059              		.loc 1 19 1 view .LVU653
+ 2060              		.align	2
+ 2061              	.L42:
+ 2062 0384 08000000 		.word	_ZTV16PitchShiftEffect+8
+ 2063 0388 98000200 		.word	131224
+ 2064 038c 0000A040 		.word	1084227584
+ 2065 0390 00000000 		.word	0
+ 2066 0394 00004842 		.word	1112014848
+ 2067 0398 50000200 		.word	131152
+ 2068 039c 28000100 		.word	65576
+ 2069 03a0 20000100 		.word	65568
+ 2070 03a4 DB0F4940 		.word	1078530011
+ 2071 03a8 ABAAAAAA 		.word	-1431655765
+ 2072 03ac 00008038 		.word	947912704
+ 2073 03b0 D4000200 		.word	131284
+ 2074 03b4 D0000200 		.word	131280
+ 2075 03b8 F8000400 		.word	262392
+ 2076 03bc E0000300 		.word	196832
+ 2077 03c0 08010400 		.word	262408
+ 2078 03c4 00004041 		.word	1094713344
+ 2079 03c8 40000200 		.word	131136
+ 2080 03cc 50010400 		.word	262480
+ 2081              		.cfi_endproc
+ 2082              	.LFE5892:
+ 2084              		.global	_ZN16PitchShiftEffectC1ERN5daisy9DaisySeedEf
+ 2085              		.thumb_set _ZN16PitchShiftEffectC1ERN5daisy9DaisySeedEf,_ZN16PitchShiftEffectC2ERN5daisy9DaisySeed
+ 2086              		.section	.text._ZN16PitchShiftEffect6SetMixEf,"ax",%progbits
+ 2087              		.align	1
+ 2088              		.p2align 2,,3
+ 2089              		.global	_ZN16PitchShiftEffect6SetMixEf
+ 2090              		.syntax unified
+ 2091              		.thumb
+ 2092              		.thumb_func
+ 2094              	_ZN16PitchShiftEffect6SetMixEf:
+ 2095              	.LVL89:
+ 2096              	.LFB5896:
+  37:EffectPhaseShifter.cpp **** 
+  38:EffectPhaseShifter.cpp **** void PitchShiftEffect::SetMix(float mix) {
+ 2097              		.loc 1 38 42 is_stmt 1 view -0
+ 2098              		.cfi_startproc
+ 2099              		@ args = 0, pretend = 0, frame = 0
+ 2100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2101              		@ link register save eliminated.
+  39:EffectPhaseShifter.cpp ****     wetMix = fclamp(mix, 0.0f, 1.0f);
+ 2102              		.loc 1 39 5 view .LVU655
+ 2103              	.LBB460:
+ 2104              	.LBB461:
+ 2105              	.LBB462:
+ARM GAS  /tmp/ccqGY1VW.s 			page 54
+
+
+ 2106              		.file 7 "../../DaisySP/Source/Utility/dsp.h"
+   1:../../DaisySP/Source/Utility/dsp.h **** /*
+   2:../../DaisySP/Source/Utility/dsp.h **** Copyright (c) 2020 Electrosmith, Corp, Emilie Gillet
+   3:../../DaisySP/Source/Utility/dsp.h **** 
+   4:../../DaisySP/Source/Utility/dsp.h **** Use of this source code is governed by an MIT-style
+   5:../../DaisySP/Source/Utility/dsp.h **** license that can be found in the LICENSE file or at
+   6:../../DaisySP/Source/Utility/dsp.h **** https://opensource.org/licenses/MIT.
+   7:../../DaisySP/Source/Utility/dsp.h **** */
+   8:../../DaisySP/Source/Utility/dsp.h **** 
+   9:../../DaisySP/Source/Utility/dsp.h **** /** Helpful defines, functions, and other utilities for use in/with daisysp modules.
+  10:../../DaisySP/Source/Utility/dsp.h **** */
+  11:../../DaisySP/Source/Utility/dsp.h **** #pragma once
+  12:../../DaisySP/Source/Utility/dsp.h **** #ifndef DSY_CORE_DSP
+  13:../../DaisySP/Source/Utility/dsp.h **** #define DSY_CORE_DSP
+  14:../../DaisySP/Source/Utility/dsp.h **** #include <cassert>
+  15:../../DaisySP/Source/Utility/dsp.h **** #include <cstdint>
+  16:../../DaisySP/Source/Utility/dsp.h **** #include <random>
+  17:../../DaisySP/Source/Utility/dsp.h **** #include <cmath>
+  18:../../DaisySP/Source/Utility/dsp.h **** 
+  19:../../DaisySP/Source/Utility/dsp.h **** /** PIs
+  20:../../DaisySP/Source/Utility/dsp.h **** */
+  21:../../DaisySP/Source/Utility/dsp.h **** #define PI_F 3.1415927410125732421875f
+  22:../../DaisySP/Source/Utility/dsp.h **** #define TWOPI_F (2.0f * PI_F)
+  23:../../DaisySP/Source/Utility/dsp.h **** #define HALFPI_F (PI_F * 0.5f)
+  24:../../DaisySP/Source/Utility/dsp.h **** #define DSY_MIN(in, mn) (in < mn ? in : mn)
+  25:../../DaisySP/Source/Utility/dsp.h **** #define DSY_MAX(in, mx) (in > mx ? in : mx)
+  26:../../DaisySP/Source/Utility/dsp.h **** #define DSY_CLAMP(in, mn, mx) (DSY_MIN(DSY_MAX(in, mn), mx))
+  27:../../DaisySP/Source/Utility/dsp.h **** #define DSY_COUNTOF(_arr) (sizeof(_arr) / sizeof(_arr[0]))
+  28:../../DaisySP/Source/Utility/dsp.h **** 
+  29:../../DaisySP/Source/Utility/dsp.h **** namespace daisysp
+  30:../../DaisySP/Source/Utility/dsp.h **** {
+  31:../../DaisySP/Source/Utility/dsp.h **** //Avoids division for random floats. e.g. rand() * kRandFrac
+  32:../../DaisySP/Source/Utility/dsp.h **** static constexpr float kRandFrac = 1.f / (float)RAND_MAX;
+  33:../../DaisySP/Source/Utility/dsp.h **** 
+  34:../../DaisySP/Source/Utility/dsp.h **** //Convert from semitones to other units. e.g. 2 ^ (kOneTwelfth * x)
+  35:../../DaisySP/Source/Utility/dsp.h **** static constexpr float kOneTwelfth = 1.f / 12.f;
+  36:../../DaisySP/Source/Utility/dsp.h **** 
+  37:../../DaisySP/Source/Utility/dsp.h **** /** efficient floating point min/max
+  38:../../DaisySP/Source/Utility/dsp.h **** c/o stephen mccaul
+  39:../../DaisySP/Source/Utility/dsp.h **** */
+  40:../../DaisySP/Source/Utility/dsp.h **** inline float fmax(float a, float b)
+  41:../../DaisySP/Source/Utility/dsp.h **** {
+  42:../../DaisySP/Source/Utility/dsp.h ****     float r;
+  43:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+  44:../../DaisySP/Source/Utility/dsp.h ****     asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+  45:../../DaisySP/Source/Utility/dsp.h **** #else
+  46:../../DaisySP/Source/Utility/dsp.h ****     r = (a > b) ? a : b;
+  47:../../DaisySP/Source/Utility/dsp.h **** #endif // __arm__
+  48:../../DaisySP/Source/Utility/dsp.h ****     return r;
+  49:../../DaisySP/Source/Utility/dsp.h **** }
+  50:../../DaisySP/Source/Utility/dsp.h **** 
+  51:../../DaisySP/Source/Utility/dsp.h **** inline float fmin(float a, float b)
+  52:../../DaisySP/Source/Utility/dsp.h **** {
+  53:../../DaisySP/Source/Utility/dsp.h ****     float r;
+  54:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+  55:../../DaisySP/Source/Utility/dsp.h ****     asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+ 2107              		.loc 7 55 5 is_stmt 0 view .LVU656
+ARM GAS  /tmp/ccqGY1VW.s 			page 55
+
+
+ 2108 0000 F7EE007A 		vmov.f32	s15, #1.0e+0
+ 2109              	.LVL90:
+ 2110              		.loc 7 55 5 view .LVU657
+ 2111              	.LBE462:
+ 2112              	.LBE461:
+ 2113              	.LBI460:
+  56:../../DaisySP/Source/Utility/dsp.h **** #else
+  57:../../DaisySP/Source/Utility/dsp.h ****     r = (a < b) ? a : b;
+  58:../../DaisySP/Source/Utility/dsp.h **** #endif // __arm__
+  59:../../DaisySP/Source/Utility/dsp.h ****     return r;
+  60:../../DaisySP/Source/Utility/dsp.h **** }
+  61:../../DaisySP/Source/Utility/dsp.h **** 
+  62:../../DaisySP/Source/Utility/dsp.h **** /** quick fp clamp
+  63:../../DaisySP/Source/Utility/dsp.h **** */
+  64:../../DaisySP/Source/Utility/dsp.h **** inline float fclamp(float in, float min, float max)
+ 2114              		.loc 7 64 14 is_stmt 1 view .LVU658
+  65:../../DaisySP/Source/Utility/dsp.h **** {
+  66:../../DaisySP/Source/Utility/dsp.h ****     return fmin(fmax(in, min), max);
+ 2115              		.loc 7 66 5 view .LVU659
+ 2116              	.LBB464:
+ 2117              	.LBI464:
+  40:../../DaisySP/Source/Utility/dsp.h **** {
+ 2118              		.loc 7 40 14 view .LVU660
+ 2119              	.LBB465:
+  42:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+ 2120              		.loc 7 42 5 view .LVU661
+  44:../../DaisySP/Source/Utility/dsp.h **** #else
+ 2121              		.loc 7 44 5 view .LVU662
+ 2122 0004 9FED077A 		vldr.32	s14, .L45
+ 2123              		.syntax unified
+ 2124              	@ 44 "../../DaisySP/Source/Utility/dsp.h" 1
+ 2125 0008 80FE070A 		vmaxnm.f32 s0, s0, s14
+ 2126              	@ 0 "" 2
+ 2127              	.LVL91:
+  48:../../DaisySP/Source/Utility/dsp.h **** }
+ 2128              		.loc 7 48 5 view .LVU663
+  48:../../DaisySP/Source/Utility/dsp.h **** }
+ 2129              		.loc 7 48 5 is_stmt 0 view .LVU664
+ 2130              		.thumb
+ 2131              		.syntax unified
+ 2132              	.LBE465:
+ 2133              	.LBE464:
+ 2134              	.LBB466:
+ 2135              	.LBI461:
+  51:../../DaisySP/Source/Utility/dsp.h **** {
+ 2136              		.loc 7 51 14 is_stmt 1 view .LVU665
+ 2137              	.LBB463:
+  53:../../DaisySP/Source/Utility/dsp.h **** #ifdef __arm__
+ 2138              		.loc 7 53 5 view .LVU666
+  55:../../DaisySP/Source/Utility/dsp.h **** #else
+ 2139              		.loc 7 55 5 view .LVU667
+ 2140              		.syntax unified
+ 2141              	@ 55 "../../DaisySP/Source/Utility/dsp.h" 1
+ 2142 000c 80FE670A 		vminnm.f32 s0, s0, s15
+ 2143              	@ 0 "" 2
+ 2144              	.LVL92:
+  59:../../DaisySP/Source/Utility/dsp.h **** }
+ARM GAS  /tmp/ccqGY1VW.s 			page 56
+
+
+ 2145              		.loc 7 59 5 view .LVU668
+  59:../../DaisySP/Source/Utility/dsp.h **** }
+ 2146              		.loc 7 59 5 is_stmt 0 view .LVU669
+ 2147              		.thumb
+ 2148              		.syntax unified
+ 2149              	.LBE463:
+ 2150              	.LBE466:
+ 2151              	.LBE460:
+  40:EffectPhaseShifter.cpp ****     dryMix = 1.0f - wetMix;
+ 2152              		.loc 1 40 19 view .LVU670
+ 2153 0010 77EEC07A 		vsub.f32	s15, s15, s0
+  39:EffectPhaseShifter.cpp ****     dryMix = 1.0f - wetMix;
+ 2154              		.loc 1 39 12 discriminator 1 view .LVU671
+ 2155 0014 00F58020 		add	r0, r0, #262144
+ 2156              	.LVL93:
+  39:EffectPhaseShifter.cpp ****     dryMix = 1.0f - wetMix;
+ 2157              		.loc 1 39 12 discriminator 1 view .LVU672
+ 2158 0018 80ED610A 		vstr.32	s0, [r0, #388]
+ 2159              		.loc 1 40 5 is_stmt 1 view .LVU673
+ 2160              		.loc 1 40 12 is_stmt 0 view .LVU674
+ 2161 001c C0ED607A 		vstr.32	s15, [r0, #384]
+  41:EffectPhaseShifter.cpp **** }
+ 2162              		.loc 1 41 1 view .LVU675
+ 2163 0020 7047     		bx	lr
+ 2164              	.L46:
+ 2165 0022 00BF     		.align	2
+ 2166              	.L45:
+ 2167 0024 00000000 		.word	0
+ 2168              		.cfi_endproc
+ 2169              	.LFE5896:
+ 2171              		.section	.text._ZN16PitchShiftEffect16SetTranspositionEf,"ax",%progbits
+ 2172              		.align	1
+ 2173              		.p2align 2,,3
+ 2174              		.global	_ZN16PitchShiftEffect16SetTranspositionEf
+ 2175              		.syntax unified
+ 2176              		.thumb
+ 2177              		.thumb_func
+ 2179              	_ZN16PitchShiftEffect16SetTranspositionEf:
+ 2180              	.LVL94:
+ 2181              	.LFB5897:
+  42:EffectPhaseShifter.cpp **** 
+  43:EffectPhaseShifter.cpp **** void PitchShiftEffect::SetTransposition(float semitones) {
+ 2182              		.loc 1 43 58 is_stmt 1 view -0
+ 2183              		.cfi_startproc
+ 2184              		@ args = 0, pretend = 0, frame = 8
+ 2185              		@ frame_needed = 0, uses_anonymous_args = 0
+  44:EffectPhaseShifter.cpp ****     pitchShifterL.SetTransposition(semitones);
+ 2186              		.loc 1 44 5 view .LVU677
+ 2187              	.LBB469:
+ 2188              	.LBI469:
+ 147:../../DaisySP/Source/Effects/pitchshifter.h ****     {
+ 2189              		.loc 3 147 10 view .LVU678
+ 2190              	.LBB470:
+ 149:../../DaisySP/Source/Effects/pitchshifter.h ****         uint8_t idx;
+ 2191              		.loc 3 149 9 view .LVU679
+ 150:../../DaisySP/Source/Effects/pitchshifter.h ****         if(transpose_ != transpose || force_recalc_)
+ 2192              		.loc 3 150 9 view .LVU680
+ARM GAS  /tmp/ccqGY1VW.s 			page 57
+
+
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 2193              		.loc 3 151 9 view .LVU681
+ 2194              	.LBE470:
+ 2195              	.LBE469:
+  43:EffectPhaseShifter.cpp ****     pitchShifterL.SetTransposition(semitones);
+ 2196              		.loc 1 43 58 is_stmt 0 view .LVU682
+ 2197 0000 10B5     		push	{r4, lr}
+ 2198              		.cfi_def_cfa_offset 8
+ 2199              		.cfi_offset 4, -8
+ 2200              		.cfi_offset 14, -4
+ 2201              	.LBB473:
+ 2202              	.LBB471:
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 2203              		.loc 3 151 12 view .LVU683
+ 2204 0002 00F50034 		add	r4, r0, #131072
+ 2205              	.LBE471:
+ 2206              	.LBE473:
+  43:EffectPhaseShifter.cpp ****     pitchShifterL.SetTransposition(semitones);
+ 2207              		.loc 1 43 58 view .LVU684
+ 2208 0006 82B0     		sub	sp, sp, #8
+ 2209              		.cfi_def_cfa_offset 16
+ 2210              	.LBB474:
+ 2211              	.LBB472:
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 2212              		.loc 3 151 9 view .LVU685
+ 2213 0008 D4ED1C7A 		vldr.32	s15, [r4, #112]
+ 2214 000c F4EE407A 		vcmp.f32	s15, s0
+ 2215 0010 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 2216 0014 03D1     		bne	.L48
+ 151:../../DaisySP/Source/Effects/pitchshifter.h ****         {
+ 2217              		.loc 3 151 36 discriminator 1 view .LVU686
+ 2218 0016 94F83430 		ldrb	r3, [r4, #52]	@ zero_extendqisi2
+ 2219 001a 002B     		cmp	r3, #0
+ 2220 001c 62D0     		beq	.L47
+ 2221              	.L48:
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 2222              		.loc 3 153 13 is_stmt 1 view .LVU687
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 2223              		.loc 3 154 40 is_stmt 0 view .LVU688
+ 2224 001e F0EEC07A 		vabs.f32	s15, s0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2225              		.loc 3 155 47 view .LVU689
+ 2226 0022 314A     		ldr	r2, .L55
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2227              		.loc 3 156 49 view .LVU690
+ 2228 0024 F2EE086A 		vmov.f32	s13, #1.2e+1
+ 2229 0028 8446     		mov	ip, r0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2230              		.loc 3 155 24 view .LVU691
+ 2231 002a 48F22200 		movw	r0, #32802
+ 2232              	.LVL95:
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2233              		.loc 3 165 41 view .LVU692
+ 2234 002e BFEE007A 		vmov.f32	s14, #-1.0e+0
+ 2235 0032 D4ED0E5A 		vldr.32	s11, [r4, #56]
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2236              		.loc 3 157 13 view .LVU693
+ARM GAS  /tmp/ccqGY1VW.s 			page 58
+
+
+ 2237 0036 B5EEC00A 		vcmpe.f32	s0, #0
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2238              		.loc 3 156 49 view .LVU694
+ 2239 003a 87EEA65A 		vdiv.f32	s10, s15, s13
+ 2240 003e DFED2B6A 		vldr.32	s13, .L55+4
+ 153:../../DaisySP/Source/Effects/pitchshifter.h ****             idx        = (uint8_t)fabsf(transpose);
+ 2241              		.loc 3 153 24 view .LVU695
+ 2242 0042 84ED1C0A 		vstr.32	s0, [r4, #112]
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 2243              		.loc 3 154 13 is_stmt 1 view .LVU696
+ 2244              	.LVL96:
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2245              		.loc 3 155 13 view .LVU697
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2246              		.loc 3 170 28 is_stmt 0 view .LVU698
+ 2247 0046 0CF11001 		add	r1, ip, #16
+ 2248 004a 0191     		str	r1, [sp, #4]
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 2249              		.loc 3 154 24 view .LVU699
+ 2250 004c FCEEE77A 		vcvt.u32.f32	s15, s15
+ 2251              	.LVL97:
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2252              		.loc 3 157 13 view .LVU700
+ 2253 0050 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 154:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio      = semitone_ratios_[idx % 12];
+ 2254              		.loc 3 154 24 view .LVU701
+ 2255 0054 CDED007A 		vstr.32	s15, [sp]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2256              		.loc 3 155 47 view .LVU702
+ 2257 0058 9DF80030 		ldrb	r3, [sp]	@ zero_extendqisi2
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2258              		.loc 3 165 48 view .LVU703
+ 2259 005c D4ED0C7A 		vldr.32	s15, [r4, #48]	@ int
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2260              		.loc 3 155 47 view .LVU704
+ 2261 0060 A2FB03E2 		umull	lr, r2, r2, r3
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2262              		.loc 3 165 48 view .LVU705
+ 2263 0064 B8EE676A 		vcvt.f32.u32	s12, s15
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2264              		.loc 3 155 47 view .LVU706
+ 2265 0068 4FEAD202 		lsr	r2, r2, #3
+ 2266 006c 02EB4202 		add	r2, r2, r2, lsl #1
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2267              		.loc 3 156 22 view .LVU707
+ 2268 0070 FCEEC57A 		vcvt.u32.f32	s15, s10
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2269              		.loc 3 155 47 view .LVU708
+ 2270 0074 A3EB8203 		sub	r3, r3, r2, lsl #2
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2271              		.loc 3 157 13 view .LVU709
+ 2272 0078 CCBF     		ite	gt
+ 2273 007a 0122     		movgt	r2, #1
+ 2274 007c 0022     		movle	r2, #0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2275              		.loc 3 155 24 view .LVU710
+ 2276 007e 50FA83F3 		uxtab	r3, r0, r3
+ARM GAS  /tmp/ccqGY1VW.s 			page 59
+
+
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2277              		.loc 3 156 22 view .LVU711
+ 2278 0082 CDED007A 		vstr.32	s15, [sp]	@ int
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2279              		.loc 3 170 28 view .LVU712
+ 2280 0086 1A48     		ldr	r0, .L55+8
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2281              		.loc 3 155 24 view .LVU713
+ 2282 0088 0CEB8303 		add	r3, ip, r3, lsl #2
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2283              		.loc 3 170 28 view .LVU714
+ 2284 008c 6044     		add	r0, ip, r0
+ 155:../../DaisySP/Source/Effects/pitchshifter.h ****             ratio *= (uint8_t)(fabsf(transpose) / 12) + 1;
+ 2285              		.loc 3 155 24 view .LVU715
+ 2286 008e 93ED045A 		vldr.32	s10, [r3, #16]
+ 2287              	.LVL98:
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2288              		.loc 3 156 13 is_stmt 1 view .LVU716
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2289              		.loc 3 157 13 view .LVU717
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2290              		.loc 3 156 22 is_stmt 0 view .LVU718
+ 2291 0092 9DF80030 		ldrb	r3, [sp]	@ zero_extendqisi2
+ 157:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2292              		.loc 3 157 13 view .LVU719
+ 2293 0096 84F83C20 		strb	r2, [r4, #60]
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2294              		.loc 3 165 13 is_stmt 1 view .LVU720
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2295              		.loc 3 156 55 is_stmt 0 view .LVU721
+ 2296 009a 0133     		adds	r3, r3, #1
+ 156:../../DaisySP/Source/Effects/pitchshifter.h ****             if(transpose > 0.0f)
+ 2297              		.loc 3 156 19 view .LVU722
+ 2298 009c 07EE903A 		vmov	s15, r3	@ int
+ 2299 00a0 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2300              		.loc 3 165 41 view .LVU723
+ 2301 00a4 A5EE277A 		vfma.f32	s14, s10, s15
+ 2302 00a8 67EE257A 		vmul.f32	s15, s14, s11
+ 165:../../DaisySP/Source/Effects/pitchshifter.h ****             if(mod_freq_ < 0.0f)
+ 2303              		.loc 3 165 48 view .LVU724
+ 2304 00ac 87EE867A 		vdiv.f32	s14, s15, s12
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2305              		.loc 3 166 13 is_stmt 1 view .LVU725
+ 2306 00b0 B4EEE67A 		vcmpe.f32	s14, s13
+ 2307 00b4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 2308 00b8 54BF     		ite	pl
+ 2309 00ba B0EE470A 		vmovpl.f32	s0, s14
+ 2310 00be B0EE660A 		vmovmi.f32	s0, s13
+ 2311              	.LVL99:
+ 166:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2312              		.loc 3 166 13 is_stmt 0 view .LVU726
+ 2313 00c2 84ED0B0A 		vstr.32	s0, [r4, #44]
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2314              		.loc 3 170 13 is_stmt 1 view .LVU727
+ 170:../../DaisySP/Source/Effects/pitchshifter.h ****             phs_[1].SetFreq(mod_freq_);
+ 2315              		.loc 3 170 28 is_stmt 0 view .LVU728
+ARM GAS  /tmp/ccqGY1VW.s 			page 60
+
+
+ 2316 00c6 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 2317              	.LVL100:
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 2318              		.loc 3 171 13 is_stmt 1 view .LVU729
+ 171:../../DaisySP/Source/Effects/pitchshifter.h ****             if(force_recalc_)
+ 2319              		.loc 3 171 28 is_stmt 0 view .LVU730
+ 2320 00ca 0199     		ldr	r1, [sp, #4]
+ 2321 00cc 0848     		ldr	r0, .L55+8
+ 2322 00ce 94ED0B0A 		vldr.32	s0, [r4, #44]
+ 2323 00d2 0818     		adds	r0, r1, r0
+ 2324 00d4 FFF7FEFF 		bl	_ZN7daisysp6Phasor7SetFreqEf
+ 2325              	.LVL101:
+ 172:../../DaisySP/Source/Effects/pitchshifter.h ****             {
+ 2326              		.loc 3 172 13 is_stmt 1 view .LVU731
+ 2327 00d8 94F83430 		ldrb	r3, [r4, #52]	@ zero_extendqisi2
+ 2328 00dc 13B1     		cbz	r3, .L47
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2329              		.loc 3 174 17 view .LVU732
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2330              		.loc 3 174 31 is_stmt 0 view .LVU733
+ 2331 00de 0023     		movs	r3, #0
+ 2332 00e0 84F83430 		strb	r3, [r4, #52]
+ 2333              	.LVL102:
+ 2334              	.L47:
+ 174:../../DaisySP/Source/Effects/pitchshifter.h ****             }
+ 2335              		.loc 3 174 31 view .LVU734
+ 2336              	.LBE472:
+ 2337              	.LBE474:
+  45:EffectPhaseShifter.cpp ****     // pitchShifterR.SetTransposition(semitones);
+  46:EffectPhaseShifter.cpp **** }
+ 2338              		.loc 1 46 1 view .LVU735
+ 2339 00e4 02B0     		add	sp, sp, #8
+ 2340              		.cfi_def_cfa_offset 8
+ 2341              		@ sp needed
+ 2342 00e6 10BD     		pop	{r4, pc}
+ 2343              	.LVL103:
+ 2344              	.L56:
+ 2345              		.loc 1 46 1 view .LVU736
+ 2346              		.align	2
+ 2347              	.L55:
+ 2348 00e8 ABAAAAAA 		.word	-1431655765
+ 2349 00ec 00000000 		.word	0
+ 2350 00f0 40000200 		.word	131136
+ 2351              		.cfi_endproc
+ 2352              	.LFE5897:
+ 2354              		.global	_ZTV16PitchShiftEffect
+ 2355              		.section	.rodata._ZTV16PitchShiftEffect,"a"
+ 2356              		.align	2
+ 2359              	_ZTV16PitchShiftEffect:
+ 2360 0000 00000000 		.word	0
+ 2361 0004 00000000 		.word	0
+ 2362 0008 00000000 		.word	_ZN16PitchShiftEffectD1Ev
+ 2363 000c 00000000 		.word	_ZN16PitchShiftEffectD0Ev
+ 2364 0010 00000000 		.word	_ZN16PitchShiftEffect6updateEPPKfPPfi
+ 2365 0014 00000000 		.word	_ZN16PitchShiftEffect10updateTestEffi
+ 2366              		.weak	_ZZN7daisysp6myrandEvE4seed
+ 2367              		.section	.data._ZZN7daisysp6myrandEvE4seed,"awG",%progbits,_ZZN7daisysp6myrandEvE4seed,comdat
+ARM GAS  /tmp/ccqGY1VW.s 			page 61
+
+
+ 2368              		.align	2
+ 2371              	_ZZN7daisysp6myrandEvE4seed:
+ 2372 0000 01000000 		.word	1
+ 2373              		.text
+ 2374              	.Letext0:
+ 2375              		.file 8 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 2376              		.file 9 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 2377              		.file 10 "/usr/arm-none-eabi/include/stdint.h"
+ 2378              		.file 11 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stddef.h"
+ 2379              		.file 12 "/usr/arm-none-eabi/include/c++/15.2.0/arm-none-eabi/thumb/v7e-m+dp/hard/bits/c++config.h
+ 2380              		.file 13 "/usr/arm-none-eabi/include/c++/15.2.0/type_traits"
+ 2381              		.file 14 "/usr/arm-none-eabi/include/c++/15.2.0/cmath"
+ 2382              		.file 15 "/usr/arm-none-eabi/include/c++/15.2.0/concepts"
+ 2383              		.file 16 "/usr/arm-none-eabi/include/c++/15.2.0/bits/iterator_concepts.h"
+ 2384              		.file 17 "/usr/arm-none-eabi/include/c++/15.2.0/bits/utility.h"
+ 2385              		.file 18 "/usr/arm-none-eabi/include/c++/15.2.0/compare"
+ 2386              		.file 19 "/usr/arm-none-eabi/include/c++/15.2.0/debug/debug.h"
+ 2387              		.file 20 "/usr/arm-none-eabi/include/c++/15.2.0/bits/std_abs.h"
+ 2388              		.file 21 "/usr/arm-none-eabi/include/c++/15.2.0/cstdlib"
+ 2389              		.file 22 "/usr/arm-none-eabi/include/c++/15.2.0/cstdint"
+ 2390              		.file 23 "/usr/arm-none-eabi/include/c++/15.2.0/numbers"
+ 2391              		.file 24 "/usr/arm-none-eabi/include/c++/15.2.0/cstdarg"
+ 2392              		.file 25 "/usr/arm-none-eabi/include/c++/15.2.0/cstdio"
+ 2393              		.file 26 "/usr/arm-none-eabi/include/c++/15.2.0/cstring"
+ 2394              		.file 27 "/usr/arm-none-eabi/include/c++/15.2.0/cwchar"
+ 2395              		.file 28 "/usr/arm-none-eabi/include/c++/15.2.0/clocale"
+ 2396              		.file 29 "/usr/arm-none-eabi/include/c++/15.2.0/cstddef"
+ 2397              		.file 30 "/usr/arm-none-eabi/include/c++/15.2.0/bits/predefined_ops.h"
+ 2398              		.file 31 "/usr/arm-none-eabi/include/sys/_types.h"
+ 2399              		.file 32 "/usr/arm-none-eabi/include/sys/reent.h"
+ 2400              		.file 33 "/usr/arm-none-eabi/include/sys/lock.h"
+ 2401              		.file 34 "/usr/arm-none-eabi/include/math.h"
+ 2402              		.file 35 "/usr/arm-none-eabi/include/stdlib.h"
+ 2403              		.file 36 "/usr/arm-none-eabi/include/c++/15.2.0/bits/ptr_traits.h"
+ 2404              		.file 37 "/usr/arm-none-eabi/include/c++/15.2.0/math.h"
+ 2405              		.file 38 "/usr/arm-none-eabi/include/c++/15.2.0/stdlib.h"
+ 2406              		.file 39 "../../libDaisy/src/daisy_core.h"
+ 2407              		.file 40 "../../libDaisy/src/sys/system.h"
+ 2408              		.file 41 "../../libDaisy/src/per/qspi.h"
+ 2409              		.file 42 "../../libDaisy/src/per/dac.h"
+ 2410              		.file 43 "../../libDaisy/src/per/sai.h"
+ 2411              		.file 44 "../../libDaisy/src/hid/audio.h"
+ 2412              		.file 45 "../../libDaisy/src/per/adc.h"
+ 2413              		.file 46 "../../libDaisy/src/hid/usb.h"
+ 2414              		.file 47 "../../libDaisy/src/util/wav_format.h"
+ 2415              		.file 48 "../../libDaisy/src/dev/max11300.h"
+ 2416              		.file 49 "../../libDaisy/src/daisy_seed.h"
+ 2417              		.file 50 "../../libDaisy/src/per/gpio.h"
+ 2418              		.file 51 "../../libDaisy/src/dev/sdram.h"
+ 2419              		.file 52 "/usr/arm-none-eabi/include/c++/15.2.0/pstl/execution_defs.h"
+ 2420              		.file 53 "/usr/lib/gcc/arm-none-eabi/15.2.0/include/stdarg.h"
+ 2421              		.file 54 "/usr/arm-none-eabi/include/stdio.h"
+ 2422              		.file 55 "/usr/arm-none-eabi/include/string.h"
+ 2423              		.file 56 "/usr/arm-none-eabi/include/wchar.h"
+ 2424              		.file 57 "../../DaisySP/Source/Control/adenv.h"
+ 2425              		.file 58 "/usr/arm-none-eabi/include/locale.h"
+ 2426              		.file 59 "/usr/arm-none-eabi/include/c++/15.2.0/new"
+ARM GAS  /tmp/ccqGY1VW.s 			page 62
+
+
+ 2427              		.file 60 "../../libDaisy/src/dev/sr_595.h"
+ 2428              		.file 61 "/usr/arm-none-eabi/include/c++/15.2.0/bits/memory_resource.h"
+ 2429              		.file 62 "<built-in>"
+ARM GAS  /tmp/ccqGY1VW.s 			page 63
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 EffectPhaseShifter.cpp
+     /tmp/ccqGY1VW.s:20     .text._ZN16PitchShiftEffect10updateTestEffi:00000000 $t
+     /tmp/ccqGY1VW.s:27     .text._ZN16PitchShiftEffect10updateTestEffi:00000000 _ZN16PitchShiftEffect10updateTestEffi
+     /tmp/ccqGY1VW.s:42     .text._ZN16PitchShiftEffectD2Ev:00000000 $t
+     /tmp/ccqGY1VW.s:49     .text._ZN16PitchShiftEffectD2Ev:00000000 _ZN16PitchShiftEffectD2Ev
+     /tmp/ccqGY1VW.s:49     .text._ZN16PitchShiftEffectD2Ev:00000000 _ZN16PitchShiftEffectD1Ev
+     /tmp/ccqGY1VW.s:85     .text._ZN16PitchShiftEffectD0Ev:00000000 $t
+     /tmp/ccqGY1VW.s:92     .text._ZN16PitchShiftEffectD0Ev:00000000 _ZN16PitchShiftEffectD0Ev
+     /tmp/ccqGY1VW.s:145    .text._ZN16PitchShiftEffectD0Ev:00000014 $d
+     /tmp/ccqGY1VW.s:150    .text._ZN7daisysp12PitchShifter7ProcessERf:00000000 $t
+     /tmp/ccqGY1VW.s:157    .text._ZN7daisysp12PitchShifter7ProcessERf:00000000 _ZN7daisysp12PitchShifter7ProcessERf
+     /tmp/ccqGY1VW.s:934    .text._ZN7daisysp12PitchShifter7ProcessERf:000002b4 $d
+     /tmp/ccqGY1VW.s:2371   .data._ZZN7daisysp6myrandEvE4seed:00000000 _ZZN7daisysp6myrandEvE4seed
+     /tmp/ccqGY1VW.s:947    .text._ZN16PitchShiftEffect6updateEPPKfPPfi:00000000 $t
+     /tmp/ccqGY1VW.s:954    .text._ZN16PitchShiftEffect6updateEPPKfPPfi:00000000 _ZN16PitchShiftEffect6updateEPPKfPPfi
+     /tmp/ccqGY1VW.s:1052   .text._ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf:00000000 $t
+     /tmp/ccqGY1VW.s:1059   .text._ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf:00000000 _ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf
+     /tmp/ccqGY1VW.s:2062   .text._ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf:00000384 $d
+     /tmp/ccqGY1VW.s:2359   .rodata._ZTV16PitchShiftEffect:00000000 _ZTV16PitchShiftEffect
+     /tmp/ccqGY1VW.s:1059   .text._ZN16PitchShiftEffectC2ERN5daisy9DaisySeedEf:00000000 _ZN16PitchShiftEffectC1ERN5daisy9DaisySeedEf
+     /tmp/ccqGY1VW.s:2087   .text._ZN16PitchShiftEffect6SetMixEf:00000000 $t
+     /tmp/ccqGY1VW.s:2094   .text._ZN16PitchShiftEffect6SetMixEf:00000000 _ZN16PitchShiftEffect6SetMixEf
+     /tmp/ccqGY1VW.s:2167   .text._ZN16PitchShiftEffect6SetMixEf:00000024 $d
+     /tmp/ccqGY1VW.s:2172   .text._ZN16PitchShiftEffect16SetTranspositionEf:00000000 $t
+     /tmp/ccqGY1VW.s:2179   .text._ZN16PitchShiftEffect16SetTranspositionEf:00000000 _ZN16PitchShiftEffect16SetTranspositionEf
+     /tmp/ccqGY1VW.s:2348   .text._ZN16PitchShiftEffect16SetTranspositionEf:000000e8 $d
+     /tmp/ccqGY1VW.s:2356   .rodata._ZTV16PitchShiftEffect:00000000 $d
+     /tmp/ccqGY1VW.s:2368   .data._ZZN7daisysp6myrandEvE4seed:00000000 $d
+                           .group:00000000 _ZN16PitchShiftEffectD5Ev
+
+UNDEFINED SYMBOLS
+_ZdlPvj
+_ZN7daisysp6Phasor7ProcessEv
+sinf
+powf
+memset
+_ZN7daisysp6Phasor7SetFreqEf
