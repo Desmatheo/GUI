@@ -193,22 +193,27 @@ def changer_effet(nouvel_effet):
             port_midi.send(msg)
             print(f"MIDI OUT: Changement d'effet sur CC#{cc_changement_effet} -> {nouvel_effet} (valeur: {effet_index})")
 
-            # Envoi de tous les paramètres du nouvel effet (1 à 1)
+            # --- CORRECTION ICI ---
+            # On cible uniquement les valeurs de la corde actuellement active sur l'interface
             base_cc = CONFIG_EFFETS[nouvel_effet]["base_cc"]
-            for corde, valeurs in memoire_effets[nouvel_effet].items():
-                for index, val in enumerate(valeurs):
-                    if MONO_MODE:
-                        cc_num = base_cc + index
-                    else:
-                        cc_num = base_cc + (corde * 6) + index
-                    port_midi.send(mido.Message('control_change', control=cc_num, value=int(val)))
-            print(f"MIDI OUT: Tous les paramètres pour l'effet {nouvel_effet} ont été envoyés.")
+            valeurs_corde_active = memoire_effets[nouvel_effet][corde_active]
+            
+            for index, val in enumerate(valeurs_corde_active):
+                if MONO_MODE:
+                    cc_num = base_cc + index
+                else:
+                    cc_num = base_cc + (corde_active * 6) + index
+                
+                port_midi.send(mido.Message('control_change', control=cc_num, value=int(val)))
+                
+            print(f"MIDI OUT: Paramètres de l'effet {nouvel_effet} envoyés pour la corde {corde_active}.")
 
         except Exception as e:
             print(f"Erreur lors de l'envoi MIDI pour changement d'effet : {e}")
 
     maj_sliders_visuels()
 
+    
 def action_random():
     base_cc = CONFIG_EFFETS[effet_actif]["base_cc"]
     valeurs = memoire_effets[effet_actif][corde_active]
