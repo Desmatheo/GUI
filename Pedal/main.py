@@ -63,26 +63,69 @@ def get_midi_in_port(search_term):
         print(f"⚠ Erreur ouverture port MIDI IN : {e}")
         return None
  
-if USE_LOOPMIDI:
-    port_midi, midi_ok = get_midi_out_port(NOM_PORT_BOUCLE, generate_simulation=True)
-else:
-    port_midi, midi_ok = get_midi_out_port("teensy")
+def rescanner_midi():
+    """Ferme les ports MIDI existants et relance la détection (OUT + IN)."""
+    global port_midi, midi_ok, port_midi_in
+    
+    # --- Fermeture propre des ports existants ---
+    if port_midi:
+        try:
+            port_midi.close()
+        except Exception:
+            pass
+        port_midi = None
+    if port_midi_in:
+        try:
+            port_midi_in.close()
+        except Exception:
+            pass
+        port_midi_in = None
+    midi_ok = False
+    
+    print("\n=== RESCAN MIDI ===")
+    try:
+        print("Ports MIDI OUT détectés :", mido.get_output_names())
+        print("Ports MIDI IN  détectés :", mido.get_input_names())
+    except Exception as e:
+        print(f"Erreur lecture ports : {e}")
+    
+    # --- Reconnexion SORTIE ---
+    if USE_LOOPMIDI:
+        port_midi, midi_ok = get_midi_out_port(NOM_PORT_BOUCLE, generate_simulation=True)
+    else:
+        port_midi, midi_ok = get_midi_out_port("teensy")
+        if not midi_ok:
+            port_midi, midi_ok = get_midi_out_port("daisy")
+        if not midi_ok:
+            port_midi, midi_ok = get_midi_out_port("usb")
+    
     if not midi_ok:
-        port_midi, midi_ok = get_midi_out_port("daisy")
-    if not midi_ok:
-        port_midi, midi_ok = get_midi_out_port("usb")
- 
-if not midi_ok:
-    print("MIDI désactivé. L'interface fonctionnera sans envoi de messages.")
+        print("MIDI désactivé. L'interface fonctionnera sans envoi de messages.")
+    
+    # --- Reconnexion ENTRÉE ---
+    port_midi_in = get_midi_in_port("teensy")
+    if not port_midi_in:
+        port_midi_in = get_midi_in_port("daisy")
+    if not port_midi_in:
+        port_midi_in = get_midi_in_port("usb")
+    if not port_midi_in:
+        print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
+    
+    print("===================\n")
+    
+    # --- Feedback visuel (si le panneau CPU existe déjà) ---
+    try:
+        if midi_ok and port_midi_in:
+            lbl_cpu_status.configure(text="✓ MIDI reconnecté !", text_color="#22C55E")
+        elif midi_ok:
+            lbl_cpu_status.configure(text="✓ MIDI OUT ok — IN absent", text_color="#F59E0B")
+        else:
+            lbl_cpu_status.configure(text="✗ Aucun port MIDI trouvé", text_color="#DC2626")
+    except NameError:
+        pass  # Le panneau CPU n'est pas encore créé au premier lancement
 
-# --- Ouverture du port MIDI en ENTRÉE (pour recevoir la charge CPU) ---
-port_midi_in = get_midi_in_port("teensy")
-if not port_midi_in:
-    port_midi_in = get_midi_in_port("daisy")
-if not port_midi_in:
-    port_midi_in = get_midi_in_port("usb")
-if not port_midi_in:
-    print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
+# Premier scan au démarrage
+rescanner_midi()
 # endregion
  
 win.grid_columnconfigure(0, weight=1)
@@ -140,7 +183,10 @@ corde_precedente = 0
 noms_cordes = ["Mi (E2)", "La (A2)", "Ré (D3)", "Sol (G3)", "Si (B3)", "Mi (E4)"]
  
 bypass_global = False
-bypass_effets = {nom_effet: False for nom_effet in CONFIG_EFFETS.keys()}
+bypass_effets = {
+    nom_effet: {corde: True for corde in range(6)}
+    for nom_effet in CONFIG_EFFETS.keys()
+}
 cordes_mute = [False] * 6
  
 memoire_effets = {
@@ -203,6 +249,9 @@ def maj_sliders_visuels():
             if param_info["nom"] != "--":
                 texte = get_texte_label(param_info, v)
                 slider_labels[nom_effet][i].configure(text=texte)
+        
+        # Réappliquer le visuel bypass après la mise à jour des sliders
+        appliquer_visuel_bypass(nom_effet)
  
 def slider_callback(valeur, nom_effet, index):
     v_int = int(float(valeur))
@@ -233,21 +282,15 @@ def slider_callback(valeur, nom_effet, index):
     texte = get_texte_label(param_info, v_int)
     slider_labels[nom_effet][index].configure(text=texte)
  
-def toggle_bypass_effet(nom_effet):
-    bypass_effets[nom_effet] = not bypass_effets[nom_effet]
-    est_bypasse = bypass_effets[nom_effet]
-   
-    if midi_ok and port_midi:
-        val = 127 if est_bypasse else 0
-        if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-            msg = mido.Message('control_change', control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-            port_midi.send(msg)
-            print(f"MIDI OUT: {msg}")
-   
+def appliquer_visuel_bypass(nom_effet):
+    """Met à jour l'apparence visuelle d'un effet selon son état de bypass pour la corde active."""
+    corde_ref = 0 if corde_active == "ALL" else corde_active
+    est_bypasse = bypass_effets[nom_effet][corde_ref]
+    
     c_active_frame, c_bypassed_frame = "#2A2A2A", "#1A1A1A"
     c_active_text, c_bypassed_text = "white", "#AAAAAA"
     c_active_slider, c_bypassed_slider = "#3B8ED0", "#555555"
- 
+
     etat_ui = "disabled" if est_bypasse else "normal"
     couleur_text = c_bypassed_text if est_bypasse else c_active_text
    
@@ -255,10 +298,10 @@ def toggle_bypass_effet(nom_effet):
         frame_effets[nom_effet].configure(fg_color=c_bypassed_frame if est_bypasse else c_active_frame)
     if nom_effet in effect_title_labels:
         effect_title_labels[nom_effet].configure(text_color=couleur_text)
- 
+
     for lbl in slider_labels[nom_effet]:
         lbl.configure(text_color=couleur_text)
- 
+
     for slider in sliders[nom_effet]:
         slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
        
@@ -281,8 +324,44 @@ def envoyer_tout_midi():
                     except:
                         pass
 
+
+def toggle_bypass_effet(nom_effet):
+    """Active ou désactive le Bypass pour un effet sur la corde active"""
+    if corde_active == "ALL":
+        # On inverse par rapport à la corde 0
+        target_state = not bypass_effets[nom_effet][0]
+        for corde in range(6):
+            bypass_effets[nom_effet][corde] = target_state
+            if midi_ok and port_midi:
+                val = 127 if target_state else 0
+                if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
+                    msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
+                    port_midi.send(msg)
+    else:
+        # Toggle sur la corde active uniquement
+        bypass_effets[nom_effet][corde_active] = not bypass_effets[nom_effet][corde_active]
+        if midi_ok and port_midi:
+            val = 127 if bypass_effets[nom_effet][corde_active] else 0
+            if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
+                msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
+                port_midi.send(msg)
+                print(f"MIDI OUT: {msg}")
+   
+    appliquer_visuel_bypass(nom_effet)
+ 
+def Sauvegarder_preset(nom):
+    """Sauvegarde le preset courant (réglages + bypass)"""
+    data_save = {
+        "preset": nom,
+        "reglages_effets": memoire_effets,
+        "bypass_effets": bypass_effets
+    }
+    with open(f"preset_{nom}.json", "w") as f:
+        json.dump(data_save, f, indent=4)
+    print(f"✓ Preset '{nom}' sauvegardé")
+
 def Charger_preset(nom):
-    global memoire_effets
+    global memoire_effets, bypass_effets
     try:
         with open(f"preset_{nom}.json", "r") as f:
             data = json.load(f)
@@ -290,6 +369,28 @@ def Charger_preset(nom):
                 if eff in memoire_effets:
                     for corde_str, valeurs in cordes_data.items():
                         memoire_effets[eff][int(corde_str)] = valeurs
+            
+            # Chargement des états de bypass
+            if "bypass_effets" in data:
+                for eff, bypass_data in data["bypass_effets"].items():
+                    if eff in bypass_effets:
+                        # Si l'ancien format était un simple booléen
+                        if isinstance(bypass_data, bool):
+                            for corde in range(6):
+                                bypass_effets[eff][corde] = bypass_data
+                        else:
+                            # Nouveau format (dictionnaire de cordes)
+                            for corde_str, etat in bypass_data.items():
+                                bypass_effets[eff][int(corde_str)] = etat
+            
+            # Réappliquer les bypass en MIDI + Visuel pour toutes les cordes
+            for eff in CONFIG_EFFETS.keys():
+                for corde in range(6):
+                    if midi_ok and port_midi and "bypass_cc" in CONFIG_EFFETS[eff]:
+                        val = 127 if bypass_effets[eff][corde] else 0
+                        msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[eff]["bypass_cc"], value=val)
+                        port_midi.send(msg)
+                appliquer_visuel_bypass(eff)
     except Exception as e:
         print(f"Erreur preset : {e}")
     maj_sliders_visuels()
@@ -473,7 +574,9 @@ frame_sw.grid(row=2, column=0, columnspan=2, pady=15, sticky="ew")
 btn_bypass = ctk.CTkButton(frame_sw, text="BYPASS", fg_color="#555555", width=160, height=70, corner_radius=35, command=Activation_bypass)
 btn_bypass.pack(side="left", padx=20, expand=True)
  
+ctk.CTkButton(frame_sw, text="SAVE A", command=lambda: Sauvegarder_preset("A"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="LOAD A", command=lambda: Charger_preset("A"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
+ctk.CTkButton(frame_sw, text="SAVE B", command=lambda: Sauvegarder_preset("B"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="LOAD B", command=lambda: Charger_preset("B"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
  
 # endregion
@@ -486,9 +589,17 @@ cpu_max_value = 0
 frame_cpu = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
 frame_cpu.grid(row=3, column=0, padx=10, pady=(5, 15), sticky="ew")
 
-# Titre du panneau
-cpu_title = ctk.CTkLabel(frame_cpu, text="⚡ CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
-cpu_title.pack(pady=(8, 4))
+# Titre du panneau + bouton rescan
+frame_cpu_header = ctk.CTkFrame(frame_cpu, fg_color="transparent")
+frame_cpu_header.pack(fill="x", padx=10, pady=(8, 4))
+
+cpu_title = ctk.CTkLabel(frame_cpu_header, text="⚡ CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
+cpu_title.pack(side="left", expand=True)
+
+btn_rescan = ctk.CTkButton(frame_cpu_header, text="🔄 RESCAN USB", width=120, height=28,
+                           font=("Arial", 11, "bold"), fg_color="#2c3e50", hover_color="#3d566e",
+                           command=rescanner_midi)
+btn_rescan.pack(side="right", padx=5)
 
 # --- Ligne AVG ---
 frame_avg = ctk.CTkFrame(frame_cpu, fg_color="transparent")
@@ -578,6 +689,10 @@ def ecouter_midi_entrant():
  
 maj_leds()
 envoyer_tout_midi()
+
+# Appliquer le visuel bypass au démarrage (tous les effets commencent bypassés)
+for nom_effet in CONFIG_EFFETS:
+    appliquer_visuel_bypass(nom_effet)
 
 # Lancement de la boucle de scrutation MIDI en entrée
 win.after(50, ecouter_midi_entrant)
