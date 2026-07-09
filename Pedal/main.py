@@ -144,7 +144,7 @@ bypass_effets = {nom_effet: False for nom_effet in CONFIG_EFFETS.keys()}
 cordes_mute = [False] * 6
  
 memoire_effets = {
-    nom_effet: {corde: [64] * 6 for corde in range(6)}
+    nom_effet: {corde: [0 if i == 0 else 64 for i in range(6)] for corde in range(6)}
     for nom_effet in CONFIG_EFFETS.keys()
 }
  
@@ -265,6 +265,22 @@ def toggle_bypass_effet(nom_effet):
     if nom_effet in bypass_buttons:
         bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
  
+def envoyer_tout_midi():
+    if not midi_ok or not port_midi:
+        return
+    for nom_effet, config in CONFIG_EFFETS.items():
+        base_cc = config["base_cc"]
+        for channel in range(6):
+            valeurs = memoire_effets[nom_effet][channel]
+            for index, v in enumerate(valeurs):
+                if config["params"][index]["nom"] != "--":
+                    cc_num = base_cc + index
+                    try:
+                        msg = mido.Message('control_change', channel=channel, control=cc_num, value=int(v))
+                        port_midi.send(msg)
+                    except:
+                        pass
+
 def Charger_preset(nom):
     global memoire_effets
     try:
@@ -277,6 +293,7 @@ def Charger_preset(nom):
     except Exception as e:
         print(f"Erreur preset : {e}")
     maj_sliders_visuels()
+    envoyer_tout_midi()
  
 def Activation_mute(index):
     cordes_mute[index] = not cordes_mute[index]
@@ -302,6 +319,28 @@ def selectionner_corde(index):
     corde_active = index
     corde_precedente = index
     maj_leds()
+    
+    # "Focus Mode" : on force le Mix à 0 sur toutes les autres cordes pour que l'effet
+    # ne s'applique qu'à la corde actuellement sélectionnée (sauf en mode ALL)
+    if index != "ALL" and midi_ok and port_midi:
+        for nom_effet, config in CONFIG_EFFETS.items():
+            base_cc = config["base_cc"]
+            # Mettre à 0 les autres cordes
+            for channel in range(6):
+                if channel != index:
+                    try:
+                        # Envoyer Mix = 0 (qui est à l'index 0 des params)
+                        msg = mido.Message('control_change', channel=channel, control=base_cc, value=0)
+                        port_midi.send(msg)
+                    except:
+                        pass
+            # Rétablir la valeur de la corde active
+            val_mix_active = memoire_effets[nom_effet][index][0]
+            try:
+                msg = mido.Message('control_change', channel=index, control=base_cc, value=int(val_mix_active))
+                port_midi.send(msg)
+            except:
+                pass
  
 def toggle_mode_all():
     global corde_active, corde_precedente
@@ -538,6 +577,7 @@ def ecouter_midi_entrant():
 # endregion
  
 maj_leds()
+envoyer_tout_midi()
 
 # Lancement de la boucle de scrutation MIDI en entrée
 win.after(50, ecouter_midi_entrant)
