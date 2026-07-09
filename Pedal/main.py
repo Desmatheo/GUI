@@ -183,7 +183,10 @@ corde_precedente = 0
 noms_cordes = ["Mi (E2)", "La (A2)", "Ré (D3)", "Sol (G3)", "Si (B3)", "Mi (E4)"]
  
 bypass_global = False
-bypass_effets = {nom_effet: False for nom_effet in CONFIG_EFFETS.keys()}
+bypass_effets = {
+    nom_effet: {corde: True for corde in range(6)}
+    for nom_effet in CONFIG_EFFETS.keys()
+}
 cordes_mute = [False] * 6
  
 memoire_effets = {
@@ -246,6 +249,9 @@ def maj_sliders_visuels():
             if param_info["nom"] != "--":
                 texte = get_texte_label(param_info, v)
                 slider_labels[nom_effet][i].configure(text=texte)
+        
+        # Réappliquer le visuel bypass après la mise à jour des sliders
+        appliquer_visuel_bypass(nom_effet)
  
 def slider_callback(valeur, nom_effet, index):
     v_int = int(float(valeur))
@@ -276,21 +282,15 @@ def slider_callback(valeur, nom_effet, index):
     texte = get_texte_label(param_info, v_int)
     slider_labels[nom_effet][index].configure(text=texte)
  
-def toggle_bypass_effet(nom_effet):
-    bypass_effets[nom_effet] = not bypass_effets[nom_effet]
-    est_bypasse = bypass_effets[nom_effet]
-   
-    if midi_ok and port_midi:
-        val = 127 if est_bypasse else 0
-        if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-            msg = mido.Message('control_change', control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-            port_midi.send(msg)
-            print(f"MIDI OUT: {msg}")
-   
+def appliquer_visuel_bypass(nom_effet):
+    """Met à jour l'apparence visuelle d'un effet selon son état de bypass pour la corde active."""
+    corde_ref = 0 if corde_active == "ALL" else corde_active
+    est_bypasse = bypass_effets[nom_effet][corde_ref]
+    
     c_active_frame, c_bypassed_frame = "#2A2A2A", "#1A1A1A"
     c_active_text, c_bypassed_text = "white", "#AAAAAA"
     c_active_slider, c_bypassed_slider = "#3B8ED0", "#555555"
- 
+
     etat_ui = "disabled" if est_bypasse else "normal"
     couleur_text = c_bypassed_text if est_bypasse else c_active_text
    
@@ -298,18 +298,53 @@ def toggle_bypass_effet(nom_effet):
         frame_effets[nom_effet].configure(fg_color=c_bypassed_frame if est_bypasse else c_active_frame)
     if nom_effet in effect_title_labels:
         effect_title_labels[nom_effet].configure(text_color=couleur_text)
- 
+
     for lbl in slider_labels[nom_effet]:
         lbl.configure(text_color=couleur_text)
- 
+
     for slider in sliders[nom_effet]:
         slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
        
     if nom_effet in bypass_buttons:
         bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
+
+def toggle_bypass_effet(nom_effet):
+    """Active ou désactive le Bypass pour un effet sur la corde active"""
+    if corde_active == "ALL":
+        # On inverse par rapport à la corde 0
+        target_state = not bypass_effets[nom_effet][0]
+        for corde in range(6):
+            bypass_effets[nom_effet][corde] = target_state
+            if midi_ok and port_midi:
+                val = 127 if target_state else 0
+                if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
+                    msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
+                    port_midi.send(msg)
+    else:
+        # Toggle sur la corde active uniquement
+        bypass_effets[nom_effet][corde_active] = not bypass_effets[nom_effet][corde_active]
+        if midi_ok and port_midi:
+            val = 127 if bypass_effets[nom_effet][corde_active] else 0
+            if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
+                msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
+                port_midi.send(msg)
+                print(f"MIDI OUT: {msg}")
+   
+    appliquer_visuel_bypass(nom_effet)
  
+def Sauvegarder_preset(nom):
+    """Sauvegarde le preset courant (réglages + bypass)"""
+    data_save = {
+        "preset": nom,
+        "reglages_effets": memoire_effets,
+        "bypass_effets": bypass_effets
+    }
+    with open(f"preset_{nom}.json", "w") as f:
+        json.dump(data_save, f, indent=4)
+    print(f"✓ Preset '{nom}' sauvegardé")
+
 def Charger_preset(nom):
-    global memoire_effets
+    global memoire_effets, bypass_effets
     try:
         with open(f"preset_{nom}.json", "r") as f:
             data = json.load(f)
@@ -317,6 +352,28 @@ def Charger_preset(nom):
                 if eff in memoire_effets:
                     for corde_str, valeurs in cordes_data.items():
                         memoire_effets[eff][int(corde_str)] = valeurs
+            
+            # Chargement des états de bypass
+            if "bypass_effets" in data:
+                for eff, bypass_data in data["bypass_effets"].items():
+                    if eff in bypass_effets:
+                        # Si l'ancien format était un simple booléen
+                        if isinstance(bypass_data, bool):
+                            for corde in range(6):
+                                bypass_effets[eff][corde] = bypass_data
+                        else:
+                            # Nouveau format (dictionnaire de cordes)
+                            for corde_str, etat in bypass_data.items():
+                                bypass_effets[eff][int(corde_str)] = etat
+            
+            # Réappliquer les bypass en MIDI + Visuel pour toutes les cordes
+            for eff in CONFIG_EFFETS.keys():
+                for corde in range(6):
+                    if midi_ok and port_midi and "bypass_cc" in CONFIG_EFFETS[eff]:
+                        val = 127 if bypass_effets[eff][corde] else 0
+                        msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[eff]["bypass_cc"], value=val)
+                        port_midi.send(msg)
+                appliquer_visuel_bypass(eff)
     except Exception as e:
         print(f"Erreur preset : {e}")
     maj_sliders_visuels()
@@ -477,7 +534,9 @@ frame_sw.grid(row=2, column=0, columnspan=2, pady=15, sticky="ew")
 btn_bypass = ctk.CTkButton(frame_sw, text="BYPASS", fg_color="#555555", width=160, height=70, corner_radius=35, command=Activation_bypass)
 btn_bypass.pack(side="left", padx=20, expand=True)
  
+ctk.CTkButton(frame_sw, text="SAVE A", command=lambda: Sauvegarder_preset("A"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="LOAD A", command=lambda: Charger_preset("A"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
+ctk.CTkButton(frame_sw, text="SAVE B", command=lambda: Sauvegarder_preset("B"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="LOAD B", command=lambda: Charger_preset("B"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
  
 # endregion
@@ -589,6 +648,10 @@ def ecouter_midi_entrant():
 # endregion
  
 maj_leds()
+
+# Appliquer le visuel bypass au démarrage (tous les effets commencent bypassés)
+for nom_effet in CONFIG_EFFETS:
+    appliquer_visuel_bypass(nom_effet)
 
 # Lancement de la boucle de scrutation MIDI en entrée
 win.after(50, ecouter_midi_entrant)
