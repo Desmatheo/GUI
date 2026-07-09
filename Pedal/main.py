@@ -63,26 +63,69 @@ def get_midi_in_port(search_term):
         print(f"⚠ Erreur ouverture port MIDI IN : {e}")
         return None
  
-if USE_LOOPMIDI:
-    port_midi, midi_ok = get_midi_out_port(NOM_PORT_BOUCLE, generate_simulation=True)
-else:
-    port_midi, midi_ok = get_midi_out_port("teensy")
+def rescanner_midi():
+    """Ferme les ports MIDI existants et relance la détection (OUT + IN)."""
+    global port_midi, midi_ok, port_midi_in
+    
+    # --- Fermeture propre des ports existants ---
+    if port_midi:
+        try:
+            port_midi.close()
+        except Exception:
+            pass
+        port_midi = None
+    if port_midi_in:
+        try:
+            port_midi_in.close()
+        except Exception:
+            pass
+        port_midi_in = None
+    midi_ok = False
+    
+    print("\n=== RESCAN MIDI ===")
+    try:
+        print("Ports MIDI OUT détectés :", mido.get_output_names())
+        print("Ports MIDI IN  détectés :", mido.get_input_names())
+    except Exception as e:
+        print(f"Erreur lecture ports : {e}")
+    
+    # --- Reconnexion SORTIE ---
+    if USE_LOOPMIDI:
+        port_midi, midi_ok = get_midi_out_port(NOM_PORT_BOUCLE, generate_simulation=True)
+    else:
+        port_midi, midi_ok = get_midi_out_port("teensy")
+        if not midi_ok:
+            port_midi, midi_ok = get_midi_out_port("daisy")
+        if not midi_ok:
+            port_midi, midi_ok = get_midi_out_port("usb")
+    
     if not midi_ok:
-        port_midi, midi_ok = get_midi_out_port("daisy")
-    if not midi_ok:
-        port_midi, midi_ok = get_midi_out_port("usb")
- 
-if not midi_ok:
-    print("MIDI désactivé. L'interface fonctionnera sans envoi de messages.")
+        print("MIDI désactivé. L'interface fonctionnera sans envoi de messages.")
+    
+    # --- Reconnexion ENTRÉE ---
+    port_midi_in = get_midi_in_port("teensy")
+    if not port_midi_in:
+        port_midi_in = get_midi_in_port("daisy")
+    if not port_midi_in:
+        port_midi_in = get_midi_in_port("usb")
+    if not port_midi_in:
+        print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
+    
+    print("===================\n")
+    
+    # --- Feedback visuel (si le panneau CPU existe déjà) ---
+    try:
+        if midi_ok and port_midi_in:
+            lbl_cpu_status.configure(text="✓ MIDI reconnecté !", text_color="#22C55E")
+        elif midi_ok:
+            lbl_cpu_status.configure(text="✓ MIDI OUT ok — IN absent", text_color="#F59E0B")
+        else:
+            lbl_cpu_status.configure(text="✗ Aucun port MIDI trouvé", text_color="#DC2626")
+    except NameError:
+        pass  # Le panneau CPU n'est pas encore créé au premier lancement
 
-# --- Ouverture du port MIDI en ENTRÉE (pour recevoir la charge CPU) ---
-port_midi_in = get_midi_in_port("teensy")
-if not port_midi_in:
-    port_midi_in = get_midi_in_port("daisy")
-if not port_midi_in:
-    port_midi_in = get_midi_in_port("usb")
-if not port_midi_in:
-    print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
+# Premier scan au démarrage
+rescanner_midi()
 # endregion
  
 win.grid_columnconfigure(0, weight=1)
@@ -447,9 +490,17 @@ cpu_max_value = 0
 frame_cpu = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
 frame_cpu.grid(row=3, column=0, padx=10, pady=(5, 15), sticky="ew")
 
-# Titre du panneau
-cpu_title = ctk.CTkLabel(frame_cpu, text="⚡ CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
-cpu_title.pack(pady=(8, 4))
+# Titre du panneau + bouton rescan
+frame_cpu_header = ctk.CTkFrame(frame_cpu, fg_color="transparent")
+frame_cpu_header.pack(fill="x", padx=10, pady=(8, 4))
+
+cpu_title = ctk.CTkLabel(frame_cpu_header, text="⚡ CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
+cpu_title.pack(side="left", expand=True)
+
+btn_rescan = ctk.CTkButton(frame_cpu_header, text="🔄 RESCAN USB", width=120, height=28,
+                           font=("Arial", 11, "bold"), fg_color="#2c3e50", hover_color="#3d566e",
+                           command=rescanner_midi)
+btn_rescan.pack(side="right", padx=5)
 
 # --- Ligne AVG ---
 frame_avg = ctk.CTkFrame(frame_cpu, fg_color="transparent")
