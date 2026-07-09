@@ -136,13 +136,14 @@ def action_random_effet(nom_effet):
     valeurs = memoire_effets[nom_effet][corde_active]
     base_cc = CONFIG_EFFETS[nom_effet]["base_cc"]
     for i in range(len(valeurs)):
-        val_rand = random.randint(0, 127)
-        valeurs[i] = val_rand
-        if midi_ok and port_midi:
-            cc_num = base_cc + i
-            # NOUVELLE LOGIQUE : On utilise les canaux MIDI
-            msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=val_rand)
-            port_midi.send(msg)
+        # On ne randomise que les paramètres actifs (pas les "--")
+        if CONFIG_EFFETS[nom_effet]["params"][i] != "--":
+            val_rand = random.randint(0, 127)
+            valeurs[i] = val_rand
+            if midi_ok and port_midi:
+                cc_num = base_cc + i
+                msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=val_rand)
+                port_midi.send(msg)
     maj_sliders_visuels()
 
 def sauvegarder_dans_preset(nom):
