@@ -139,12 +139,12 @@ CONFIG_EFFETS = {
         "bypass_cc": 88,
         "params": [
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
             {"nom": "Mode", "min": 1, "max": 6, "unite": "mode", "steps": 5},
             {"nom": "Tone", "min": 20, "max": 20000, "unite": "Hz"},
-            {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
-            {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
             {"nom": "Intens", "min": 0, "max": 100, "unite": "%"},
-            {"nom": "Oversamp", "min": 0, "max": 1, "unite": "bool", "steps": 1}
+            {"nom": "Oversamp", "min": 0, "max": 1, "unite": "bool", "steps": 1},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
     },
     "Earth": {
