@@ -138,12 +138,13 @@ CONFIG_EFFETS = {
         "base_cc": 50,
         "bypass_cc": 88,
         "params": [
-            {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
-            {"nom": "Tone", "min": 20, "max": 20000, "unite": "Hz"},
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
-            {"nom": "--"},
-            {"nom": "--"},
-            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+            {"nom": "Mode", "min": 1, "max": 6, "unite": "mode", "steps": 5},
+            {"nom": "Tone", "min": 20, "max": 20000, "unite": "Hz"},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
+            {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
+            {"nom": "Intens", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "Oversamp", "min": 0, "max": 1, "unite": "bool", "steps": 1}
         ]
     },
     "Earth": {
@@ -173,7 +174,7 @@ bypass_effets = {
 cordes_mute = [False] * 6
  
 memoire_effets = {
-    nom_effet: {corde: [0 if i == 0 else 64 for i in range(6)] for corde in range(6)}
+    nom_effet: {corde: [0 if i == 0 else 64 for i in range(len(CONFIG_EFFETS[nom_effet]["params"]))] for corde in range(6)}
     for nom_effet in CONFIG_EFFETS.keys()
 }
  
@@ -211,6 +212,14 @@ def get_texte_label(param_info, val_midi):
             return f"{param_info['nom']}: -1 oct"
         else:
             return f"{param_info['nom']}: +1 oct"
+
+    if param_info["unite"] == "mode":
+        cran = int(round(val_reelle))
+        return f"{param_info['nom']}: Type {cran}"
+
+    if param_info["unite"] == "bool":
+        etat = "ON" if val_reelle >= 0.5 else "OFF"
+        return f"{param_info['nom']}: {etat}"
  
     # --- LOGIQUE CLASSIQUE POUR LE RESTE ---
     if param_info["max"] > 10:
@@ -328,7 +337,10 @@ def toggle_bypass_effet(nom_effet):
                 val = 127 if target_state else 0
                 if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
                     msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                    port_midi.send(msg)
+                    try:
+                        port_midi.send(msg)
+                    except Exception:
+                        pass
                 
                 # Si on active l'effet (bypass = False), on renvoie tous les paramètres
                 if not target_state:
@@ -346,7 +358,10 @@ def toggle_bypass_effet(nom_effet):
             val = 127 if bypass_effets[nom_effet][corde_active] else 0
             if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
                 msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                port_midi.send(msg)
+                try:
+                    port_midi.send(msg)
+                except Exception:
+                    pass
 
             # Si on active l'effet (bypass = False), on renvoie tous les paramètres
             if not bypass_effets[nom_effet][corde_active]:
@@ -378,6 +393,9 @@ def Charger_preset(nom):
             for eff, cordes_data in data["reglages_effets"].items():
                 if eff in memoire_effets:
                     for corde_str, valeurs in cordes_data.items():
+                        expected_len = len(CONFIG_EFFETS[eff]["params"])
+                        if len(valeurs) < expected_len:
+                            valeurs.extend([64] * (expected_len - len(valeurs)))
                         memoire_effets[eff][int(corde_str)] = valeurs
             
             # Chargement des états de bypass
@@ -399,7 +417,10 @@ def Charger_preset(nom):
                     if midi_ok and port_midi and "bypass_cc" in CONFIG_EFFETS[eff]:
                         val = 127 if bypass_effets[eff][corde] else 0
                         msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[eff]["bypass_cc"], value=val)
-                        port_midi.send(msg)
+                        try:
+                            port_midi.send(msg)
+                        except Exception:
+                            pass
                 appliquer_visuel_bypass(eff)
     except Exception as e:
         print(f"Erreur preset : {e}")
@@ -411,7 +432,10 @@ def Activation_mute(index):
     if midi_ok and port_midi:
         val = 127 if cordes_mute[index] else 0
         msg = mido.Message('control_change', control=index, value=val)
-        port_midi.send(msg)
+        try:
+            port_midi.send(msg)
+        except Exception:
+            pass
         
         # Si on unmute la corde (mute == False), on renvoie tous ses paramètres
         if not cordes_mute[index]:
@@ -432,7 +456,10 @@ def Activation_bypass():
     if midi_ok and port_midi:
         val = 127 if bypass_global else 0
         msg = mido.Message('control_change', control=126, value=val)
-        port_midi.send(msg)
+        try:
+            port_midi.send(msg)
+        except Exception:
+            pass
         
         # Si on désactive le bypass global (bypass = False), on renvoie tout
         if not bypass_global:
@@ -452,7 +479,10 @@ def Reset_All():
     for corde in range(6):
         cordes_mute[corde] = False
         if midi_ok and port_midi:
-            port_midi.send(mido.Message('control_change', control=corde, value=0))
+            try:
+                port_midi.send(mido.Message('control_change', control=corde, value=0))
+            except Exception:
+                pass
             
     # Refresh GUI
     maj_leds()
@@ -475,10 +505,10 @@ def selectionner_corde(index):
         for idx, slider in enumerate(sliders_effet):
             slider.configure(command=lambda v: None)
             slider.set(valeurs[idx])
-            valeur_str = f"{valeurs[idx]} %"
-            if CONFIG_EFFETS[nom_effet]["params"][idx]["nom"] == "DelayTime":
-                valeur_str = f"{valeurs[idx]} ms"
-            slider_labels[nom_effet][idx].configure(text=valeur_str)
+            param_info = CONFIG_EFFETS[nom_effet]["params"][idx]
+            if param_info["nom"] != "--":
+                texte = get_texte_label(param_info, valeurs[idx])
+                slider_labels[nom_effet][idx].configure(text=texte)
             slider.configure(command=lambda v, ne=nom_effet, i=idx: slider_callback(v, ne, i))
  
 def toggle_mode_all():

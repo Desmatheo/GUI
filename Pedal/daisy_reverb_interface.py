@@ -16,14 +16,6 @@ win.geometry("900x600")
 try:
     ports_out = mido.get_output_names()
     ports_in = mido.get_input_names()
-    print("\n--- PORTS MIDI DÉTECTÉS ---")
-    print("Sorties (vers la pédale) :")
-    for p in ports_out:
-        print(f" - {p}")
-    print("Entrées (depuis la pédale) :")
-    for p in ports_in:
-        print(f" - {p}")
-    print("---------------------------\n")
 
     daisy_port_out = next((p for p in ports_out if "Daisy" in p or "USB" in p), None)
     daisy_port_in = next((p for p in ports_in if "Daisy" in p or "USB" in p), None)
@@ -93,7 +85,6 @@ def slider_callback(valeur, param_name):
         cc_num = CONFIG_REVERB[param_name]["cc"]
         msg = mido.Message('control_change', control=cc_num, value=v_int)
         port_midi.send(msg)
-        print(f"MIDI CC{cc_num} = {v_int}")
 
 def action_random():
     """Valeurs aléatoires pour tous les paramètres"""
