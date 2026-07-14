@@ -22,14 +22,6 @@ midi_ok = False
 port_midi = None
 port_midi_in = None  # Port MIDI en entrée (pour recevoir la charge CPU)
  
-print("=== DIAGNOSTIC MIDI ===")
-try:
-    print("Ports MIDI OUT détectés :", mido.get_output_names())
-    print("Ports MIDI IN  détectés :", mido.get_input_names())
-except Exception as e:
-    print("Erreur lors de la lecture des ports MIDI :", e)
-print("=======================")
- 
 def get_midi_out_port(search_term, generate_simulation=False):
     try:
         ports = mido.get_output_names()
@@ -82,13 +74,6 @@ def rescanner_midi():
         port_midi_in = None
     midi_ok = False
     
-    print("\n=== RESCAN MIDI ===")
-    try:
-        print("Ports MIDI OUT détectés :", mido.get_output_names())
-        print("Ports MIDI IN  détectés :", mido.get_input_names())
-    except Exception as e:
-        print(f"Erreur lecture ports : {e}")
-    
     # --- Reconnexion SORTIE ---
     if USE_LOOPMIDI:
         port_midi, midi_ok = get_midi_out_port(NOM_PORT_BOUCLE, generate_simulation=True)
@@ -110,8 +95,6 @@ def rescanner_midi():
         port_midi_in = get_midi_in_port("usb")
     if not port_midi_in:
         print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
-    
-    print("===================\n")
     
     # --- Feedback visuel (si le panneau CPU existe déjà) ---
     try:
@@ -266,8 +249,7 @@ def slider_callback(valeur, nom_effet, index):
                 try:
                     msg = mido.Message('control_change', channel=channel, control=cc_num, value=v_int)
                     port_midi.send(msg)
-                    # print(f"MIDI OUT: {msg}") # Optionnel: désactivé pour éviter de spammer la console
-                except Exception as e:
+                except Exception:
                     pass # Ignore l'erreur si le tampon USB est plein
     else:
         memoire_effets[nom_effet][corde_active][index] = v_int
@@ -275,8 +257,7 @@ def slider_callback(valeur, nom_effet, index):
             try:
                 msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=v_int)
                 port_midi.send(msg)
-                # print(f"MIDI OUT: {msg}")
-            except Exception as e:
+            except Exception:
                 pass # Ignore l'erreur si le tampon USB est plein
            
     texte = get_texte_label(param_info, v_int)
@@ -311,9 +292,20 @@ def appliquer_visuel_bypass(nom_effet):
 def envoyer_tout_midi():
     if not midi_ok or not port_midi:
         return
-    for nom_effet, config in CONFIG_EFFETS.items():
-        base_cc = config["base_cc"]
-        for channel in range(6):
+    for channel in range(6):
+        # Séparer les effets inactifs (Mix == 0) et actifs (Mix > 0)
+        effets_inactifs = []
+        effets_actifs = []
+        for nom_effet, config in CONFIG_EFFETS.items():
+            if memoire_effets[nom_effet][channel][0] > 0:
+                effets_actifs.append((nom_effet, config))
+            else:
+                effets_inactifs.append((nom_effet, config))
+                
+        # Envoyer d'abord les inactifs, PUIS les actifs pour que le dernier envoyé 
+        # (et donc celui qui reste actif dans la Daisy) soit celui qui a du Mix.
+        for nom_effet, config in effets_inactifs + effets_actifs:
+            base_cc = config["base_cc"]
             valeurs = memoire_effets[nom_effet][channel]
             for index, v in enumerate(valeurs):
                 if config["params"][index]["nom"] != "--":
@@ -337,6 +329,16 @@ def toggle_bypass_effet(nom_effet):
                 if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
                     msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
                     port_midi.send(msg)
+                
+                # Si on active l'effet (bypass = False), on renvoie tous les paramètres
+                if not target_state:
+                    for index, p_val in enumerate(memoire_effets[nom_effet][corde]):
+                        cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
+                        try:
+                            port_midi.send(mido.Message('control_change', channel=corde, control=cc_num, value=p_val))
+                        except Exception:
+                            pass
+
     else:
         # Toggle sur la corde active uniquement
         bypass_effets[nom_effet][corde_active] = not bypass_effets[nom_effet][corde_active]
@@ -345,7 +347,15 @@ def toggle_bypass_effet(nom_effet):
             if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
                 msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
                 port_midi.send(msg)
-                print(f"MIDI OUT: {msg}")
+
+            # Si on active l'effet (bypass = False), on renvoie tous les paramètres
+            if not bypass_effets[nom_effet][corde_active]:
+                for index, p_val in enumerate(memoire_effets[nom_effet][corde_active]):
+                    cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
+                    try:
+                        port_midi.send(mido.Message('control_change', channel=corde_active, control=cc_num, value=p_val))
+                    except Exception:
+                        pass
    
     appliquer_visuel_bypass(nom_effet)
  
@@ -402,7 +412,18 @@ def Activation_mute(index):
         val = 127 if cordes_mute[index] else 0
         msg = mido.Message('control_change', control=index, value=val)
         port_midi.send(msg)
-        print(f"MIDI OUT: {msg}")
+        
+        # Si on unmute la corde (mute == False), on renvoie tous ses paramètres
+        if not cordes_mute[index]:
+            for nom_effet, config in CONFIG_EFFETS.items():
+                if not bypass_effets[nom_effet][index]:
+                    for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
+                        cc_num = config["base_cc"] + idx
+                        try:
+                            port_midi.send(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
+                        except Exception:
+                            pass
+
     maj_leds()
  
 def Activation_bypass():
@@ -412,8 +433,35 @@ def Activation_bypass():
         val = 127 if bypass_global else 0
         msg = mido.Message('control_change', control=126, value=val)
         port_midi.send(msg)
-        print(f"MIDI OUT: {msg}")
+        
+        # Si on désactive le bypass global (bypass = False), on renvoie tout
+        if not bypass_global:
+            envoyer_tout_midi()
+
     btn_bypass.configure(fg_color="#A12222" if bypass_global else "#555555")
+
+def Reset_All():
+    """Remet tous les paramètres à 0, active le bypass de tous les effets et unmute toutes les cordes"""
+    for nom_effet in CONFIG_EFFETS.keys():
+        for corde in range(6):
+            bypass_effets[nom_effet][corde] = True
+            for idx in range(len(CONFIG_EFFETS[nom_effet]["params"])):
+                memoire_effets[nom_effet][corde][idx] = 0
+                
+    # Unmute all strings
+    for corde in range(6):
+        cordes_mute[corde] = False
+        if midi_ok and port_midi:
+            port_midi.send(mido.Message('control_change', control=corde, value=0))
+            
+    # Refresh GUI
+    maj_leds()
+    for nom_effet in CONFIG_EFFETS.keys():
+        appliquer_visuel_bypass(nom_effet)
+    selectionner_corde(corde_active) # Refresh sliders
+    
+    # Send all zeroed MIDI values
+    envoyer_tout_midi()
  
 def selectionner_corde(index):
     global corde_active, corde_precedente
@@ -421,27 +469,17 @@ def selectionner_corde(index):
     corde_precedente = index
     maj_leds()
     
-    # "Focus Mode" : on force le Mix à 0 sur toutes les autres cordes pour que l'effet
-    # ne s'applique qu'à la corde actuellement sélectionnée (sauf en mode ALL)
-    if index != "ALL" and midi_ok and port_midi:
-        for nom_effet, config in CONFIG_EFFETS.items():
-            base_cc = config["base_cc"]
-            # Mettre à 0 les autres cordes
-            for channel in range(6):
-                if channel != index:
-                    try:
-                        # Envoyer Mix = 0 (qui est à l'index 0 des params)
-                        msg = mido.Message('control_change', channel=channel, control=base_cc, value=0)
-                        port_midi.send(msg)
-                    except:
-                        pass
-            # Rétablir la valeur de la corde active
-            val_mix_active = memoire_effets[nom_effet][index][0]
-            try:
-                msg = mido.Message('control_change', channel=index, control=base_cc, value=int(val_mix_active))
-                port_midi.send(msg)
-            except:
-                pass
+    # Mettre à jour les sliders pour correspondre à la corde sélectionnée
+    for nom_effet, sliders_effet in sliders.items():
+        valeurs = memoire_effets[nom_effet][corde_active] if corde_active != "ALL" else memoire_effets[nom_effet][0]
+        for idx, slider in enumerate(sliders_effet):
+            slider.configure(command=lambda v: None)
+            slider.set(valeurs[idx])
+            valeur_str = f"{valeurs[idx]} %"
+            if CONFIG_EFFETS[nom_effet]["params"][idx]["nom"] == "DelayTime":
+                valeur_str = f"{valeurs[idx]} ms"
+            slider_labels[nom_effet][idx].configure(text=valeur_str)
+            slider.configure(command=lambda v, ne=nom_effet, i=idx: slider_callback(v, ne, i))
  
 def toggle_mode_all():
     global corde_active, corde_precedente
@@ -578,6 +616,7 @@ ctk.CTkButton(frame_sw, text="SAVE A", command=lambda: Sauvegarder_preset("A"), 
 ctk.CTkButton(frame_sw, text="LOAD A", command=lambda: Charger_preset("A"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="SAVE B", command=lambda: Sauvegarder_preset("B"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
 ctk.CTkButton(frame_sw, text="LOAD B", command=lambda: Charger_preset("B"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
+ctk.CTkButton(frame_sw, text="RESET", command=Reset_All, fg_color="#A12222", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
  
 # endregion
 
