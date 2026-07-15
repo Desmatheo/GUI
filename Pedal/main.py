@@ -140,7 +140,7 @@ CONFIG_EFFETS = {
         "params": [
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Mode", "min": 1, "max": 6, "unite": "mode", "steps": 5},
-            {"nom": "Tone", "min": 20, "max": 20000, "unite": "Hz"},
+            {"nom": "Tone", "min": 500, "max": 2000, "unite": "Hz"},
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
             {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
             {"nom": "Intens", "min": 0, "max": 100, "unite": "%"},
@@ -156,6 +156,18 @@ CONFIG_EFFETS = {
             {"nom": "Octave", "min": 0, "max": 2, "unite": "oct_mode", "steps": 2},
             {"nom": "--"},
             {"nom": "--"},
+            {"nom": "--"},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+        ]
+    },
+    "Tremolo": {
+        "base_cc": 110,
+        "bypass_cc": 118,
+        "params": [
+            {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "Depth", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "Rate", "min": 0.1, "max": 20, "unite": "Hz"},
+            {"nom": "Wave", "min": 0, "max": 3, "unite": "wave_mode", "steps": 3},
             {"nom": "--"},
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
@@ -212,6 +224,17 @@ def get_texte_label(param_info, val_midi):
             return f"{param_info['nom']}: -1 oct"
         else:
             return f"{param_info['nom']}: +1 oct"
+
+    if param_info["unite"] == "wave_mode":
+        cran = int(round(val_reelle))
+        if cran == 0:
+            return f"{param_info['nom']}: Sine"
+        elif cran == 1:
+            return f"{param_info['nom']}: Tri"
+        elif cran == 2:
+            return f"{param_info['nom']}: Square"
+        else:
+            return f"{param_info['nom']}: Saw"
 
     if param_info["unite"] == "mode":
         cran = int(round(val_reelle))
