@@ -55,22 +55,21 @@ def get_midi_in_port(search_term):
         print(f"⚠ Erreur ouverture port MIDI IN : {e}")
         return None
  
+# --- Liste pour stocker les ports morts et empêcher le Garbage Collector de les fermer ---
+zombie_ports = []
+
 def rescanner_midi():
     """Ferme les ports MIDI existants et relance la détection (OUT + IN)."""
-    global port_midi, midi_ok, port_midi_in
+    global port_midi, midi_ok, port_midi_in, zombie_ports
     
     # --- Fermeture propre des ports existants ---
+    # Sous Windows, fermer un port déconnecté (ou laisser le Garbage Collector le détruire)
+    # provoque un crash fatal en C++ (Segfault). On garde donc le port "vivant" dans une liste zombie.
     if port_midi:
-        try:
-            port_midi.close()
-        except Exception:
-            pass
+        zombie_ports.append(port_midi)
         port_midi = None
     if port_midi_in:
-        try:
-            port_midi_in.close()
-        except Exception:
-            pass
+        zombie_ports.append(port_midi_in)
         port_midi_in = None
     midi_ok = False
     
@@ -138,9 +137,9 @@ CONFIG_EFFETS = {
         "base_cc": 50,
         "bypass_cc": 88,
         "params": [
-            {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "--"},
             {"nom": "Gain", "min": 0, "max": 10, "unite": ""},
-            {"nom": "Mode", "min": 1, "max": 6, "unite": "mode", "steps": 5},
+            {"nom": "Mode", "min": 1, "max": 8, "unite": "mode", "steps": 7},
             {"nom": "Tone", "min": 500, "max": 2000, "unite": "Hz"},
             {"nom": "Intens", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Oversamp", "min": 0, "max": 1, "unite": "bool", "steps": 1},
@@ -238,7 +237,18 @@ def get_texte_label(param_info, val_midi):
 
     if param_info["unite"] == "mode":
         cran = int(round(val_reelle))
-        return f"{param_info['nom']}: Type {cran}"
+        noms_modes = {
+            1: "Hard Clip (Gain, Int)",
+            2: "Soft Clip (Gain)",
+            3: "Fuzz (Gain, Int)",
+            4: "Tube (Gain, Int)",
+            5: "Multi (Gain, Int)",
+            6: "Diode (Gain, Int)",
+            7: "Test (Gain)",
+            8: "Test OD (Intens)"
+        }
+        nom = noms_modes.get(cran, f"Type {cran}")
+        return f"{param_info['nom']}: {nom}"
 
     if param_info["unite"] == "bool":
         etat = "ON" if val_reelle >= 0.5 else "OFF"
@@ -595,6 +605,20 @@ for i in range(6):
                       command=lambda idx=i: Activation_mute(idx))
     l.grid(row=1, column=i, padx=5, pady=5)
     leds.append(l)
+
+def changer_zoom(val):
+    val_float = float(val)
+    ctk.set_widget_scaling(val_float)
+    ctk.set_window_scaling(val_float)
+    lbl_zoom.configure(text=f"Zoom: {int(val_float*100)}%")
+
+zoom_frame = ctk.CTkFrame(frame_nav, fg_color="transparent")
+zoom_frame.pack(pady=5)
+lbl_zoom = ctk.CTkLabel(zoom_frame, text="Zoom: 80%", font=("Arial", 12))
+lbl_zoom.pack(side="left", padx=5)
+slider_zoom = ctk.CTkSlider(zoom_frame, from_=0.5, to=1.5, number_of_steps=20, command=changer_zoom, width=150)
+slider_zoom.set(0.8)
+slider_zoom.pack(side="left", padx=5)
  
 label_info_corde = ctk.CTkLabel(frame_nav, text="", font=("Arial", 14, "bold"))
 label_info_corde.pack(pady=5)
@@ -766,15 +790,18 @@ def maj_cpu_monitor(avg, maxi):
 
 def ecouter_midi_entrant():
     """Scrute le port MIDI en entrée pour recevoir la charge CPU (CC 80 & 81)"""
-    global cpu_avg_value, cpu_max_value
+    global cpu_avg_value, cpu_max_value, port_midi_in, zombie_ports
     if port_midi_in:
-        for msg in port_midi_in.iter_pending():
-            if msg.type == 'control_change':
-                if msg.control == 80:
-                    cpu_avg_value = msg.value
-                elif msg.control == 81:
-                    cpu_max_value = msg.value
+        try:
+            for msg in port_midi_in.iter_pending():
+                if msg.type == 'control_change':
+                    if msg.control == 80:
+                        cpu_avg_value = msg.value
+                    elif msg.control == 81:
+                        cpu_max_value = msg.value
                 maj_cpu_monitor(cpu_avg_value, cpu_max_value)
+        except Exception:
+            pass
     win.after(50, ecouter_midi_entrant)
 
 # endregion
@@ -782,11 +809,11 @@ def ecouter_midi_entrant():
 maj_leds()
 envoyer_tout_midi()
 
-# Appliquer le visuel bypass au démarrage (tous les effets commencent bypassés)
+# Appliquer le visuel bypass au d?marrage (tous les effets commencent bypass?s)
 for nom_effet in CONFIG_EFFETS:
     appliquer_visuel_bypass(nom_effet)
 
-# Lancement de la boucle de scrutation MIDI en entrée
+# Lancement de la boucle de scrutation MIDI en entr?e
 win.after(50, ecouter_midi_entrant)
 
 win.mainloop()
