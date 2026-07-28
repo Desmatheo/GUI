@@ -2,6 +2,7 @@ import customtkinter as ctk
 import random
 import json
 import mido
+import time
  
 # region 1. Setup et configuration Multi-Effets
  
@@ -125,12 +126,13 @@ CONFIG_EFFETS = {
         "base_cc": 10,
         "bypass_cc": 48,
         "params": [
-            {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
-            {"nom": "DelayTime", "min": 20, "max": 1000, "unite": "ms"},
+            {"nom": "Type", "min": 0, "max": 1, "unite": "delay_type", "steps": 1},
+            {"nom": "Time", "min": 0, "max": 127, "unite": "time"},
+            {"nom": "Tap", "type": "button"},
+            {"nom": "Temps", "min": 1, "max": 8, "unite": "div", "steps": 7},
             {"nom": "FeedBack", "min": 0, "max": 100, "unite": "%"},
-            {"nom": "--"},
-            {"nom": "--"},
-            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
+            {"nom": "Mix", "min": 0, "max": 100, "unite": "%"}
         ]
     },
     "Distortion": {
@@ -193,6 +195,12 @@ memoire_effets = {
  
 # region 3. Fonctions, Evenements et Affichage Écran
  
+# Variables pour le Tap Tempo
+tap_history = []
+last_tap_time = 0
+TAP_TIMEOUT = 2.0  # 2 secondes max entre les clics
+MAX_TAPS = 4       # On garde les 4 derniers intervalles pour la moyenne
+
 frame_effets = {}          
 effect_title_labels = {}  
 slider_container_frames = {}
@@ -208,8 +216,11 @@ def map_valeur_reelle(val_midi, val_min, val_max):
     return val_min + pourcentage * (val_max - val_min)
  
 def get_texte_label(param_info, val_midi):
-    if param_info["nom"] == "--":
+    if param_info["nom"] == "--" or param_info.get("type") == "button":
         return ""
+    
+    if "min" not in param_info or "max" not in param_info:
+        return f"{param_info['nom']}: {val_midi}"
        
     val_reelle = map_valeur_reelle(val_midi, param_info["min"], param_info["max"])
    
@@ -260,6 +271,34 @@ def get_texte_label(param_info, val_midi):
     else:
         return f"{param_info['nom']}: {val_reelle:.1f} {param_info['unite']}"
  
+def maj_delay_dynamic_ui():
+    if "Delay" not in sliders or not sliders["Delay"]: return
+    corde_ref = 0 if corde_active == "ALL" else corde_active
+    valeurs = memoire_effets["Delay"][corde_ref]
+    
+    type_val = valeurs[0]
+    is_tempo = (type_val / 127.0) >= 0.5
+    
+    slider_labels["Delay"][0].configure(text=f"Type : {'Tempo' if is_tempo else 'Manual'}")
+    
+    val_1 = valeurs[1]
+    if is_tempo:
+        bpm = 40 + (val_1 / 127.0) * (240 - 40)
+        slider_labels["Delay"][1].configure(text=f"Tempo: {int(bpm)} bpm")
+        sliders["Delay"][2].configure(text="Tap Tempo")
+        slider_labels["Delay"][3].pack(anchor="w")
+        sliders["Delay"][3].pack(pady=2, anchor="w")
+        
+        val_3 = valeurs[3]
+        temps = 1 + (val_3 / 127.0) * (8 - 1)
+        slider_labels["Delay"][3].configure(text=f"Temps : {int(round(temps))}")
+    else:
+        ms = 50 + (val_1 / 127.0) * (4000 - 50)
+        slider_labels["Delay"][1].configure(text=f"Delay : {int(ms)} ms")
+        sliders["Delay"][2].configure(text="Tap Delay")
+        slider_labels["Delay"][3].pack_forget()
+        sliders["Delay"][3].pack_forget()
+
 def maj_sliders_visuels():
     texte_titre = f"CORDE ACTIVE : {noms_cordes[corde_active] if corde_active != 'ALL' else '[MODE ALL]'}"
     label_info_corde.configure(text=texte_titre, text_color="#0088FF" if corde_active == "ALL" else "white")
@@ -269,15 +308,84 @@ def maj_sliders_visuels():
         valeurs = memoire_effets[nom_effet][corde_ref]
        
         for i, v in enumerate(valeurs):
-            sliders[nom_effet][i].set(v)
             param_info = config["params"][i]
+            if param_info.get("type") == "button":
+                continue
+            sliders[nom_effet][i].set(v)
             if param_info["nom"] != "--":
-                texte = get_texte_label(param_info, v)
-                slider_labels[nom_effet][i].configure(text=texte)
+                if nom_effet == "Delay" and i in (0, 1, 3):
+                    pass
+                else:
+                    texte = get_texte_label(param_info, v)
+                    slider_labels[nom_effet][i].configure(text=texte)
         
         # Réappliquer le visuel bypass après la mise à jour des sliders
         appliquer_visuel_bypass(nom_effet)
+
+    if "Delay" in sliders:
+        maj_delay_dynamic_ui()
  
+def button_callback(nom_effet, index):
+    global tap_history, last_tap_time
+
+    # Gestion spécifique du Tap Tempo pour le Delay (index 2)
+    if nom_effet == "Delay" and index == 2:
+        current_time = time.time()
+        
+        # Si trop de temps s'est écoulé depuis le dernier clic, on réinitialise
+        if current_time - last_tap_time > TAP_TIMEOUT:
+            tap_history = []
+            
+        # Si c'est le 2ème clic (ou plus) dans le délai imparti
+        if last_tap_time > 0 and (current_time - last_tap_time) <= TAP_TIMEOUT:
+            delta = current_time - last_tap_time
+            tap_history.append(delta)
+            
+            if len(tap_history) > MAX_TAPS:
+                tap_history.pop(0)
+                
+            avg_delta = sum(tap_history) / len(tap_history)
+            
+            # Récupération du mode (Tempo ou Manual)
+            corde_ref = 0 if corde_active == "ALL" else corde_active
+            is_tempo = map_valeur_reelle(memoire_effets["Delay"][corde_ref][0], 0, 1) >= 0.5
+            
+            if is_tempo:
+                bpm = 60.0 / avg_delta
+                bpm = max(40, min(240, bpm))
+                val_midi = int(round((bpm - 40) / (240 - 40) * 127.0))
+            else:
+                ms = avg_delta * 1000.0
+                ms = max(50, min(4000, ms))
+                val_midi = int(round((ms - 50) / (4000 - 50) * 127.0))
+            
+            # Mise à jour du slider Tempo/Delay (index 1) et envoi MIDI
+            slider_idx = 1
+            sliders["Delay"][slider_idx].set(val_midi)
+            slider_callback(val_midi, "Delay", slider_idx)
+            
+        last_tap_time = current_time
+        return # Fin de l'exécution pour le Tap Tempo (pas d'envoi du CC du bouton)
+
+    # Pour d'éventuels autres boutons, on envoie juste 127
+    base_cc = CONFIG_EFFETS[nom_effet]["base_cc"]
+    cc_num = base_cc + index
+    if corde_active == "ALL":
+        for channel in range(6):
+            if midi_ok and port_midi:
+                try:
+                    msg = mido.Message('control_change', channel=channel, control=cc_num, value=127)
+                    port_midi.send(msg)
+                except Exception:
+                    pass
+    else:
+        if midi_ok and port_midi:
+            try:
+                msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=127)
+                port_midi.send(msg)
+            except Exception:
+                pass
+
 def slider_callback(valeur, nom_effet, index):
     v_int = int(float(valeur))
     param_info = CONFIG_EFFETS[nom_effet]["params"][index]
@@ -302,8 +410,11 @@ def slider_callback(valeur, nom_effet, index):
             except Exception:
                 pass # Ignore l'erreur si le tampon USB est plein
            
-    texte = get_texte_label(param_info, v_int)
-    slider_labels[nom_effet][index].configure(text=texte)
+    if nom_effet == "Delay" and index in (0, 1, 3):
+        maj_delay_dynamic_ui()
+    else:
+        texte = get_texte_label(param_info, v_int)
+        slider_labels[nom_effet][index].configure(text=texte)
  
 def appliquer_visuel_bypass(nom_effet):
     """Met à jour l'apparence visuelle d'un effet selon son état de bypass pour la corde active."""
@@ -325,8 +436,12 @@ def appliquer_visuel_bypass(nom_effet):
     for lbl in slider_labels[nom_effet]:
         lbl.configure(text_color=couleur_text)
 
-    for slider in sliders[nom_effet]:
-        slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
+    for idx, slider in enumerate(sliders[nom_effet]):
+        param_info = CONFIG_EFFETS[nom_effet]["params"][idx]
+        if param_info.get("type") == "button":
+            slider.configure(state=etat_ui, fg_color=c_bypassed_slider if est_bypasse else c_active_slider)
+        else:
+            slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
        
     if nom_effet in bypass_buttons:
         bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
@@ -350,7 +465,8 @@ def envoyer_tout_midi():
             base_cc = config["base_cc"]
             valeurs = memoire_effets[nom_effet][channel]
             for index, v in enumerate(valeurs):
-                if config["params"][index]["nom"] != "--":
+                param_info = config["params"][index]
+                if param_info["nom"] != "--" and param_info.get("type") != "button":
                     cc_num = base_cc + index
                     try:
                         msg = mido.Message('control_change', channel=channel, control=cc_num, value=int(v))
@@ -378,6 +494,8 @@ def toggle_bypass_effet(nom_effet):
                 # Si on active l'effet (bypass = False), on renvoie tous les paramètres
                 if not target_state:
                     for index, p_val in enumerate(memoire_effets[nom_effet][corde]):
+                        if CONFIG_EFFETS[nom_effet]["params"][index].get("type") == "button":
+                            continue
                         cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
                         try:
                             port_midi.send(mido.Message('control_change', channel=corde, control=cc_num, value=p_val))
@@ -399,6 +517,8 @@ def toggle_bypass_effet(nom_effet):
             # Si on active l'effet (bypass = False), on renvoie tous les paramètres
             if not bypass_effets[nom_effet][corde_active]:
                 for index, p_val in enumerate(memoire_effets[nom_effet][corde_active]):
+                    if CONFIG_EFFETS[nom_effet]["params"][index].get("type") == "button":
+                        continue
                     cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
                     try:
                         port_midi.send(mido.Message('control_change', channel=corde_active, control=cc_num, value=p_val))
@@ -475,6 +595,8 @@ def Activation_mute(index):
             for nom_effet, config in CONFIG_EFFETS.items():
                 if not bypass_effets[nom_effet][index]:
                     for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
+                        if config["params"][idx].get("type") == "button":
+                            continue
                         cc_num = config["base_cc"] + idx
                         try:
                             port_midi.send(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
@@ -536,13 +658,21 @@ def selectionner_corde(index):
     for nom_effet, sliders_effet in sliders.items():
         valeurs = memoire_effets[nom_effet][corde_active] if corde_active != "ALL" else memoire_effets[nom_effet][0]
         for idx, slider in enumerate(sliders_effet):
+            param_info = CONFIG_EFFETS[nom_effet]["params"][idx]
+            if param_info.get("type") == "button":
+                continue
             slider.configure(command=lambda v: None)
             slider.set(valeurs[idx])
-            param_info = CONFIG_EFFETS[nom_effet]["params"][idx]
             if param_info["nom"] != "--":
-                texte = get_texte_label(param_info, valeurs[idx])
-                slider_labels[nom_effet][idx].configure(text=texte)
+                if nom_effet == "Delay" and idx in (0, 1, 3):
+                    pass
+                else:
+                    texte = get_texte_label(param_info, valeurs[idx])
+                    slider_labels[nom_effet][idx].configure(text=texte)
             slider.configure(command=lambda v, ne=nom_effet, i=idx: slider_callback(v, ne, i))
+
+    if "Delay" in sliders:
+        maj_delay_dynamic_ui()
  
 def toggle_mode_all():
     global corde_active, corde_precedente
@@ -657,6 +787,18 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
         cellule.grid(row=j, column=0, padx=5, pady=4, sticky="w")
        
         lbl = ctk.CTkLabel(cellule, text=f"{param_info['nom']}: --", font=("Arial", 12))
+        
+        if param_info.get("type") == "button":
+            lbl.configure(text="")
+            lbl.pack(anchor="w")
+            slider_labels[nom_effet].append(lbl)
+            
+            btn = ctk.CTkButton(cellule, text=param_info["nom"], width=180,
+                                command=lambda ne=nom_effet, idx=j: button_callback(ne, idx))
+            btn.pack(pady=2, anchor="w")
+            sliders[nom_effet].append(btn)
+            continue
+
         lbl.pack(anchor="w")
         slider_labels[nom_effet].append(lbl)
        
