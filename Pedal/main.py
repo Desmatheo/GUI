@@ -178,10 +178,6 @@ corde_precedente = 0
 noms_cordes = ["Mi (E2)", "La (A2)", "Ré (D3)", "Sol (G3)", "Si (B3)", "Mi (E4)"]
  
 bypass_global = False
-bypass_effets = {
-    nom_effet: {corde: True for corde in range(6)}
-    for nom_effet in CONFIG_EFFETS.keys()
-}
 cordes_mute = [False] * 6
  
 memoire_effets = {
@@ -189,6 +185,10 @@ memoire_effets = {
     for nom_effet in CONFIG_EFFETS.keys()
 }
  
+chainage_slots = [[0, 0, 0] for _ in range(6)]
+EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4}
+EFFETS_LIST = list(EFFETS_MAP.keys())
+
 # endregion
  
 # region 3. Fonctions, Evenements et Affichage Écran
@@ -198,7 +198,6 @@ effect_title_labels = {}
 slider_container_frames = {}
 sliders = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
 slider_labels = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
-bypass_buttons = {}
 leds = []
 string_buttons = []
 btn_all = None  
@@ -287,28 +286,23 @@ def slider_callback(valeur, nom_effet, index):
     if corde_active == "ALL":
         for channel in range(6):
             memoire_effets[nom_effet][channel][index] = v_int
-            if midi_ok and port_midi:
-                try:
-                    msg = mido.Message('control_change', channel=channel, control=cc_num, value=v_int)
-                    port_midi.send(msg)
-                except Exception:
-                    pass # Ignore l'erreur si le tampon USB est plein
+            msg = mido.Message('control_change', channel=channel, control=cc_num, value=v_int)
+            send_midi_message(msg)
     else:
         memoire_effets[nom_effet][corde_active][index] = v_int
-        if midi_ok and port_midi:
-            try:
-                msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=v_int)
-                port_midi.send(msg)
-            except Exception:
-                pass # Ignore l'erreur si le tampon USB est plein
+        msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=v_int)
+        send_midi_message(msg)
            
     texte = get_texte_label(param_info, v_int)
     slider_labels[nom_effet][index].configure(text=texte)
  
 def appliquer_visuel_bypass(nom_effet):
-    """Met à jour l'apparence visuelle d'un effet selon son état de bypass pour la corde active."""
+    """Met à jour l'apparence visuelle d'un effet selon sa présence dans la chaîne de la corde active."""
     corde_ref = 0 if corde_active == "ALL" else corde_active
-    est_bypasse = bypass_effets[nom_effet][corde_ref]
+    val_int_effet = EFFETS_MAP.get(nom_effet, -1)
+    
+    # Bypassed if the effect is NOT in the chain for the active string
+    est_bypasse = val_int_effet not in chainage_slots[corde_ref]
     
     c_active_frame, c_bypassed_frame = "#2A2A2A", "#1A1A1A"
     c_active_text, c_bypassed_text = "white", "#AAAAAA"
@@ -327,99 +321,62 @@ def appliquer_visuel_bypass(nom_effet):
 
     for slider in sliders[nom_effet]:
         slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
-       
-    if nom_effet in bypass_buttons:
-        bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
- 
+
+def log_midi_message(msg):
+    try:
+        if not show_midi_log.get():
+            return
+        
+        if msg.type == 'control_change':
+            texte = f"[OUT] CH:{msg.channel:2d} | CC:{msg.control:3d} | VAL:{msg.value:3d}"
+        else:
+            texte = f"[OUT] {msg}"
+            
+        textbox_midi_log.insert("end", texte + "\n")
+        textbox_midi_log.see("end")
+        
+        lines = int(textbox_midi_log.index('end-1c').split('.')[0])
+        if lines > 100:
+            textbox_midi_log.delete("1.0", "2.0")
+    except NameError:
+        pass
+
+def send_midi_message(msg):
+    if midi_ok and port_midi:
+        try:
+            port_midi.send(msg)
+            log_midi_message(msg)
+        except Exception:
+            pass
+
 def envoyer_tout_midi():
     if not midi_ok or not port_midi:
         return
     for channel in range(6):
-        # Séparer les effets inactifs (Mix == 0) et actifs (Mix > 0)
-        effets_inactifs = []
-        effets_actifs = []
+        # Envoyer les effets (les paramètres)
         for nom_effet, config in CONFIG_EFFETS.items():
-            if memoire_effets[nom_effet][channel][0] > 0:
-                effets_actifs.append((nom_effet, config))
-            else:
-                effets_inactifs.append((nom_effet, config))
-                
-        # Envoyer d'abord les inactifs, PUIS les actifs pour que le dernier envoyé 
-        # (et donc celui qui reste actif dans la Daisy) soit celui qui a du Mix.
-        for nom_effet, config in effets_inactifs + effets_actifs:
             base_cc = config["base_cc"]
             valeurs = memoire_effets[nom_effet][channel]
             for index, v in enumerate(valeurs):
                 if config["params"][index]["nom"] != "--":
                     cc_num = base_cc + index
-                    try:
-                        msg = mido.Message('control_change', channel=channel, control=cc_num, value=int(v))
-                        port_midi.send(msg)
-                    except:
-                        pass
+                    send_midi_message(mido.Message('control_change', channel=channel, control=cc_num, value=int(v)))
+        # Envoyer le chaînage de la corde
+        envoyer_chainage_midi(channel)
 
-
-def toggle_bypass_effet(nom_effet):
-    """Active ou désactive le Bypass pour un effet sur la corde active"""
-    if corde_active == "ALL":
-        # On inverse par rapport à la corde 0
-        target_state = not bypass_effets[nom_effet][0]
-        for corde in range(6):
-            bypass_effets[nom_effet][corde] = target_state
-            if midi_ok and port_midi:
-                val = 127 if target_state else 0
-                if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-                    msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                    try:
-                        port_midi.send(msg)
-                    except Exception:
-                        pass
-                
-                # Si on active l'effet (bypass = False), on renvoie tous les paramètres
-                if not target_state:
-                    for index, p_val in enumerate(memoire_effets[nom_effet][corde]):
-                        cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
-                        try:
-                            port_midi.send(mido.Message('control_change', channel=corde, control=cc_num, value=p_val))
-                        except Exception:
-                            pass
-
-    else:
-        # Toggle sur la corde active uniquement
-        bypass_effets[nom_effet][corde_active] = not bypass_effets[nom_effet][corde_active]
-        if midi_ok and port_midi:
-            val = 127 if bypass_effets[nom_effet][corde_active] else 0
-            if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-                msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                try:
-                    port_midi.send(msg)
-                except Exception:
-                    pass
-
-            # Si on active l'effet (bypass = False), on renvoie tous les paramètres
-            if not bypass_effets[nom_effet][corde_active]:
-                for index, p_val in enumerate(memoire_effets[nom_effet][corde_active]):
-                    cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
-                    try:
-                        port_midi.send(mido.Message('control_change', channel=corde_active, control=cc_num, value=p_val))
-                    except Exception:
-                        pass
-   
-    appliquer_visuel_bypass(nom_effet)
- 
 def Sauvegarder_preset(nom):
-    """Sauvegarde le preset courant (réglages + bypass)"""
+    """Sauvegarde le preset courant (réglages + chaînage)"""
     data_save = {
         "preset": nom,
         "reglages_effets": memoire_effets,
-        "bypass_effets": bypass_effets
+        "chainage_slots": chainage_slots
     }
     with open(f"preset_{nom}.json", "w") as f:
         json.dump(data_save, f, indent=4)
     print(f"✓ Preset '{nom}' sauvegardé")
 
 def Charger_preset(nom):
-    global memoire_effets, bypass_effets
+    global memoire_effets, chainage_slots
     try:
         with open(f"preset_{nom}.json", "r") as f:
             data = json.load(f)
@@ -431,91 +388,68 @@ def Charger_preset(nom):
                             valeurs.extend([64] * (expected_len - len(valeurs)))
                         memoire_effets[eff][int(corde_str)] = valeurs
             
-            # Chargement des états de bypass
-            if "bypass_effets" in data:
-                for eff, bypass_data in data["bypass_effets"].items():
-                    if eff in bypass_effets:
-                        # Si l'ancien format était un simple booléen
-                        if isinstance(bypass_data, bool):
-                            for corde in range(6):
-                                bypass_effets[eff][corde] = bypass_data
-                        else:
-                            # Nouveau format (dictionnaire de cordes)
-                            for corde_str, etat in bypass_data.items():
-                                bypass_effets[eff][int(corde_str)] = etat
+            # Chargement des états de chaînage
+            if "chainage_slots" in data:
+                chainage_slots = data["chainage_slots"]
             
-            # Réappliquer les bypass en MIDI + Visuel pour toutes les cordes
+            # Réappliquer les visuels bypass
             for eff in CONFIG_EFFETS.keys():
-                for corde in range(6):
-                    if midi_ok and port_midi and "bypass_cc" in CONFIG_EFFETS[eff]:
-                        val = 127 if bypass_effets[eff][corde] else 0
-                        msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[eff]["bypass_cc"], value=val)
-                        try:
-                            port_midi.send(msg)
-                        except Exception:
-                            pass
                 appliquer_visuel_bypass(eff)
+                
     except Exception as e:
         print(f"Erreur preset : {e}")
+    maj_ui_chainage()
     maj_sliders_visuels()
     envoyer_tout_midi()
  
 def Activation_mute(index):
     cordes_mute[index] = not cordes_mute[index]
-    if midi_ok and port_midi:
-        val = 127 if cordes_mute[index] else 0
-        msg = mido.Message('control_change', control=index, value=val)
-        try:
-            port_midi.send(msg)
-        except Exception:
-            pass
+    val = 127 if cordes_mute[index] else 0
+    send_midi_message(mido.Message('control_change', control=index, value=val))
         
-        # Si on unmute la corde (mute == False), on renvoie tous ses paramètres
-        if not cordes_mute[index]:
-            for nom_effet, config in CONFIG_EFFETS.items():
-                if not bypass_effets[nom_effet][index]:
-                    for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
-                        cc_num = config["base_cc"] + idx
-                        try:
-                            port_midi.send(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
-                        except Exception:
-                            pass
+    # Si on unmute la corde (mute == False), on renvoie tous ses paramètres
+    if not cordes_mute[index]:
+        for nom_effet, config in CONFIG_EFFETS.items():
+            # L'effet est envoyé s'il est dans la chaine
+            val_int = EFFETS_MAP.get(nom_effet, -1)
+            if val_int in chainage_slots[index]:
+                for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
+                    cc_num = config["base_cc"] + idx
+                    send_midi_message(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
+        envoyer_chainage_midi(index)
 
     maj_leds()
  
 def Activation_bypass():
     global bypass_global
     bypass_global = not bypass_global
-    if midi_ok and port_midi:
-        val = 127 if bypass_global else 0
-        msg = mido.Message('control_change', control=126, value=val)
-        try:
-            port_midi.send(msg)
-        except Exception:
-            pass
+    val = 127 if bypass_global else 0
+    send_midi_message(mido.Message('control_change', control=126, value=val))
         
-        # Si on désactive le bypass global (bypass = False), on renvoie tout
-        if not bypass_global:
-            envoyer_tout_midi()
+    # Si on désactive le bypass global (bypass = False), on renvoie tout
+    if not bypass_global:
+        envoyer_tout_midi()
 
     btn_bypass.configure(fg_color="#A12222" if bypass_global else "#555555")
 
 def Reset_All():
-    """Remet tous les paramètres à 0, active le bypass de tous les effets et unmute toutes les cordes"""
+    """Remet tous les paramètres à 0, et unmute toutes les cordes"""
     for nom_effet in CONFIG_EFFETS.keys():
         for corde in range(6):
-            bypass_effets[nom_effet][corde] = True
             for idx in range(len(CONFIG_EFFETS[nom_effet]["params"])):
                 memoire_effets[nom_effet][corde][idx] = 0
                 
+    # Reset Chainage
+    for corde in range(6):
+        chainage_slots[corde] = [0, 0, 0]
+        send_midi_message(mido.Message('control_change', channel=corde, control=20, value=0))
+        send_midi_message(mido.Message('control_change', channel=corde, control=21, value=0))
+        send_midi_message(mido.Message('control_change', channel=corde, control=22, value=0))
+
     # Unmute all strings
     for corde in range(6):
         cordes_mute[corde] = False
-        if midi_ok and port_midi:
-            try:
-                port_midi.send(mido.Message('control_change', control=corde, value=0))
-            except Exception:
-                pass
+        send_midi_message(mido.Message('control_change', control=corde, value=0))
             
     # Refresh GUI
     maj_leds()
@@ -531,6 +465,7 @@ def selectionner_corde(index):
     corde_active = index
     corde_precedente = index
     maj_leds()
+    maj_ui_chainage()
     
     # Mettre à jour les sliders pour correspondre à la corde sélectionnée
     for nom_effet, sliders_effet in sliders.items():
@@ -551,6 +486,7 @@ def toggle_mode_all():
     else:
         corde_active = "ALL"
     maj_leds()
+    maj_ui_chainage()
  
 def maj_leds():
     for i, led in enumerate(leds):
@@ -575,6 +511,33 @@ def maj_leds():
            
     maj_sliders_visuels()
  
+def envoyer_chainage_midi(corde):
+    send_midi_message(mido.Message('control_change', channel=corde, control=20, value=chainage_slots[corde][0]))
+    send_midi_message(mido.Message('control_change', channel=corde, control=21, value=chainage_slots[corde][1]))
+    send_midi_message(mido.Message('control_change', channel=corde, control=22, value=chainage_slots[corde][2]))
+        
+def on_slot_change(slot_idx, value):
+    val_int = EFFETS_MAP[value]
+    if corde_active == "ALL":
+        for c in range(6):
+            chainage_slots[c][slot_idx] = val_int
+            envoyer_chainage_midi(c)
+    else:
+        chainage_slots[corde_active][slot_idx] = val_int
+        envoyer_chainage_midi(corde_active)
+    
+    # Mettre à jour l'apparence grisée/normale
+    maj_sliders_visuels()
+
+def maj_ui_chainage():
+    try:
+        corde_ref = 0 if corde_active == "ALL" else corde_active
+        menu_slot1.set(EFFETS_LIST[chainage_slots[corde_ref][0]])
+        menu_slot2.set(EFFETS_LIST[chainage_slots[corde_ref][1]])
+        menu_slot3.set(EFFETS_LIST[chainage_slots[corde_ref][2]])
+    except NameError:
+        pass # Handle case before UI components are created
+
 # endregion
  
 # region 4. Ecran, Navigation et Menu Effets
@@ -625,10 +588,33 @@ label_info_corde.pack(pady=5)
  
 # endregion
  
+# region 4.5. Chaînage (Testation Mode)
+
+frame_chainage = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
+frame_chainage.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+
+lbl_chain_title = ctk.CTkLabel(frame_chainage, text="🔗 CHAÎNAGE DES EFFETS (Mode Superposé)", font=("Arial", 14, "bold"))
+lbl_chain_title.grid(row=0, column=0, columnspan=6, pady=(10, 5))
+
+ctk.CTkLabel(frame_chainage, text="Slot 1 :", font=("Arial", 12)).grid(row=1, column=0, padx=(20,5), pady=10)
+menu_slot1 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(0, v))
+menu_slot1.grid(row=1, column=1, padx=5, pady=10)
+
+ctk.CTkLabel(frame_chainage, text="Slot 2 :", font=("Arial", 12)).grid(row=1, column=2, padx=(20,5), pady=10)
+menu_slot2 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(1, v))
+menu_slot2.grid(row=1, column=3, padx=5, pady=10)
+
+ctk.CTkLabel(frame_chainage, text="Slot 3 :", font=("Arial", 12)).grid(row=1, column=4, padx=(20,5), pady=10)
+menu_slot3 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(2, v))
+menu_slot3.grid(row=1, column=5, padx=(5, 20), pady=10)
+
+# Call it once to init state
+maj_ui_chainage()
+
 # region 5. Grille des effets et potentiomètres
  
 frame_effets_container = ctk.CTkFrame(center_container, fg_color="transparent")
-frame_effets_container.grid(row=1, column=0, padx=10, pady=5)
+frame_effets_container.grid(row=2, column=0, padx=10, pady=5)
  
 for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
     frame_effet = ctk.CTkFrame(frame_effets_container, border_width=2)
@@ -642,11 +628,7 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
     lbl_titre.pack(side="left", expand=True)
     effect_title_labels[nom_effet] = lbl_titre
    
-    if "bypass_cc" in config:
-        btn_bypass_effet = ctk.CTkButton(frame_titre, text="Bypass", width=70, fg_color="#555555",
-                                         command=lambda n=nom_effet: toggle_bypass_effet(n))
-        btn_bypass_effet.pack(side="left", padx=5)
-        bypass_buttons[nom_effet] = btn_bypass_effet
+    # Le bouton Bypass individuel a été retiré, le chaînage (Mode Superposé) fait état de ce qui sort.
  
     frame_potards_effet = ctk.CTkFrame(frame_effet, fg_color="transparent")
     frame_potards_effet.pack(pady=5, padx=10)
@@ -684,7 +666,7 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
 # region 6. Footswitches et Presets
  
 frame_sw = ctk.CTkFrame(center_container, fg_color="transparent")
-frame_sw.grid(row=2, column=0, columnspan=2, pady=15, sticky="ew")
+frame_sw.grid(row=3, column=0, columnspan=2, pady=15, sticky="ew")
  
 btn_bypass = ctk.CTkButton(frame_sw, text="BYPASS", fg_color="#555555", width=160, height=70, corner_radius=35, command=Activation_bypass)
 btn_bypass.pack(side="left", padx=20, expand=True)
@@ -703,7 +685,7 @@ cpu_avg_value = 0
 cpu_max_value = 0
 
 frame_cpu = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
-frame_cpu.grid(row=3, column=0, padx=10, pady=(5, 15), sticky="ew")
+frame_cpu.grid(row=4, column=0, padx=10, pady=(5, 15), sticky="ew")
 
 # Titre du panneau + bouton rescan
 frame_cpu_header = ctk.CTkFrame(frame_cpu, fg_color="transparent")
@@ -804,6 +786,25 @@ def ecouter_midi_entrant():
             pass
     win.after(50, ecouter_midi_entrant)
 
+# endregion
+
+# region 8. Console MIDI
+frame_midi_log = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
+frame_midi_log.grid(row=5, column=0, padx=10, pady=(5, 15), sticky="ew")
+
+frame_midi_header = ctk.CTkFrame(frame_midi_log, fg_color="transparent")
+frame_midi_header.pack(fill="x", padx=10, pady=(8, 4))
+
+midi_log_title = ctk.CTkLabel(frame_midi_header, text="🎹 LOG MIDI (OUT)", font=("Arial", 14, "bold"))
+midi_log_title.pack(side="left")
+
+show_midi_log = ctk.BooleanVar(value=False)
+chk_midi_log = ctk.CTkSwitch(frame_midi_header, text="Afficher Log", variable=show_midi_log)
+chk_midi_log.pack(side="right")
+
+textbox_midi_log = ctk.CTkTextbox(frame_midi_log, height=120, font=("Courier", 12))
+textbox_midi_log.pack(fill="x", padx=10, pady=(0, 10))
+textbox_midi_log.insert("end", "En attente de messages MIDI...\n")
 # endregion
  
 maj_leds()
