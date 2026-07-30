@@ -462,6 +462,22 @@ def appliquer_visuel_bypass(nom_effet):
     if nom_effet in bypass_buttons:
         bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
  
+def envoyer_bypass_initial():
+    """Envoie uniquement les messages de bypass (valeur 127 = bypassé) au démarrage pour ne pas surcharger la Teensy."""
+    if not midi_ok or not port_midi:
+        return
+    for nom_effet, config in CONFIG_EFFETS.items():
+        if "bypass_cc" in config:
+            for channel in range(6):
+                try:
+                    val = 127 if bypass_effets[nom_effet][channel] else 0
+                    msg = mido.Message('control_change', channel=channel, control=config["bypass_cc"], value=val)
+                    port_midi.send(msg)
+                    # Pause microscopique pour éviter de saturer le buffer USB
+                    time.sleep(0.002) 
+                except Exception:
+                    pass
+
 def envoyer_tout_midi():
     if not midi_ok or not port_midi:
         return
@@ -941,9 +957,72 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
             s.pack_forget()
  
 # --- Panneau Presets Factory (à droite des effets) ---
-frame_presets_panel = ctk.CTkFrame(frame_effets_container, border_width=2, width=180)
+frame_presets_panel = ctk.CTkFrame(frame_effets_container, border_width=2, width=200)
 frame_presets_panel.grid(row=0, column=len(CONFIG_EFFETS), padx=15, pady=5, sticky="nsew")
-frame_presets_panel.grid_propagate(False)
+
+def mettre_a_jour_dropdowns():
+    global noms_presets_factory
+    noms_presets_factory = ["---"] + [p["name"] for p in presets_factory]
+    for dp in preset_dropdowns_cordes:
+        dp.configure(values=noms_presets_factory)
+        if dp.get().replace("*", "") not in noms_presets_factory:
+            dp.set("---")
+    preset_dropdown_global.configure(values=noms_presets_factory)
+    if preset_dropdown_global.get().replace("*", "") not in noms_presets_factory:
+        preset_dropdown_global.set("---")
+    dropdown_supprimer.configure(values=[p["name"] for p in presets_factory] if presets_factory else ["---"])
+    if dropdown_supprimer.get() not in [p["name"] for p in presets_factory]:
+        dropdown_supprimer.set("---" if not presets_factory else presets_factory[0]["name"])
+
+def sauvegarder_preset_json():
+    nom = entry_nom_preset.get().strip()
+    if not nom or nom == "---":
+        return
+    
+    global presets_factory
+    preset_existant = next((p for p in presets_factory if p["name"] == nom), None)
+    if preset_existant:
+        presets_factory.remove(preset_existant)
+        
+    nouveau_preset = {"name": nom, "effects": {}}
+    corde_src = 0 if corde_active == "ALL" else corde_active
+    
+    for nom_effet, config in CONFIG_EFFETS.items():
+        if not bypass_effets[nom_effet][corde_src]:
+            params = list(memoire_effets[nom_effet][corde_src])
+            nouveau_preset["effects"][nom_effet] = {
+                "bypass": False,
+                "params": params
+            }
+            
+    presets_factory.append(nouveau_preset)
+    
+    try:
+        chemin_presets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_factory.json")
+        with open(chemin_presets, "w") as f:
+            json.dump({"presets": presets_factory}, f, indent=4)
+        print(f"✓ Preset '{nom}' sauvegardé.")
+        entry_nom_preset.delete(0, 'end')
+        mettre_a_jour_dropdowns()
+    except Exception as e:
+        print(f"⚠ Erreur de sauvegarde : {e}")
+
+def supprimer_preset_json():
+    nom = dropdown_supprimer.get()
+    if not nom or nom == "---":
+        return
+        
+    global presets_factory
+    presets_factory = [p for p in presets_factory if p["name"] != nom]
+    
+    try:
+        chemin_presets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_factory.json")
+        with open(chemin_presets, "w") as f:
+            json.dump({"presets": presets_factory}, f, indent=4)
+        print(f"✓ Preset '{nom}' supprimé.")
+        mettre_a_jour_dropdowns()
+    except Exception as e:
+        print(f"⚠ Erreur de suppression : {e}")
 
 lbl_presets_titre = ctk.CTkLabel(frame_presets_panel, text="Presets", font=("Arial", 16, "bold"))
 lbl_presets_titre.pack(pady=(10, 5))
@@ -986,7 +1065,35 @@ preset_dropdown_global = ctk.CTkOptionMenu(
     command=lambda val: appliquer_preset_factory(val, "ALL")
 )
 preset_dropdown_global.set("---")
-preset_dropdown_global.pack(padx=10, pady=(0, 10))
+preset_dropdown_global.pack(padx=10, pady=(0, 5))
+
+# Séparateur visuel
+separateur2 = ctk.CTkFrame(frame_presets_panel, height=2, fg_color="#555555")
+separateur2.pack(fill="x", padx=10, pady=(5, 5))
+
+lbl_edit = ctk.CTkLabel(frame_presets_panel, text="Édition", font=("Arial", 12, "bold"))
+lbl_edit.pack(pady=(2, 2))
+
+# Ligne Création
+frame_add = ctk.CTkFrame(frame_presets_panel, fg_color="transparent")
+frame_add.pack(fill="x", padx=10, pady=2)
+entry_nom_preset = ctk.CTkEntry(frame_add, width=105, font=("Arial", 11), placeholder_text="Nom...")
+entry_nom_preset.pack(side="left", padx=(0, 5), fill="y")
+btn_add_preset = ctk.CTkButton(frame_add, text="+", width=28, command=sauvegarder_preset_json)
+btn_add_preset.pack(side="left", fill="y")
+
+# Ligne Suppression
+frame_del = ctk.CTkFrame(frame_presets_panel, fg_color="transparent")
+frame_del.pack(fill="x", padx=10, pady=(2, 10))
+dropdown_supprimer = ctk.CTkOptionMenu(
+    frame_del,
+    values=[p["name"] for p in presets_factory] if presets_factory else ["---"],
+    width=105,
+    font=("Arial", 11)
+)
+dropdown_supprimer.pack(side="left", padx=(0, 5), fill="y")
+btn_del_preset = ctk.CTkButton(frame_del, text="-", width=28, fg_color="#A12222", hover_color="#7A1A1A", command=supprimer_preset_json)
+btn_del_preset.pack(side="left", fill="y")
 
 # endregion
  
@@ -1116,7 +1223,7 @@ def ecouter_midi_entrant():
 # endregion
  
 maj_leds()
-envoyer_tout_midi()
+envoyer_bypass_initial()
 
 # Appliquer le visuel bypass au d?marrage (tous les effets commencent bypass?s)
 for nom_effet in CONFIG_EFFETS:
