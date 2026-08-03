@@ -1,0 +1,50 @@
+{
+    "presets": [
+        {
+            "name": "Dotted 8th delay",
+            "effects": {
+                "Delay": {
+                    "bypass": false,
+                    "params": [
+                        0,
+                        100,
+                        0,
+                        64,
+                        89,
+                        127,
+                        64
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Test",
+            "effects": {
+                "Delay": {
+                    "bypass": false,
+                    "params": [
+                        0,
+                        64,
+                        0,
+                        64,
+                        64,
+                        64,
+                        64
+                    ]
+                },
+                "Distortion": {
+                    "bypass": false,
+                    "params": [
+                        0,
+                        56,
+                        64,
+                        60,
+                        127,
+                        0,
+                        85
+                    ]
+                }
+            }
+        }
+    ]
+}

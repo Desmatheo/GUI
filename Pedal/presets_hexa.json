@@ -1,0 +1,120 @@
+{
+    "presets": [
+        {
+            "name": "Fuzz Wall",
+            "strings_data": {
+                "0": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "1": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "3": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "4": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "5": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                }
+            }
+        },
+        {
+            "name": "Dreamscape",
+            "strings_data": {
+                "0": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "1": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "3": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "4": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "5": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                }
+            }
+        },
+        {
+            "name": "Bass & Lead (Split)",
+            "strings_data": {
+                "0": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "1": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "Lead Solo"
+                },
+                "3": {
+                    "type": "ref",
+                    "preset_name": "Lead Solo"
+                },
+                "4": {
+                    "type": "ref",
+                    "preset_name": "Lead Solo"
+                },
+                "5": {
+                    "type": "ref",
+                    "preset_name": "Lead Solo"
+                }
+            }
+        },
+        {
+            "name": "testhexa1",
+            "strings_data": {
+                "0": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "1": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "Ambiance Clean"
+                },
+                "3": {
+                    "type": "ref",
+                    "preset_name": "Lead Solo"
+                },
+                "4": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                },
+                "5": {
+                    "type": "ref",
+                    "preset_name": "Disto Doom"
+                }
+            }
+        }
+    ]
+}
