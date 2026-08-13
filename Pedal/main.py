@@ -4,6 +4,7 @@ import json
 import os
 import mido
 import time
+import datetime
  
 # region 1. Setup et configuration Multi-Effets
  
@@ -12,25 +13,35 @@ ctk.set_default_color_theme("blue")
  
 win = ctk.CTk()
 win.title("Pédale Hexa - Contrôleur MIDI (Teensy/Daisy)")
-win.geometry("1300x900")
+win.geometry("1500x1000")
  
 # --- CONSTANTES DE CONFIGURATION ---
 USE_LOOPMIDI = False  
 NOM_PORT_BOUCLE = 'loopMIDI Port 1'
 # -----------------------------------
 
-# --- Chargement des presets factory ---
-presets_factory = []
+# --- Chargement des presets (Cordes et Hexa) ---
+presets_corde = []
+presets_hexa = []
 try:
-    chemin_presets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_factory.json")
-    with open(chemin_presets, "r") as f:
-        data_presets = json.load(f)
-        presets_factory = data_presets.get("presets", [])
-    print(f"✓ {len(presets_factory)} presets factory chargés")
+    chemin_corde = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_corde.json")
+    if not os.path.exists(chemin_corde):
+        with open(chemin_corde, "w") as f: json.dump({"presets": []}, f)
+    with open(chemin_corde, "r") as f:
+        presets_corde = json.load(f).get("presets", [])
+        
+    chemin_hexa = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_hexa.json")
+    if not os.path.exists(chemin_hexa):
+        with open(chemin_hexa, "w") as f: json.dump({"presets": []}, f)
+    with open(chemin_hexa, "r") as f:
+        presets_hexa = json.load(f).get("presets", [])
+        
+    print(f"OK {len(presets_corde)} presets corde et {len(presets_hexa)} presets hexa chargés")
 except Exception as e:
-    print(f"⚠ Impossible de charger presets_factory.json : {e}")
+    print(f"WARN Impossible de charger les presets : {e}")
 
-noms_presets_factory = ["---"] + [p["name"] for p in presets_factory]
+noms_presets_corde = ["---"] + [p["name"] for p in presets_corde]
+noms_presets_hexa = ["---"] + [p["name"] for p in presets_hexa]
 # --------------------------------------
  
 # region MIDI Setup
@@ -63,12 +74,12 @@ def get_midi_in_port(search_term):
         target = next((p for p in ports if search_term.lower() in p.lower()), None)
         if target:
             p = mido.open_input(target)
-            print(f"✓ Port MIDI IN ouvert : {target}")
+            print(f"OK Port MIDI IN ouvert : {target}")
             return p
         else:
             return None
     except Exception as e:
-        print(f"⚠ Erreur ouverture port MIDI IN : {e}")
+        print(f"WARN Erreur ouverture port MIDI IN : {e}")
         return None
  
 # --- Liste pour stocker les ports morts et empêcher le Garbage Collector de les fermer ---
@@ -109,16 +120,16 @@ def rescanner_midi():
     if not port_midi_in:
         port_midi_in = get_midi_in_port("usb")
     if not port_midi_in:
-        print("⚠ Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
+        print("WARN Pas de port MIDI en entrée trouvé (le moniteur CPU sera inactif).")
     
     # --- Feedback visuel (si le panneau CPU existe déjà) ---
     try:
         if midi_ok and port_midi_in:
-            lbl_cpu_status.configure(text="✓ MIDI reconnecté !", text_color="#22C55E")
+            lbl_cpu_status.configure(text="OK MIDI reconnecté !", text_color="#22C55E")
         elif midi_ok:
-            lbl_cpu_status.configure(text="✓ MIDI OUT ok — IN absent", text_color="#F59E0B")
+            lbl_cpu_status.configure(text="OK MIDI OUT ok — IN absent", text_color="#F59E0B")
         else:
-            lbl_cpu_status.configure(text="✗ Aucun port MIDI trouvé", text_color="#DC2626")
+            lbl_cpu_status.configure(text="FAIL Aucun port MIDI trouvé", text_color="#DC2626")
     except NameError:
         pass  # Le panneau CPU n'est pas encore créé au premier lancement
 
@@ -163,12 +174,11 @@ CONFIG_EFFETS = {
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
     },
-    "Earth": {
+    "Octaver": {
         "base_cc": 90,
         "bypass_cc": 89,
         "params": [
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
-            # steps=2 crée 3 crans : Position 0, 1 et 2 (soit les MIDI 0, 64 et 127)
             {"nom": "Octave", "min": 0, "max": 2, "unite": "oct_mode", "steps": 2},
             {"nom": "--"},
             {"nom": "--"},
@@ -179,13 +189,47 @@ CONFIG_EFFETS = {
     "Tremolo": {
         "base_cc": 110,
         "bypass_cc": 118,
+        "display_order": [0, 1, 4, 2, 6, 3, 5],
         "params": [
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Depth", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Rate", "min": 0.1, "max": 20, "unite": "Hz"},
             {"nom": "Wave", "min": 0, "max": 3, "unite": "wave_mode", "steps": 3},
-            {"nom": "--"},
-            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+            {"nom": "Phase mode", "min": 0, "max": 2, "unite": "phase_mode", "steps": 2},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
+            {"nom": "Phase", "min": 0, "max": 1, "unite": "phase_val"}
+        ]
+    },
+    "NoiseGate": {
+        "base_cc": 120,
+        "bypass_cc": 124,
+        "params": [
+            {"nom": "Thresh", "min": -80, "max": 0, "unite": ""},
+            {"nom": "Attack", "min": 1, "max": 100, "unite": ""},
+            {"nom": "Hold", "min": 0, "max": 500, "unite": ""}
+        ]
+    },
+    "Equalizer": {
+        "base_cc": 76,
+        "bypass_cc": 75,
+        "params": [
+            {"nom": "80Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "250Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "750Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "2.2kHz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "6.6kHz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "Vol", "min": 0, "max": 100, "unite": "%"}
+        ]
+    },
+    "Compresseur": {
+        "base_cc": 100,
+        "bypass_cc": 99,
+        "params": [
+            {"nom": "Thresh", "min": -60, "max": 0, "unite": "dB"},
+            {"nom": "Ratio", "min": 1, "max": 20, "unite": ":1"},
+            {"nom": "Attack", "min": 1, "max": 100, "unite": "ms"},
+            {"nom": "Release", "min": 10, "max": 1000, "unite": "ms"},
+            {"nom": "Gain", "min": 0, "max": 24, "unite": "dB"}
         ]
     }
 }
@@ -195,10 +239,6 @@ corde_precedente = 0
 noms_cordes = ["Mi (E2)", "La (A2)", "Ré (D3)", "Sol (G3)", "Si (B3)", "Mi (E4)"]
  
 bypass_global = False
-bypass_effets = {
-    nom_effet: {corde: True for corde in range(6)}
-    for nom_effet in CONFIG_EFFETS.keys()
-}
 cordes_mute = [False] * 6
  
 memoire_effets = {
@@ -206,6 +246,12 @@ memoire_effets = {
     for nom_effet in CONFIG_EFFETS.keys()
 }
  
+# Variables globales
+chainage_slots = [[0, 0, 0, 0] for _ in range(6)]
+dernier_preset = None
+EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Octaver": 3, "Tremolo": 4, "NoiseGate": 5, "Equalizer": 6, "Compresseur": 7}
+EFFETS_LIST = list(EFFETS_MAP.keys())
+
 # endregion
  
 # region 3. Fonctions, Evenements et Affichage Écran
@@ -222,6 +268,7 @@ slider_container_frames = {}
 sliders = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
 slider_labels = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
 bypass_buttons = {}
+tremolo_cells = {}  # Cellules (label+slider) du Tremolo, indexées par param index, pour show/hide dynamique
 leds = []
 string_buttons = []
 btn_all = None  
@@ -233,15 +280,14 @@ def map_valeur_reelle(val_midi, val_min, val_max):
 def get_texte_label(param_info, val_midi):
     if param_info["nom"] == "--" or param_info.get("type") == "button":
         return ""
-    
+       
     if "min" not in param_info or "max" not in param_info:
         return f"{param_info['nom']}: {val_midi}"
        
     val_reelle = map_valeur_reelle(val_midi, param_info["min"], param_info["max"])
    
-    # --- LOGIQUE SPÉCIALE POUR L'AFFICHAGE DE L'OCTAVER EARTH ---
+    # --- LOGIQUE SPÉCIALE POUR L'AFFICHAGE DE L'OCTAVER ---
     if param_info["unite"] == "oct_mode":
-        # val_reelle ira de 0 à 2.
         cran = int(round(val_reelle))
         if cran == 0:
             return f"{param_info['nom']}: -2 oct"
@@ -260,6 +306,25 @@ def get_texte_label(param_info, val_midi):
             return f"{param_info['nom']}: Square"
         else:
             return f"{param_info['nom']}: Saw"
+
+    if param_info["unite"] == "phase_mode":
+        cran = int(round(val_reelle))
+        if cran == 0:
+            return f"{param_info['nom']} : Sync"
+        elif cran == 1:
+            return f"{param_info['nom']} : Dephased"
+        else:
+            return f"{param_info['nom']} : custom"
+
+    if param_info["unite"] == "phase_val":
+        phase_norm = val_midi / 127.0
+        if abs(phase_norm) < 0.01:            return f"{param_info['nom']} : 0"
+        elif abs(phase_norm - 0.25) < 0.02:   return f"{param_info['nom']} : PI/2"
+        elif abs(phase_norm - 0.5) < 0.02:    return f"{param_info['nom']} : PI"
+        elif abs(phase_norm - 0.75) < 0.02:   return f"{param_info['nom']} : 3PI/2"
+        elif abs(phase_norm - 1.0) < 0.02:    return f"{param_info['nom']} : 2PI"
+        else:
+            return f"{param_info['nom']} : {phase_norm:.2f}"
 
     if param_info["unite"] == "mode":
         cran = int(round(val_reelle))
@@ -314,6 +379,29 @@ def maj_delay_dynamic_ui():
         slider_labels["Delay"][3].pack_forget()
         sliders["Delay"][3].pack_forget()
 
+def maj_tremolo_dynamic_ui():
+    """Montre/cache le slider Phase Offset selon le mode Phase du Tremolo."""
+    if "Tremolo" not in sliders or not sliders["Tremolo"]: return
+    if not tremolo_cells: return
+    corde_ref = 0 if corde_active == "ALL" else corde_active
+    valeurs = memoire_effets["Tremolo"][corde_ref]
+    
+    # Index 4 = Phase Mode (0=Sync, 1=Dephased, 2=Custom)
+    phase_mode_val = valeurs[4] / 127.0
+    is_dephased = 0.33 <= phase_mode_val < 0.66
+    
+    # Index 6 = Phase Offset → visible seulement en mode Dephased
+    phase_cell = tremolo_cells.get(6)
+    if phase_cell:
+        if is_dephased:
+            phase_cell.grid()
+            # Mettre à jour le label
+            param_info = CONFIG_EFFETS["Tremolo"]["params"][6]
+            texte = get_texte_label(param_info, valeurs[6] if len(valeurs) > 6 else 0)
+            slider_labels["Tremolo"][6].configure(text=texte)
+        else:
+            phase_cell.grid_remove()
+
 def maj_sliders_visuels():
     texte_titre = f"CORDE ACTIVE : {noms_cordes[corde_active] if corde_active != 'ALL' else '[MODE ALL]'}"
     label_info_corde.configure(text=texte_titre, text_color="#0088FF" if corde_active == "ALL" else "white")
@@ -339,7 +427,9 @@ def maj_sliders_visuels():
 
     if "Delay" in sliders:
         maj_delay_dynamic_ui()
- 
+    if "Tremolo" in sliders:
+        maj_tremolo_dynamic_ui()
+
 def button_callback(nom_effet, index):
     global tap_history, last_tap_time
 
@@ -387,20 +477,12 @@ def button_callback(nom_effet, index):
     cc_num = base_cc + index
     if corde_active == "ALL":
         for channel in range(6):
-            if midi_ok and port_midi:
-                try:
-                    msg = mido.Message('control_change', channel=channel, control=cc_num, value=127)
-                    port_midi.send(msg)
-                except Exception:
-                    pass
+            msg = mido.Message('control_change', channel=channel, control=cc_num, value=127)
+            send_midi_message(msg)
     else:
-        if midi_ok and port_midi:
-            try:
-                msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=127)
-                port_midi.send(msg)
-            except Exception:
-                pass
-
+        msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=127)
+        send_midi_message(msg)
+ 
 def slider_callback(valeur, nom_effet, index):
     marquer_preset_modifie()
     v_int = int(float(valeur))
@@ -411,31 +493,30 @@ def slider_callback(valeur, nom_effet, index):
     if corde_active == "ALL":
         for channel in range(6):
             memoire_effets[nom_effet][channel][index] = v_int
-            if midi_ok and port_midi:
-                try:
-                    msg = mido.Message('control_change', channel=channel, control=cc_num, value=v_int)
-                    port_midi.send(msg)
-                except Exception:
-                    pass # Ignore l'erreur si le tampon USB est plein
+            msg = mido.Message('control_change', channel=channel, control=cc_num, value=v_int)
+            send_midi_message(msg)
     else:
         memoire_effets[nom_effet][corde_active][index] = v_int
-        if midi_ok and port_midi:
-            try:
-                msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=v_int)
-                port_midi.send(msg)
-            except Exception:
-                pass # Ignore l'erreur si le tampon USB est plein
+        msg = mido.Message('control_change', channel=corde_active, control=cc_num, value=v_int)
+        send_midi_message(msg)
            
     if nom_effet == "Delay" and index in (0, 1, 3):
         maj_delay_dynamic_ui()
+    elif nom_effet == "Tremolo" and index == 4:
+        texte = get_texte_label(param_info, v_int)
+        slider_labels[nom_effet][index].configure(text=texte)
+        maj_tremolo_dynamic_ui()
     else:
         texte = get_texte_label(param_info, v_int)
         slider_labels[nom_effet][index].configure(text=texte)
  
 def appliquer_visuel_bypass(nom_effet):
-    """Met à jour l'apparence visuelle d'un effet selon son état de bypass pour la corde active."""
+    """Met à jour l'apparence visuelle d'un effet selon sa présence dans la chaîne de la corde active."""
     corde_ref = 0 if corde_active == "ALL" else corde_active
-    est_bypasse = bypass_effets[nom_effet][corde_ref]
+    val_int_effet = EFFETS_MAP.get(nom_effet, -1)
+    
+    # Bypassed if the effect is NOT in the chain for the active string
+    est_bypasse = val_int_effet not in chainage_slots[corde_ref]
     
     c_active_frame, c_bypassed_frame = "#2A2A2A", "#1A1A1A"
     c_active_text, c_bypassed_text = "white", "#AAAAAA"
@@ -445,6 +526,11 @@ def appliquer_visuel_bypass(nom_effet):
     couleur_text = c_bypassed_text if est_bypasse else c_active_text
    
     if nom_effet in frame_effets:
+        if est_bypasse:
+            frame_effets[nom_effet].grid_remove()
+        else:
+            col = chainage_slots[corde_ref].index(val_int_effet)
+            frame_effets[nom_effet].grid(row=0, column=col, padx=15, pady=5, sticky="nsew")
         frame_effets[nom_effet].configure(fg_color=c_bypassed_frame if est_bypasse else c_active_frame)
     if nom_effet in effect_title_labels:
         effect_title_labels[nom_effet].configure(text_color=couleur_text)
@@ -458,41 +544,50 @@ def appliquer_visuel_bypass(nom_effet):
             slider.configure(state=etat_ui, fg_color=c_bypassed_slider if est_bypasse else c_active_slider)
         else:
             slider.configure(state=etat_ui, button_color=c_bypassed_slider if est_bypasse else c_active_slider, progress_color=c_bypassed_slider if est_bypasse else c_active_slider)
-       
+            
     if nom_effet in bypass_buttons:
         bypass_buttons[nom_effet].configure(fg_color="#A12222" if est_bypasse else "#555555")
- 
-def envoyer_bypass_initial():
-    """Envoie uniquement les messages de bypass (valeur 127 = bypassé) au démarrage pour ne pas surcharger la Teensy."""
-    if not midi_ok or not port_midi:
-        return
-    for nom_effet, config in CONFIG_EFFETS.items():
-        if "bypass_cc" in config:
-            for channel in range(6):
-                try:
-                    val = 127 if bypass_effets[nom_effet][channel] else 0
-                    msg = mido.Message('control_change', channel=channel, control=config["bypass_cc"], value=val)
-                    port_midi.send(msg)
-                    # Pause microscopique pour éviter de saturer le buffer USB
-                    time.sleep(0.002) 
-                except Exception:
-                    pass
+
+def log_midi_message(msg):
+    try:
+        if not show_midi_log.get():
+            return
+        
+        if msg.type == 'control_change':
+            texte = f"[OUT] CH:{msg.channel:2d} | CC:{msg.control:3d} | VAL:{msg.value:3d}"
+        else:
+            texte = f"[OUT] {msg}"
+            
+        textbox_midi_log.insert("end", texte + "\n")
+        textbox_midi_log.see("end")
+        
+        lines = int(textbox_midi_log.index('end-1c').split('.')[0])
+        if lines > 100:
+            textbox_midi_log.delete("1.0", "2.0")
+    except NameError:
+        pass
+
+def send_midi_message(msg):
+    if midi_ok and port_midi:
+        try:
+            port_midi.send(msg)
+            log_midi_message(msg)
+        except Exception:
+            pass
 
 def envoyer_tout_midi():
     if not midi_ok or not port_midi:
         return
     for channel in range(6):
-        # Séparer les effets inactifs (Mix == 0) et actifs (Mix > 0)
         effets_inactifs = []
         effets_actifs = []
         for nom_effet, config in CONFIG_EFFETS.items():
-            if memoire_effets[nom_effet][channel][0] > 0:
+            val_int = EFFETS_MAP.get(nom_effet, -1)
+            if val_int in chainage_slots[channel]:
                 effets_actifs.append((nom_effet, config))
             else:
                 effets_inactifs.append((nom_effet, config))
                 
-        # Envoyer d'abord les inactifs, PUIS les actifs pour que le dernier envoyé 
-        # (et donc celui qui reste actif dans la Daisy) soit celui qui a du Mix.
         for nom_effet, config in effets_inactifs + effets_actifs:
             base_cc = config["base_cc"]
             valeurs = memoire_effets[nom_effet][channel]
@@ -500,268 +595,290 @@ def envoyer_tout_midi():
                 param_info = config["params"][index]
                 if param_info["nom"] != "--" and param_info.get("type") != "button":
                     cc_num = base_cc + index
-                    try:
-                        msg = mido.Message('control_change', channel=channel, control=cc_num, value=int(v))
-                        port_midi.send(msg)
-                    except:
-                        pass
-
+                    send_midi_message(mido.Message('control_change', channel=channel, control=cc_num, value=int(v)))
+        
+        envoyer_chainage_midi(channel)
 
 def toggle_bypass_effet(nom_effet):
-    """Active ou désactive le Bypass pour un effet sur la corde active"""
     marquer_preset_modifie()
+    val_int_effet = EFFETS_MAP.get(nom_effet, 0)
+    if val_int_effet == 0: return
+
+    def _toggle_pour_corde(c):
+        if val_int_effet in chainage_slots[c]:
+            chainage_slots[c] = [0 if slot == val_int_effet else slot for slot in chainage_slots[c]]
+        else:
+            if 0 in chainage_slots[c]:
+                idx_libre = chainage_slots[c].index(0)
+                chainage_slots[c][idx_libre] = val_int_effet
+            else:
+                chainage_slots[c][3] = val_int_effet
+        envoyer_chainage_midi(c)
+
     if corde_active == "ALL":
-        # On inverse par rapport à la corde 0
-        target_state = not bypass_effets[nom_effet][0]
-        for corde in range(6):
-            bypass_effets[nom_effet][corde] = target_state
-            if midi_ok and port_midi:
-                val = 127 if target_state else 0
-                if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-                    msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                    try:
-                        port_midi.send(msg)
-                    except Exception:
-                        pass
-                
-                # Si on active l'effet (bypass = False), on renvoie tous les paramètres
-                if not target_state:
-                    for index, p_val in enumerate(memoire_effets[nom_effet][corde]):
-                        if CONFIG_EFFETS[nom_effet]["params"][index].get("type") == "button":
-                            continue
-                        cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
-                        try:
-                            port_midi.send(mido.Message('control_change', channel=corde, control=cc_num, value=p_val))
-                        except Exception:
-                            pass
-
+        for c in range(6):
+            _toggle_pour_corde(c)
     else:
-        # Toggle sur la corde active uniquement
-        bypass_effets[nom_effet][corde_active] = not bypass_effets[nom_effet][corde_active]
-        if midi_ok and port_midi:
-            val = 127 if bypass_effets[nom_effet][corde_active] else 0
-            if "bypass_cc" in CONFIG_EFFETS[nom_effet]:
-                msg = mido.Message('control_change', channel=corde_active, control=CONFIG_EFFETS[nom_effet]["bypass_cc"], value=val)
-                try:
-                    port_midi.send(msg)
-                except Exception:
-                    pass
-
-            # Si on active l'effet (bypass = False), on renvoie tous les paramètres
-            if not bypass_effets[nom_effet][corde_active]:
-                for index, p_val in enumerate(memoire_effets[nom_effet][corde_active]):
-                    if CONFIG_EFFETS[nom_effet]["params"][index].get("type") == "button":
-                        continue
-                    cc_num = CONFIG_EFFETS[nom_effet]["base_cc"] + index
-                    try:
-                        port_midi.send(mido.Message('control_change', channel=corde_active, control=cc_num, value=p_val))
-                    except Exception:
-                        pass
-   
+        _toggle_pour_corde(corde_active)
+        
     appliquer_visuel_bypass(nom_effet)
- 
-def Sauvegarder_preset(nom):
-    """Sauvegarde le preset courant (réglages + bypass)"""
-    data_save = {
-        "preset": nom,
-        "reglages_effets": memoire_effets,
-        "bypass_effets": bypass_effets
-    }
-    with open(f"preset_{nom}.json", "w") as f:
-        json.dump(data_save, f, indent=4)
-    print(f"✓ Preset '{nom}' sauvegardé")
-
-def Charger_preset(nom):
-    global memoire_effets, bypass_effets
-    try:
-        with open(f"preset_{nom}.json", "r") as f:
-            data = json.load(f)
-            for eff, cordes_data in data["reglages_effets"].items():
-                if eff in memoire_effets:
-                    for corde_str, valeurs in cordes_data.items():
-                        expected_len = len(CONFIG_EFFETS[eff]["params"])
-                        if len(valeurs) < expected_len:
-                            valeurs.extend([64] * (expected_len - len(valeurs)))
-                        memoire_effets[eff][int(corde_str)] = valeurs
-            
-            # Chargement des états de bypass
-            if "bypass_effets" in data:
-                for eff, bypass_data in data["bypass_effets"].items():
-                    if eff in bypass_effets:
-                        # Si l'ancien format était un simple booléen
-                        if isinstance(bypass_data, bool):
-                            for corde in range(6):
-                                bypass_effets[eff][corde] = bypass_data
-                        else:
-                            # Nouveau format (dictionnaire de cordes)
-                            for corde_str, etat in bypass_data.items():
-                                bypass_effets[eff][int(corde_str)] = etat
-            
-            # Réappliquer les bypass en MIDI + Visuel pour toutes les cordes
-            for eff in CONFIG_EFFETS.keys():
-                for corde in range(6):
-                    if midi_ok and port_midi and "bypass_cc" in CONFIG_EFFETS[eff]:
-                        val = 127 if bypass_effets[eff][corde] else 0
-                        msg = mido.Message('control_change', channel=corde, control=CONFIG_EFFETS[eff]["bypass_cc"], value=val)
-                        try:
-                            port_midi.send(msg)
-                        except Exception:
-                            pass
-                appliquer_visuel_bypass(eff)
-    except Exception as e:
-        print(f"Erreur preset : {e}")
+    maj_ui_chainage()
     maj_sliders_visuels()
-    envoyer_tout_midi()
- 
+
+def mettre_a_jour_dropdowns():
+    global noms_presets_corde, noms_presets_hexa
+    noms_presets_corde = ["---", "Custom"] + [p["name"] for p in presets_corde]
+    noms_presets_hexa = ["---"] + [p["name"] for p in presets_hexa]
+    
+    for dp in preset_dropdowns_cordes:
+        dp.configure(values=noms_presets_corde)
+        val = dp.get().replace("*", "")
+        if val not in noms_presets_corde:
+            dp.set("---")
+            
+    preset_dropdown_global.configure(values=noms_presets_hexa)
+    if preset_dropdown_global.get().replace("*", "") not in noms_presets_hexa:
+        preset_dropdown_global.set("---")
+        
+    maj_dropdown_supprimer()
+    maj_bouton_save()
+
+banque_suppression_active = "Hexa"
+
+def maj_dropdown_supprimer():
+    try:
+        if banque_suppression_active == "Hexa":
+            vals = [p["name"] for p in presets_hexa]
+        else:
+            vals = [p["name"] for p in presets_corde]
+        dropdown_supprimer.configure(values=vals if vals else ["---"])
+        if dropdown_supprimer.get() not in vals:
+            dropdown_supprimer.set("---" if not vals else vals[0])
+    except NameError:
+        pass
+
+def dialog_nouvelle_version(nom_base, param_corde, idx_corde):
+    dialog = ctk.CTkToplevel(win)
+    dialog.title("Modification détectée")
+    dialog.geometry("400x200")
+    dialog.attributes('-topmost', True)
+    dialog.grab_set()
+
+    lbl = ctk.CTkLabel(dialog, text=f"La corde {idx_corde+1} (Preset: {nom_base}) a été modifiée.\nVoulez-vous créer une nouvelle version de ce preset corde\nou garder ces réglages uniquement dans ce preset Hexa ?", wraplength=350)
+    lbl.pack(pady=20)
+
+    choix = ctk.StringVar(value="")
+
+    def on_v2():
+        choix.set("v2")
+        dialog.destroy()
+
+    def on_custom():
+        choix.set("custom")
+        dialog.destroy()
+
+    btn_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+    btn_frame.pack(pady=10)
+    
+    ctk.CTkButton(btn_frame, text=f"Créer {nom_base}_v2", command=on_v2).pack(side="left", padx=10)
+    ctk.CTkButton(btn_frame, text="Indépendant (Custom)", command=on_custom, fg_color="#555555").pack(side="left", padx=10)
+
+    win.wait_window(dialog)
+    return choix.get()
+
+def dialog_nom_preset():
+    dialog = ctk.CTkInputDialog(text="Entrez le nom du preset :", title="Sauvegarde")
+    return dialog.get_input()
+
+def sauvegarder_preset_json_hexa():
+    nom = dialog_nom_preset()
+    if not nom: return
+    nom = nom.strip()
+    if not nom or nom == "---": return
+        
+    global presets_hexa
+    preset_existant = next((p for p in presets_hexa if p["name"] == nom), None)
+    if preset_existant:
+        presets_hexa.remove(preset_existant)
+        
+    nouveau_preset = {"name": nom, "strings_data": {}}
+    
+    for c in range(6):
+        nom_actuel = preset_dropdowns_cordes[c].get()
+        
+        string_params = {"chainage": list(chainage_slots[c]), "effects": {}}
+        for nom_effet, config in CONFIG_EFFETS.items():
+            val_int = EFFETS_MAP.get(nom_effet, -1)
+            est_bypasse = val_int not in chainage_slots[c]
+            if not est_bypasse:
+                string_params["effects"][nom_effet] = {
+                    "bypass": False,
+                    "params": list(memoire_effets[nom_effet][c])
+                }
+                
+        if nom_actuel.endswith("*") and nom_actuel != "---*" and nom_actuel != "Custom*":
+            nom_base = nom_actuel[:-1]
+            choix = dialog_nouvelle_version(nom_base, string_params, c)
+            if choix == "v2":
+                nv_nom = nom_base + "_" + datetime.datetime.now().strftime("%d-%m-%Hh%M")
+                sauvegarder_preset_corde(nv_nom, string_params)
+                nouveau_preset["strings_data"][str(c)] = {"type": "ref", "preset_name": nv_nom}
+                preset_dropdowns_cordes[c].set(nv_nom)
+            else:
+                nouveau_preset["strings_data"][str(c)] = {"type": "custom", "params": string_params}
+                preset_dropdowns_cordes[c].set("Custom")
+        elif nom_actuel == "---" or nom_actuel == "---*" or "Custom" in nom_actuel:
+            nouveau_preset["strings_data"][str(c)] = {"type": "custom", "params": string_params}
+        else:
+            nouveau_preset["strings_data"][str(c)] = {"type": "ref", "preset_name": nom_actuel}
+            
+    presets_hexa.append(nouveau_preset)
+    chemin_hexa = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_hexa.json")
+    with open(chemin_hexa, "w") as f:
+        json.dump({"presets": presets_hexa}, f, indent=4)
+    print(f"OK Preset Hexa '{nom}' sauvegardé.")
+    mettre_a_jour_dropdowns()
+
+
+def sauvegarder_preset_json_corde():
+    if corde_active == "ALL":
+        return
+        
+    nom = dialog_nom_preset()
+    if not nom: return
+    nom = nom.strip()
+    if not nom or nom == "---": return
+        
+    string_params = {"chainage": list(chainage_slots[corde_active]), "effects": {}}
+    for nom_effet, config in CONFIG_EFFETS.items():
+        val_int = EFFETS_MAP.get(nom_effet, -1)
+        est_bypasse = val_int not in chainage_slots[corde_active]
+        if not est_bypasse:
+            string_params["effects"][nom_effet] = {
+                "bypass": False,
+                "params": list(memoire_effets[nom_effet][corde_active])
+            }
+    sauvegarder_preset_corde(nom, string_params)
+    preset_dropdowns_cordes[corde_active].set(nom)
+    mettre_a_jour_dropdowns()
+
+def sauvegarder_preset_corde(nom, string_params):
+    global presets_corde
+    preset_existant = next((p for p in presets_corde if p["name"] == nom), None)
+    if preset_existant:
+        presets_corde.remove(preset_existant)
+    nouveau_preset = {"name": nom, "chainage": string_params["chainage"], "effects": string_params["effects"]}
+    presets_corde.append(nouveau_preset)
+    chemin_corde = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_corde.json")
+    with open(chemin_corde, "w") as f:
+        json.dump({"presets": presets_corde}, f, indent=4)
+    print(f"OK Preset Corde '{nom}' sauvegardé.")
+    mettre_a_jour_dropdowns()
+
+def supprimer_preset_json():
+    nom = dropdown_supprimer.get()
+    if not nom or nom == "---": return
+    
+    if banque_suppression_active == "Hexa":
+        global presets_hexa
+        presets_hexa = [p for p in presets_hexa if p["name"] != nom]
+        chemin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_hexa.json")
+        with open(chemin, "w") as f: json.dump({"presets": presets_hexa}, f, indent=4)
+    else:
+        global presets_corde
+        presets_corde = [p for p in presets_corde if p["name"] != nom]
+        chemin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_corde.json")
+        with open(chemin, "w") as f: json.dump({"presets": presets_corde}, f, indent=4)
+        
+    print(f"OK Preset '{nom}' supprimé.")
+    mettre_a_jour_dropdowns()
+
 def Activation_mute(index):
     cordes_mute[index] = not cordes_mute[index]
-    if midi_ok and port_midi:
-        val = 127 if cordes_mute[index] else 0
-        msg = mido.Message('control_change', control=index, value=val)
-        try:
-            port_midi.send(msg)
-        except Exception:
-            pass
+    val = 127 if cordes_mute[index] else 0
+    send_midi_message(mido.Message('control_change', control=index, value=val))
         
-        # Si on unmute la corde (mute == False), on renvoie tous ses paramètres
-        if not cordes_mute[index]:
-            for nom_effet, config in CONFIG_EFFETS.items():
-                if not bypass_effets[nom_effet][index]:
-                    for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
-                        if config["params"][idx].get("type") == "button":
-                            continue
-                        cc_num = config["base_cc"] + idx
-                        try:
-                            port_midi.send(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
-                        except Exception:
-                            pass
-
+    if not cordes_mute[index]:
+        for nom_effet, config in CONFIG_EFFETS.items():
+            val_int = EFFETS_MAP.get(nom_effet, -1)
+            if val_int in chainage_slots[index]:
+                for idx, p_val in enumerate(memoire_effets[nom_effet][index]):
+                    if config["params"][idx].get("type") == "button":
+                        continue
+                    cc_num = config["base_cc"] + idx
+                    send_midi_message(mido.Message('control_change', channel=index, control=cc_num, value=p_val))
+        envoyer_chainage_midi(index)
     maj_leds()
  
 def Activation_bypass():
     global bypass_global
     bypass_global = not bypass_global
-    if midi_ok and port_midi:
-        val = 127 if bypass_global else 0
-        msg = mido.Message('control_change', control=126, value=val)
-        try:
-            port_midi.send(msg)
-        except Exception:
-            pass
+    val = 127 if bypass_global else 0
+    send_midi_message(mido.Message('control_change', control=126, value=val))
         
-        # Si on désactive le bypass global (bypass = False), on renvoie tout
-        if not bypass_global:
-            envoyer_tout_midi()
+    if not bypass_global:
+        envoyer_tout_midi()
 
     btn_bypass.configure(fg_color="#A12222" if bypass_global else "#555555")
 
-def Reset_All():
-    """Remet tous les paramètres à 0, active le bypass de tous les effets et unmute toutes les cordes"""
-    for nom_effet in CONFIG_EFFETS.keys():
-        for corde in range(6):
-            bypass_effets[nom_effet][corde] = True
-            for idx in range(len(CONFIG_EFFETS[nom_effet]["params"])):
-                memoire_effets[nom_effet][corde][idx] = 0
-                
-    # Unmute all strings
-    for corde in range(6):
-        cordes_mute[corde] = False
-        if midi_ok and port_midi:
-            try:
-                port_midi.send(mido.Message('control_change', control=corde, value=0))
-            except Exception:
-                pass
-            
-    # Refresh GUI
-    maj_leds()
-    for nom_effet in CONFIG_EFFETS.keys():
-        appliquer_visuel_bypass(nom_effet)
-    selectionner_corde(corde_active) # Refresh sliders
+def appliquer_string_params(c, data):
+    chainage_slots[c] = data.get("chainage", [0, 0, 0, 0])[:4]
+    while len(chainage_slots[c]) < 4: chainage_slots[c].append(0)
     
-    # Send all zeroed MIDI values
-    envoyer_tout_midi()
+    slot_idx = 0
+    for nom_effet, effet_data in data.get("effects", {}).items():
+        if nom_effet not in CONFIG_EFFETS: continue
+        config = CONFIG_EFFETS[nom_effet]
+        est_bypasse = effet_data.get("bypass", True)
+        if "chainage" not in data and not est_bypasse and slot_idx < 4:
+            val_int = EFFETS_MAP.get(nom_effet, 0)
+            chainage_slots[c][slot_idx] = val_int
+            slot_idx += 1
+            
+        if "params" in effet_data:
+            for idx, val_midi in enumerate(effet_data["params"]):
+                if idx < len(config["params"]):
+                    param_info = config["params"][idx]
+                    if param_info.get("type") == "button" or param_info["nom"] == "--":
+                        continue
+                    memoire_effets[nom_effet][c][idx] = val_midi
+    envoyer_chainage_midi(c)
 
 def appliquer_preset_factory(nom_preset, corde):
-    """Applique un preset factory à une corde donnée (0-5) ou à toutes les cordes si corde='ALL'."""
-    # Recherche du preset par nom
-    if nom_preset == "---":
-        preset = {"name": "---", "effects": {}}
-    else:
-        preset = None
-        for p in presets_factory:
-            if p["name"] == nom_preset:
-                preset = p
-                break
-        
-        if preset is None:
-            print(f"⚠ Preset '{nom_preset}' introuvable")
-            return
+    if nom_preset == "---": return
     
-    # Déterminer les cordes cibles
     if corde == "ALL":
-        cordes_cibles = list(range(6))
+        # Load Hexa
+        preset = next((p for p in presets_hexa if p["name"] == nom_preset), None)
+        if not preset: return
+        
+        for c in range(6):
+            s_data = preset.get("strings_data", {}).get(str(c), {})
+            if s_data.get("type") == "ref":
+                p_name = s_data.get("preset_name")
+                p_corde = next((p for p in presets_corde if p["name"] == p_name), None)
+                if p_corde:
+                    appliquer_string_params(c, p_corde)
+                    preset_dropdowns_cordes[c].set(p_name)
+                else:
+                    preset_dropdowns_cordes[c].set("---")
+            elif s_data.get("type") == "custom":
+                appliquer_string_params(c, s_data.get("params", {}))
+                preset_dropdowns_cordes[c].set("Custom")
     else:
-        cordes_cibles = [corde]
-    
-    effets_du_preset = set(preset.get("effects", {}).keys())
-    
-    # Bypass les effets NON mentionnés dans le preset
-    for nom_effet, config in CONFIG_EFFETS.items():
-        if nom_effet not in effets_du_preset:
-            for c in cordes_cibles:
-                bypass_effets[nom_effet][c] = True
-                if midi_ok and port_midi and "bypass_cc" in config:
-                    try:
-                        msg = mido.Message('control_change', channel=c, control=config["bypass_cc"], value=127)
-                        port_midi.send(msg)
-                    except Exception:
-                        pass
-            appliquer_visuel_bypass(nom_effet)
-    
-    # Appliquer les réglages pour chaque effet défini dans le preset
-    for nom_effet, effet_data in preset.get("effects", {}).items():
-        if nom_effet not in CONFIG_EFFETS:
-            continue
-        
-        config = CONFIG_EFFETS[nom_effet]
-        
-        for c in cordes_cibles:
-            # Mise à jour du bypass
-            if "bypass" in effet_data:
-                bypass_effets[nom_effet][c] = effet_data["bypass"]
-                if midi_ok and port_midi and "bypass_cc" in config:
-                    val = 127 if effet_data["bypass"] else 0
-                    try:
-                        msg = mido.Message('control_change', channel=c, control=config["bypass_cc"], value=val)
-                        port_midi.send(msg)
-                    except Exception:
-                        pass
-            
-            # Mise à jour des paramètres
-            if "params" in effet_data:
-                for idx, val_midi in enumerate(effet_data["params"]):
-                    if idx < len(config["params"]):
-                        param_info = config["params"][idx]
-                        if param_info.get("type") == "button" or param_info["nom"] == "--":
-                            continue
-                        memoire_effets[nom_effet][c][idx] = val_midi
-                        if midi_ok and port_midi:
-                            cc_num = config["base_cc"] + idx
-                            try:
-                                msg = mido.Message('control_change', channel=c, control=cc_num, value=val_midi)
-                                port_midi.send(msg)
-                            except Exception:
-                                pass
-        
-        # Rafraîchir le visuel bypass
+        # Load String
+        preset = next((p for p in presets_corde if p["name"] == nom_preset), None)
+        if not preset: return
+        appliquer_string_params(corde, preset)
+        preset_dropdowns_cordes[corde].set(nom_preset)
+
+    for nom_effet in CONFIG_EFFETS.keys():
         appliquer_visuel_bypass(nom_effet)
-    
-    # Rafraîchir les sliders pour la corde active
+        
+    maj_ui_chainage()
     maj_sliders_visuels()
-    if "Delay" in sliders:
-        maj_delay_dynamic_ui()
-    
-    print(f"✓ Preset '{nom_preset}' appliqué à {'toutes les cordes' if corde == 'ALL' else f'corde {corde + 1}'}")
+    envoyer_tout_midi()
+    print(f"OK Preset '{nom_preset}' appliqué à {'toutes les cordes' if corde == 'ALL' else f'corde {corde + 1}'}")
 
 def marquer_preset_modifie():
     """Ajoute un astérisque (*) au nom du preset actif si des modifications sont apportées."""
@@ -781,13 +898,46 @@ def marquer_preset_modifie():
             if val != "---" and not val.endswith("*"):
                 dropdown.set(val + "*")
     except NameError:
-        pass # Ignorer si les dropdowns ne sont pas encore créés (au démarrage)
+        pass
 
+def Reset_All():
+    """Remet tous les paramètres à 0, et unmute toutes les cordes"""
+    for nom_effet in CONFIG_EFFETS.keys():
+        for corde in range(6):
+            for idx in range(len(CONFIG_EFFETS[nom_effet]["params"])):
+                memoire_effets[nom_effet][corde][idx] = 0
+                
+    # Reset Chainage
+    for corde in range(6):
+        chainage_slots[corde] = [0, 0, 0, 0]
+        send_midi_message(mido.Message('control_change', channel=corde, control=20, value=0))
+        send_midi_message(mido.Message('control_change', channel=corde, control=21, value=0))
+        send_midi_message(mido.Message('control_change', channel=corde, control=22, value=0))
+        send_midi_message(mido.Message('control_change', channel=corde, control=23, value=0))
+
+    # Unmute all strings
+    for corde in range(6):
+        cordes_mute[corde] = False
+        send_midi_message(mido.Message('control_change', control=corde, value=0))
+            
+    # Refresh GUI
+    maj_leds()
+    for nom_effet in CONFIG_EFFETS.keys():
+        appliquer_visuel_bypass(nom_effet)
+    selectionner_corde(corde_active) # Refresh sliders
+    
+    # Send all zeroed MIDI values
+    envoyer_tout_midi()
+ 
 def selectionner_corde(index):
     global corde_active, corde_precedente
     corde_active = index
     corde_precedente = index
     maj_leds()
+    maj_ui_chainage()
+    maj_dropdown_supprimer()
+    maj_bouton_save()
+    maj_bouton_save()
     
     # Mettre à jour les sliders pour correspondre à la corde sélectionnée
     for nom_effet, sliders_effet in sliders.items():
@@ -816,6 +966,9 @@ def toggle_mode_all():
     else:
         corde_active = "ALL"
     maj_leds()
+    maj_ui_chainage()
+    maj_dropdown_supprimer()
+    maj_bouton_save()
  
 def maj_leds():
     for i, led in enumerate(leds):
@@ -840,6 +993,36 @@ def maj_leds():
            
     maj_sliders_visuels()
  
+def envoyer_chainage_midi(corde):
+    send_midi_message(mido.Message('control_change', channel=corde, control=20, value=chainage_slots[corde][0]))
+    send_midi_message(mido.Message('control_change', channel=corde, control=21, value=chainage_slots[corde][1]))
+    send_midi_message(mido.Message('control_change', channel=corde, control=22, value=chainage_slots[corde][2]))
+    send_midi_message(mido.Message('control_change', channel=corde, control=23, value=chainage_slots[corde][3]))
+        
+def on_slot_change(slot_idx, value):
+    marquer_preset_modifie()
+    val_int = EFFETS_MAP[value]
+    if corde_active == "ALL":
+        for c in range(6):
+            chainage_slots[c][slot_idx] = val_int
+            envoyer_chainage_midi(c)
+    else:
+        chainage_slots[corde_active][slot_idx] = val_int
+        envoyer_chainage_midi(corde_active)
+    
+    # Mettre à jour l'apparence grisée/normale
+    maj_sliders_visuels()
+
+def maj_ui_chainage():
+    try:
+        corde_ref = 0 if corde_active == "ALL" else corde_active
+        menu_slot1.set(EFFETS_LIST[chainage_slots[corde_ref][0]])
+        menu_slot2.set(EFFETS_LIST[chainage_slots[corde_ref][1]])
+        menu_slot3.set(EFFETS_LIST[chainage_slots[corde_ref][2]])
+        menu_slot4.set(EFFETS_LIST[chainage_slots[corde_ref][3]])
+    except NameError:
+        pass # Handle case before UI components are created
+
 # endregion
  
 # region 4. Ecran, Navigation et Menu Effets
@@ -864,6 +1047,36 @@ for i in range(6):
 btn_all = ctk.CTkButton(strings_frame, text="ALL", width=60, height=35, font=("Arial", 12, "bold"),
                         command=toggle_mode_all)
 btn_all.grid(row=0, column=6, padx=15, pady=2)
+ 
+def afficher_aide():
+    dialog = ctk.CTkToplevel(win)
+    dialog.title("Aide & Fonctionnement")
+    dialog.geometry("500x350")
+    dialog.attributes('-topmost', True)
+    
+    txt = """🎵 Bienvenue sur la Pédale Hexaphonique !
+
+1. SÉLECTION (Le Manche) :
+Cliquez sur les boutons Mi, La, Ré... en haut pour éditer une corde spécifique.
+Le bouton ALL est une 'Macro' : il vous permet d'éditer les 6 cordes en même temps !
+
+2. LE SON (Chaînage) :
+Choisissez vos effets dans les listes déroulantes Slot 1, 2, 3 pour les activer. 
+(S'ils ne sont pas dans un slot, ils sont by-passés).
+
+3. LES PRESETS (Sauvegarde) :
+- SAVE CORDE : Sauvegarde le réglage de la corde actuelle.
+- SAVE HEXA : Sauvegarde l'état complet de la pédale (les 6 cordes).
+Si vous modifiez une corde existante et que vous sauvegardez un Preset Hexa, le système vous proposera intelligemment de créer une nouvelle version pour ne pas écraser votre son d'origine !"""
+    
+    lbl = ctk.CTkLabel(dialog, text=txt, font=("Arial", 13), justify="left", wraplength=450)
+    lbl.pack(padx=20, pady=20, fill="both", expand=True)
+    
+    btn_ok = ctk.CTkButton(dialog, text="Compris !", command=dialog.destroy)
+    btn_ok.pack(pady=10)
+
+btn_aide = ctk.CTkButton(strings_frame, text="❔", width=35, height=35, font=("Arial", 16, "bold"), fg_color="#8e44ad", hover_color="#9b59b6", command=afficher_aide)
+btn_aide.grid(row=0, column=7, padx=(5, 10), pady=2)
  
 for i in range(6):
     l = ctk.CTkButton(strings_frame, text="", width=30, height=30, corner_radius=15,
@@ -890,10 +1103,37 @@ label_info_corde.pack(pady=5)
  
 # endregion
  
+# region 4.5. Chaînage (Testation Mode)
+
+frame_chainage = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
+frame_chainage.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+
+lbl_chain_title = ctk.CTkLabel(frame_chainage, text="🔗 CHAÎNAGE DES EFFETS (Mode Superposé)", font=("Arial", 14, "bold"))
+lbl_chain_title.grid(row=0, column=0, columnspan=8, pady=(10, 5))
+
+ctk.CTkLabel(frame_chainage, text="Slot 1 :", font=("Arial", 12)).grid(row=1, column=0, padx=(20,5), pady=10)
+menu_slot1 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(0, v))
+menu_slot1.grid(row=1, column=1, padx=5, pady=10)
+
+ctk.CTkLabel(frame_chainage, text="Slot 2 :", font=("Arial", 12)).grid(row=1, column=2, padx=(20,5), pady=10)
+menu_slot2 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(1, v))
+menu_slot2.grid(row=1, column=3, padx=5, pady=10)
+
+ctk.CTkLabel(frame_chainage, text="Slot 3 :", font=("Arial", 12)).grid(row=1, column=4, padx=(20,5), pady=10)
+menu_slot3 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(2, v))
+menu_slot3.grid(row=1, column=5, padx=5, pady=10)
+
+ctk.CTkLabel(frame_chainage, text="Slot 4 :", font=("Arial", 12)).grid(row=1, column=6, padx=(20,5), pady=10)
+menu_slot4 = ctk.CTkOptionMenu(frame_chainage, values=EFFETS_LIST, command=lambda v: on_slot_change(3, v))
+menu_slot4.grid(row=1, column=7, padx=(5, 20), pady=10)
+
+# Call it once to init state
+maj_ui_chainage()
+
 # region 5. Grille des effets et potentiomètres
  
 frame_effets_container = ctk.CTkFrame(center_container, fg_color="transparent")
-frame_effets_container.grid(row=1, column=0, padx=10, pady=5)
+frame_effets_container.grid(row=2, column=0, padx=10, pady=5)
  
 for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
     frame_effet = ctk.CTkFrame(frame_effets_container, border_width=2)
@@ -910,34 +1150,47 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
     if "bypass_cc" in config:
         btn_bypass_effet = ctk.CTkButton(frame_titre, text="Bypass", width=70, fg_color="#555555",
                                          command=lambda n=nom_effet: toggle_bypass_effet(n))
-        btn_bypass_effet.pack(side="left", padx=5)
+        # btn_bypass_effet.pack(side="left", padx=5) # Masqué
         bypass_buttons[nom_effet] = btn_bypass_effet
  
     frame_potards_effet = ctk.CTkFrame(frame_effet, fg_color="transparent")
     frame_potards_effet.pack(pady=5, padx=10)
     slider_container_frames[nom_effet] = frame_potards_effet
  
-    for j, param_info in enumerate(config["params"]):
+    # Déterminer l'ordre d'affichage (display_order ou séquentiel)
+    display_order = config.get("display_order", list(range(len(config["params"]))))
+    
+    # Pré-remplir les listes sliders et slider_labels avec des placeholders
+    # pour garantir l'indexation par param index
+    sliders[nom_effet] = [None] * len(config["params"])
+    slider_labels[nom_effet] = [None] * len(config["params"])
+    
+    for row_idx, j in enumerate(display_order):
+        param_info = config["params"][j]
         cellule = ctk.CTkFrame(frame_potards_effet, fg_color="transparent")
-        cellule.grid(row=j, column=0, padx=5, pady=4, sticky="w")
+        cellule.grid(row=row_idx, column=0, padx=5, pady=4, sticky="w")
+        
+        # Stocker les cellules Tremolo pour show/hide dynamique
+        if nom_effet == "Tremolo":
+            tremolo_cells[j] = cellule
        
         lbl = ctk.CTkLabel(cellule, text=f"{param_info['nom']}: --", font=("Arial", 12))
-        
+
         if param_info.get("type") == "button":
             lbl.configure(text="")
             lbl.pack(anchor="w")
-            slider_labels[nom_effet].append(lbl)
+            slider_labels[nom_effet][j] = lbl
             
             btn = ctk.CTkButton(cellule, text=param_info["nom"], width=180,
                                 command=lambda ne=nom_effet, idx=j: button_callback(ne, idx))
             btn.pack(pady=2, anchor="w")
-            sliders[nom_effet].append(btn)
+            sliders[nom_effet][j] = btn
             continue
 
         lbl.pack(anchor="w")
-        slider_labels[nom_effet].append(lbl)
+        slider_labels[nom_effet][j] = lbl
        
-        # --- CONFIGURATION DES CRANS POUR L'OCTAVER ---
+        # --- CONFIGURATION DES CRANS ---
         nb_steps = param_info.get("steps", 0)
        
         if nb_steps > 0:
@@ -950,81 +1203,22 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
                              
         s.set(64)
         s.pack(pady=2, anchor="w")
-        sliders[nom_effet].append(s)
+        sliders[nom_effet][j] = s
  
         if param_info["nom"] == "--":
             lbl.configure(text="")
             s.pack_forget()
- 
+    
+    # Masquer le Phase Offset du Tremolo par défaut (visible seulement en Dephased)
+    if nom_effet == "Tremolo" and 6 in tremolo_cells:
+        tremolo_cells[6].grid_remove()
+
 # --- Panneau Presets Factory (à droite des effets) ---
-frame_presets_panel = ctk.CTkFrame(frame_effets_container, border_width=2, width=200)
+frame_presets_panel = ctk.CTkFrame(frame_effets_container, border_width=2, width=180)
 frame_presets_panel.grid(row=0, column=len(CONFIG_EFFETS), padx=15, pady=5, sticky="nsew")
+frame_presets_panel.grid_propagate(False)
 
-def mettre_a_jour_dropdowns():
-    global noms_presets_factory
-    noms_presets_factory = ["---"] + [p["name"] for p in presets_factory]
-    for dp in preset_dropdowns_cordes:
-        dp.configure(values=noms_presets_factory)
-        if dp.get().replace("*", "") not in noms_presets_factory:
-            dp.set("---")
-    preset_dropdown_global.configure(values=noms_presets_factory)
-    if preset_dropdown_global.get().replace("*", "") not in noms_presets_factory:
-        preset_dropdown_global.set("---")
-    dropdown_supprimer.configure(values=[p["name"] for p in presets_factory] if presets_factory else ["---"])
-    if dropdown_supprimer.get() not in [p["name"] for p in presets_factory]:
-        dropdown_supprimer.set("---" if not presets_factory else presets_factory[0]["name"])
-
-def sauvegarder_preset_json():
-    nom = entry_nom_preset.get().strip()
-    if not nom or nom == "---":
-        return
-    
-    global presets_factory
-    preset_existant = next((p for p in presets_factory if p["name"] == nom), None)
-    if preset_existant:
-        presets_factory.remove(preset_existant)
-        
-    nouveau_preset = {"name": nom, "effects": {}}
-    corde_src = 0 if corde_active == "ALL" else corde_active
-    
-    for nom_effet, config in CONFIG_EFFETS.items():
-        if not bypass_effets[nom_effet][corde_src]:
-            params = list(memoire_effets[nom_effet][corde_src])
-            nouveau_preset["effects"][nom_effet] = {
-                "bypass": False,
-                "params": params
-            }
-            
-    presets_factory.append(nouveau_preset)
-    
-    try:
-        chemin_presets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_factory.json")
-        with open(chemin_presets, "w") as f:
-            json.dump({"presets": presets_factory}, f, indent=4)
-        print(f"✓ Preset '{nom}' sauvegardé.")
-        entry_nom_preset.delete(0, 'end')
-        mettre_a_jour_dropdowns()
-    except Exception as e:
-        print(f"⚠ Erreur de sauvegarde : {e}")
-
-def supprimer_preset_json():
-    nom = dropdown_supprimer.get()
-    if not nom or nom == "---":
-        return
-        
-    global presets_factory
-    presets_factory = [p for p in presets_factory if p["name"] != nom]
-    
-    try:
-        chemin_presets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "presets_factory.json")
-        with open(chemin_presets, "w") as f:
-            json.dump({"presets": presets_factory}, f, indent=4)
-        print(f"✓ Preset '{nom}' supprimé.")
-        mettre_a_jour_dropdowns()
-    except Exception as e:
-        print(f"⚠ Erreur de suppression : {e}")
-
-lbl_presets_titre = ctk.CTkLabel(frame_presets_panel, text="Presets", font=("Arial", 16, "bold"))
+lbl_presets_titre = ctk.CTkLabel(frame_presets_panel, text="Presets Corde", font=("Arial", 16, "bold"))
 lbl_presets_titre.pack(pady=(10, 5))
 
 # Dropdowns par corde (1-6)
@@ -1038,7 +1232,7 @@ for idx_corde in range(6):
     
     dropdown = ctk.CTkOptionMenu(
         frame_ligne,
-        values=noms_presets_factory,
+        values=noms_presets_corde,
         width=130,
         height=28,
         font=("Arial", 11),
@@ -1053,12 +1247,12 @@ separateur = ctk.CTkFrame(frame_presets_panel, height=2, fg_color="#555555")
 separateur.pack(fill="x", padx=10, pady=(10, 5))
 
 # Dropdown global
-lbl_global = ctk.CTkLabel(frame_presets_panel, text="Global", font=("Arial", 14, "bold"))
+lbl_global = ctk.CTkLabel(frame_presets_panel, text="Preset Hexa", font=("Arial", 14, "bold"))
 lbl_global.pack(pady=(5, 3))
 
 preset_dropdown_global = ctk.CTkOptionMenu(
     frame_presets_panel,
-    values=noms_presets_factory,
+    values=noms_presets_hexa,
     width=150,
     height=28,
     font=("Arial", 11),
@@ -1071,45 +1265,80 @@ preset_dropdown_global.pack(padx=10, pady=(0, 5))
 separateur2 = ctk.CTkFrame(frame_presets_panel, height=2, fg_color="#555555")
 separateur2.pack(fill="x", padx=10, pady=(5, 5))
 
-lbl_edit = ctk.CTkLabel(frame_presets_panel, text="Édition", font=("Arial", 12, "bold"))
+lbl_edit = ctk.CTkLabel(frame_presets_panel, text="Suppression", font=("Arial", 12, "bold"))
 lbl_edit.pack(pady=(2, 2))
 
-# Ligne Création
-frame_add = ctk.CTkFrame(frame_presets_panel, fg_color="transparent")
-frame_add.pack(fill="x", padx=10, pady=2)
-entry_nom_preset = ctk.CTkEntry(frame_add, width=105, font=("Arial", 11), placeholder_text="Nom...")
-entry_nom_preset.pack(side="left", padx=(0, 5), fill="y")
-btn_add_preset = ctk.CTkButton(frame_add, text="+", width=28, command=sauvegarder_preset_json)
-btn_add_preset.pack(side="left", fill="y")
 
 # Ligne Suppression
 frame_del = ctk.CTkFrame(frame_presets_panel, fg_color="transparent")
 frame_del.pack(fill="x", padx=10, pady=(2, 10))
+
+def on_segment_change(value):
+    global banque_suppression_active
+    banque_suppression_active = value
+    maj_dropdown_supprimer()
+
+segment_suppression = ctk.CTkSegmentedButton(frame_del, values=["Corde", "Hexa"], command=on_segment_change, font=("Arial", 11))
+segment_suppression.set("Hexa")
+segment_suppression.pack(fill="x", pady=(0, 5))
+
+frame_del_dropdown = ctk.CTkFrame(frame_del, fg_color="transparent")
+frame_del_dropdown.pack(fill="x")
+
 dropdown_supprimer = ctk.CTkOptionMenu(
-    frame_del,
-    values=[p["name"] for p in presets_factory] if presets_factory else ["---"],
+    frame_del_dropdown,
+    values=[p["name"] for p in presets_hexa] if presets_hexa else ["---"],
     width=105,
     font=("Arial", 11)
 )
 dropdown_supprimer.pack(side="left", padx=(0, 5), fill="y")
-btn_del_preset = ctk.CTkButton(frame_del, text="-", width=28, fg_color="#A12222", hover_color="#7A1A1A", command=supprimer_preset_json)
+btn_del_preset = ctk.CTkButton(frame_del_dropdown, text="-", width=28, fg_color="#A12222", hover_color="#7A1A1A", command=supprimer_preset_json)
 btn_del_preset.pack(side="left", fill="y")
-
+ 
 # endregion
  
+def maj_bouton_save():
+    try:
+        if corde_active == "ALL":
+            btn_save_corde.configure(state="disabled", text="SAVE CORDE (Désactivé)", fg_color="#555555")
+        else:
+            nom_corde = ["Mi", "La", "Ré", "Sol", "Si", "Mi"][corde_active]
+            btn_save_corde.configure(state="normal", text=f"SAVE CORDE ({nom_corde})", fg_color="#2980b9")
+    except NameError:
+        pass
+
+def appliquer_random():
+    import random
+    cordes = range(6) if corde_active == "ALL" else [corde_active]
+    for c in cordes:
+        for nom_effet, config in CONFIG_EFFETS.items():
+            if EFFETS_MAP.get(nom_effet, -1) in chainage_slots[c]:
+                for idx, param in enumerate(config["params"]):
+                    if param.get("type") != "button" and param["nom"] != "--":
+                        memoire_effets[nom_effet][c][idx] = random.randint(0, 127)
+    maj_sliders_visuels()
+    envoyer_tout_midi()
+    marquer_preset_modifie()
+
 # region 6. Footswitches et Presets
  
 frame_sw = ctk.CTkFrame(center_container, fg_color="transparent")
-frame_sw.grid(row=2, column=0, columnspan=2, pady=15, sticky="ew")
+frame_sw.grid(row=3, column=0, columnspan=2, pady=15, sticky="ew")
  
 btn_bypass = ctk.CTkButton(frame_sw, text="BYPASS", fg_color="#555555", width=160, height=70, corner_radius=35, command=Activation_bypass)
 btn_bypass.pack(side="left", padx=20, expand=True)
  
-ctk.CTkButton(frame_sw, text="SAVE A", command=lambda: Sauvegarder_preset("A"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
-ctk.CTkButton(frame_sw, text="LOAD A", command=lambda: Charger_preset("A"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
-ctk.CTkButton(frame_sw, text="SAVE B", command=lambda: Sauvegarder_preset("B"), fg_color="#2c3e50", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
-ctk.CTkButton(frame_sw, text="LOAD B", command=lambda: Charger_preset("B"), width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
+btn_save_corde = ctk.CTkButton(frame_sw, text="SAVE CORDE", command=sauvegarder_preset_json_corde, fg_color="#2980b9", width=160, height=70, corner_radius=35)
+btn_save_corde.pack(side="left", padx=10, expand=True)
+
+btn_save_hexa = ctk.CTkButton(frame_sw, text="SAVE HEXA", command=sauvegarder_preset_json_hexa, fg_color="#27ae60", width=160, height=70, corner_radius=35)
+btn_save_hexa.pack(side="left", padx=10, expand=True)
+
+btn_random = ctk.CTkButton(frame_sw, text="RANDOM", command=appliquer_random, fg_color="#8e44ad", width=160, height=70, corner_radius=35)
+btn_random.pack(side="left", padx=20, expand=True)
+
 ctk.CTkButton(frame_sw, text="RESET", command=Reset_All, fg_color="#A12222", width=160, height=70, corner_radius=35).pack(side="left", padx=20, expand=True)
+maj_bouton_save()
  
 # endregion
 
@@ -1119,13 +1348,13 @@ cpu_avg_value = 0
 cpu_max_value = 0
 
 frame_cpu = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
-frame_cpu.grid(row=3, column=0, padx=10, pady=(5, 15), sticky="ew")
+frame_cpu.grid(row=4, column=0, padx=10, pady=(5, 15), sticky="ew")
 
 # Titre du panneau + bouton rescan
 frame_cpu_header = ctk.CTkFrame(frame_cpu, fg_color="transparent")
 frame_cpu_header.pack(fill="x", padx=10, pady=(8, 4))
 
-cpu_title = ctk.CTkLabel(frame_cpu_header, text="⚡ CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
+cpu_title = ctk.CTkLabel(frame_cpu_header, text="POWER CHARGE CPU — DaisySeed", font=("Arial", 14, "bold"))
 cpu_title.pack(side="left", expand=True)
 
 btn_rescan = ctk.CTkButton(frame_cpu_header, text="🔄 RESCAN USB", width=120, height=28,
@@ -1196,13 +1425,13 @@ def maj_cpu_monitor(avg, maxi):
     
     # Indicateur d'état
     if maxi > 90:
-        lbl_cpu_status.configure(text="⚠ SURCHARGE CPU !", text_color="#DC2626")
+        lbl_cpu_status.configure(text="WARN SURCHARGE CPU !", text_color="#DC2626")
     elif maxi > 75:
-        lbl_cpu_status.configure(text="⚡ Charge élevée", text_color="#F59E0B")
+        lbl_cpu_status.configure(text="POWER Charge élevée", text_color="#F59E0B")
     elif maxi > 50:
-        lbl_cpu_status.configure(text="✓ Charge modérée", text_color="#F59E0B")
+        lbl_cpu_status.configure(text="OK Charge modérée", text_color="#F59E0B")
     else:
-        lbl_cpu_status.configure(text="✓ CPU tranquille", text_color="#22C55E")
+        lbl_cpu_status.configure(text="OK CPU tranquille", text_color="#22C55E")
 
 def ecouter_midi_entrant():
     """Scrute le port MIDI en entrée pour recevoir la charge CPU (CC 80 & 81)"""
@@ -1221,15 +1450,34 @@ def ecouter_midi_entrant():
     win.after(50, ecouter_midi_entrant)
 
 # endregion
+
+# region 8. Console MIDI
+frame_midi_log = ctk.CTkFrame(center_container, border_width=2, corner_radius=10)
+frame_midi_log.grid(row=5, column=0, padx=10, pady=(5, 15), sticky="ew")
+
+frame_midi_header = ctk.CTkFrame(frame_midi_log, fg_color="transparent")
+frame_midi_header.pack(fill="x", padx=10, pady=(8, 4))
+
+midi_log_title = ctk.CTkLabel(frame_midi_header, text="🎹 LOG MIDI (OUT)", font=("Arial", 14, "bold"))
+midi_log_title.pack(side="left")
+
+show_midi_log = ctk.BooleanVar(value=False)
+chk_midi_log = ctk.CTkSwitch(frame_midi_header, text="Afficher Log", variable=show_midi_log)
+chk_midi_log.pack(side="right")
+
+textbox_midi_log = ctk.CTkTextbox(frame_midi_log, height=120, font=("Courier", 12))
+textbox_midi_log.pack(fill="x", padx=10, pady=(0, 10))
+textbox_midi_log.insert("end", "En attente de messages MIDI...\n")
+# endregion
  
 maj_leds()
-envoyer_bypass_initial()
+envoyer_tout_midi()
 
-# Appliquer le visuel bypass au d?marrage (tous les effets commencent bypass?s)
+# Appliquer le visuel bypass au démarrage (tous les effets commencent bypassés)
 for nom_effet in CONFIG_EFFETS:
     appliquer_visuel_bypass(nom_effet)
 
-# Lancement de la boucle de scrutation MIDI en entr?e
+# Lancement de la boucle de scrutation MIDI en entrée
 win.after(50, ecouter_midi_entrant)
 
 win.mainloop()
