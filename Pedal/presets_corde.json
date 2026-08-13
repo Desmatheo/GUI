@@ -1,73 +1,95 @@
 {
     "presets": [
         {
-            "name": "Disto Doom",
+            "name": "U2 Delay (The Edge)",
+            "chainage": [
+                1,
+                0,
+                0
+            ],
+            "effects": {
+                "Delay": {
+                    "bypass": false,
+                    "params": [
+                        0,
+                        70,
+                        64,
+                        40,
+                        45,
+                        64,
+                        60
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Jack White Fuzz",
             "chainage": [
                 3,
                 2,
                 0
             ],
             "effects": {
+                "Earth": {
+                    "bypass": false,
+                    "params": [
+                        50,
+                        64,
+                        64,
+                        64,
+                        64,
+                        64
+                    ]
+                },
                 "Distortion": {
                     "bypass": false,
                     "params": [
                         64,
                         100,
-                        64,
+                        100,
                         40,
                         64,
                         127,
-                        40
-                    ]
-                },
-                "Earth": {
-                    "bypass": false,
-                    "params": [
-                        60,
-                        0,
-                        64,
-                        64,
-                        64,
-                        64
+                        50
                     ]
                 }
             }
         },
         {
-            "name": "Ambiance Clean",
+            "name": "Surf Rock Tremolo",
             "chainage": [
-                1,
                 4,
+                1,
                 0
             ],
             "effects": {
+                "Tremolo": {
+                    "bypass": false,
+                    "params": [
+                        80,
+                        80,
+                        70,
+                        40,
+                        64,
+                        64
+                    ]
+                },
                 "Delay": {
                     "bypass": false,
                     "params": [
                         0,
-                        80,
-                        0,
+                        20,
                         64,
-                        40,
+                        64,
+                        20,
                         64,
                         40
-                    ]
-                },
-                "Tremolo": {
-                    "bypass": false,
-                    "params": [
-                        60,
-                        70,
-                        40,
-                        64,
-                        64,
-                        64
                     ]
                 }
             }
         },
         {
-            "name": "Lead Solo",
+            "name": "Gilmour Lead",
             "chainage": [
                 2,
                 1,
@@ -78,24 +100,88 @@
                     "bypass": false,
                     "params": [
                         64,
-                        90,
-                        64,
-                        80,
+                        60,
+                        40,
+                        70,
                         64,
                         127,
-                        40
+                        60
                     ]
                 },
                 "Delay": {
                     "bypass": false,
                     "params": [
                         0,
-                        40,
+                        80,
+                        64,
+                        64,
+                        35,
+                        64,
+                        40
+                    ]
+                }
+            }
+        },
+        {
+            "name": "testYannickVid\u00e9oMI",
+            "chainage": [
+                0,
+                3,
+                0
+            ],
+            "effects": {
+                "Earth": {
+                    "bypass": false,
+                    "params": [
+                        64,
+                        63,
+                        64,
+                        64,
+                        64,
+                        96
+                    ]
+                }
+            }
+        },
+        {
+            "name": "TestYannickLa",
+            "chainage": [
+                3,
+                0,
+                0
+            ],
+            "effects": {
+                "Earth": {
+                    "bypass": false,
+                    "params": [
+                        67,
+                        63,
+                        64,
+                        64,
+                        64,
+                        64
+                    ]
+                }
+            }
+        },
+        {
+            "name": "TestYannickVideoR\u00e9",
+            "chainage": [
+                1,
+                0,
+                0
+            ],
+            "effects": {
+                "Delay": {
+                    "bypass": false,
+                    "params": [
                         0,
+                        29,
                         64,
-                        30,
                         64,
-                        30
+                        64,
+                        94,
+                        41
                     ]
                 }
             }

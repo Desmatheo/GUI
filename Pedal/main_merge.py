@@ -194,7 +194,19 @@ CONFIG_EFFETS = {
             {"nom": "Depth", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Rate", "min": 0.1, "max": 20, "unite": "Hz"},
             {"nom": "Wave", "min": 0, "max": 3, "unite": "wave_mode", "steps": 3},
-            {"nom": "--"},
+            {"nom": "Offset", "min": 0, "max": 100, "unite": "%"},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+        ]
+    },
+    "Equalizer": {
+        "base_cc": 70,
+        "bypass_cc": 78,
+        "params": [
+            {"nom": "80 Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "250 Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "750 Hz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "2.2 kHz", "min": -12, "max": 12, "unite": "dB"},
+            {"nom": "6.6 kHz", "min": -12, "max": 12, "unite": "dB"},
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
     }
@@ -213,7 +225,7 @@ memoire_effets = {
 }
  
 chainage_slots = [[0, 0, 0] for _ in range(6)]
-EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4}
+EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4, "Equalizer": 5}
 EFFETS_LIST = list(EFFETS_MAP.keys())
 
 # endregion
@@ -482,6 +494,8 @@ def send_midi_message(msg):
         try:
             port_midi.send(msg)
             log_midi_message(msg)
+            import time
+            time.sleep(0.002) # Petite pause pour ne pas surcharger la Daisy
         except Exception:
             pass
 

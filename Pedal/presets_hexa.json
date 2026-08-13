@@ -1,118 +1,330 @@
 {
     "presets": [
         {
-            "name": "Fuzz Wall",
+            "name": "Where The Streets (U2)",
             "strings_data": {
                 "0": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 },
                 "1": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 },
                 "2": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 },
                 "3": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 },
                 "4": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 },
                 "5": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "U2 Delay (The Edge)"
                 }
             }
         },
         {
-            "name": "Dreamscape",
+            "name": "Seven Nation Army",
             "strings_data": {
                 "0": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "1": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "2": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "3": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "4": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "5": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Jack White Fuzz"
                 }
             }
         },
         {
-            "name": "Bass & Lead (Split)",
+            "name": "Tarantino Surf",
             "strings_data": {
                 "0": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Surf Rock Tremolo"
                 },
                 "1": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Surf Rock Tremolo"
                 },
                 "2": {
                     "type": "ref",
-                    "preset_name": "Lead Solo"
+                    "preset_name": "Surf Rock Tremolo"
                 },
                 "3": {
                     "type": "ref",
-                    "preset_name": "Lead Solo"
+                    "preset_name": "Surf Rock Tremolo"
                 },
                 "4": {
                     "type": "ref",
-                    "preset_name": "Lead Solo"
+                    "preset_name": "Surf Rock Tremolo"
                 },
                 "5": {
                     "type": "ref",
-                    "preset_name": "Lead Solo"
+                    "preset_name": "Surf Rock Tremolo"
                 }
             }
         },
         {
-            "name": "testhexa1",
+            "name": "Hexa Split: Bass & Gilmour",
             "strings_data": {
                 "0": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "1": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Jack White Fuzz"
                 },
                 "2": {
                     "type": "ref",
-                    "preset_name": "Ambiance Clean"
+                    "preset_name": "Gilmour Lead"
                 },
                 "3": {
                     "type": "ref",
-                    "preset_name": "Lead Solo"
+                    "preset_name": "Gilmour Lead"
                 },
                 "4": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Gilmour Lead"
                 },
                 "5": {
                     "type": "ref",
-                    "preset_name": "Disto Doom"
+                    "preset_name": "Gilmour Lead"
+                }
+            }
+        },
+        {
+            "name": "testYannickVid\u00e9o1",
+            "strings_data": {
+                "0": {
+                    "type": "ref",
+                    "preset_name": "testYannickVid\u00e9oMI"
+                },
+                "1": {
+                    "type": "ref",
+                    "preset_name": "TestYannickLa"
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "TestYannickVideoR\u00e9"
+                },
+                "3": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "effects": {}
+                    }
+                },
+                "4": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "effects": {}
+                    }
+                },
+                "5": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            1,
+                            0,
+                            0
+                        ],
+                        "effects": {
+                            "Delay": {
+                                "bypass": false,
+                                "params": [
+                                    0,
+                                    29,
+                                    64,
+                                    64,
+                                    64,
+                                    94,
+                                    85
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "TestYannickVIdeo2",
+            "strings_data": {
+                "0": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            0,
+                            3,
+                            4
+                        ],
+                        "effects": {
+                            "Earth": {
+                                "bypass": false,
+                                "params": [
+                                    64,
+                                    63,
+                                    64,
+                                    64,
+                                    64,
+                                    96
+                                ]
+                            },
+                            "Tremolo": {
+                                "bypass": false,
+                                "params": [
+                                    127,
+                                    127,
+                                    37,
+                                    127,
+                                    64,
+                                    102
+                                ]
+                            }
+                        }
+                    }
+                },
+                "1": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            3,
+                            4,
+                            0
+                        ],
+                        "effects": {
+                            "Earth": {
+                                "bypass": false,
+                                "params": [
+                                    67,
+                                    63,
+                                    64,
+                                    64,
+                                    64,
+                                    64
+                                ]
+                            },
+                            "Tremolo": {
+                                "bypass": false,
+                                "params": [
+                                    110,
+                                    127,
+                                    37,
+                                    127,
+                                    64,
+                                    102
+                                ]
+                            }
+                        }
+                    }
+                },
+                "2": {
+                    "type": "ref",
+                    "preset_name": "TestYannickVideoR\u00e9"
+                },
+                "3": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            1,
+                            0,
+                            0
+                        ],
+                        "effects": {
+                            "Delay": {
+                                "bypass": false,
+                                "params": [
+                                    0,
+                                    9,
+                                    64,
+                                    64,
+                                    39,
+                                    111,
+                                    10
+                                ]
+                            }
+                        }
+                    }
+                },
+                "4": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            1,
+                            0,
+                            0
+                        ],
+                        "effects": {
+                            "Delay": {
+                                "bypass": false,
+                                "params": [
+                                    0,
+                                    14,
+                                    64,
+                                    64,
+                                    40,
+                                    111,
+                                    14
+                                ]
+                            }
+                        }
+                    }
+                },
+                "5": {
+                    "type": "custom",
+                    "params": {
+                        "chainage": [
+                            1,
+                            0,
+                            0
+                        ],
+                        "effects": {
+                            "Delay": {
+                                "bypass": false,
+                                "params": [
+                                    0,
+                                    13,
+                                    64,
+                                    64,
+                                    38,
+                                    94,
+                                    16
+                                ]
+                            }
+                        }
+                    }
                 }
             }
         }
