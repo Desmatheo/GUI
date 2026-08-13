@@ -209,6 +209,26 @@ CONFIG_EFFETS = {
             {"nom": "6.6 kHz", "min": -12, "max": 12, "unite": "dB"},
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
+    },
+    "NoiseGate": {
+        "base_cc": 120,
+        "bypass_cc": 119,
+        "params": [
+            {"nom": "Thresh", "min": -60, "max": 0, "unite": "dB"},
+            {"nom": "Attack", "min": 1, "max": 100, "unite": "ms"},
+            {"nom": "Release", "min": 10, "max": 1000, "unite": "ms"}
+        ]
+    },
+    "Compressor": {
+        "base_cc": 100,
+        "bypass_cc": 99,
+        "params": [
+            {"nom": "Thresh", "min": -60, "max": 0, "unite": "dB"},
+            {"nom": "Ratio", "min": 1, "max": 20, "unite": ":1"},
+            {"nom": "Attack", "min": 1, "max": 100, "unite": "ms"},
+            {"nom": "Release", "min": 10, "max": 1000, "unite": "ms"},
+            {"nom": "Gain", "min": 0, "max": 24, "unite": "dB"}
+        ]
     }
 }
  
@@ -225,7 +245,7 @@ memoire_effets = {
 }
  
 chainage_slots = [[0, 0, 0] for _ in range(6)]
-EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4, "Equalizer": 5}
+EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4, "Equalizer": 5, "NoiseGate": 6, "Compressor": 7}
 EFFETS_LIST = list(EFFETS_MAP.keys())
 
 # endregion
