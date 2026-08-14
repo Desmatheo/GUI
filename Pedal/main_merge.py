@@ -174,7 +174,7 @@ CONFIG_EFFETS = {
             {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
         ]
     },
-    "Earth": {
+    "Octaver": {
         "base_cc": 90,
         "bypass_cc": 89,
         "params": [
@@ -189,13 +189,15 @@ CONFIG_EFFETS = {
     "Tremolo": {
         "base_cc": 110,
         "bypass_cc": 118,
+        "display_order": [0, 1, 4, 2, 6, 3, 5],
         "params": [
             {"nom": "Mix", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Depth", "min": 0, "max": 100, "unite": "%"},
             {"nom": "Rate", "min": 0.1, "max": 20, "unite": "Hz"},
             {"nom": "Wave", "min": 0, "max": 3, "unite": "wave_mode", "steps": 3},
-            {"nom": "Offset", "min": 0, "max": 100, "unite": "%"},
-            {"nom": "Vol", "min": 0, "max": 10, "unite": ""}
+            {"nom": "Phase mode", "min": 0, "max": 2, "unite": "phase_mode", "steps": 2},
+            {"nom": "Vol", "min": 0, "max": 10, "unite": ""},
+            {"nom": "Phase", "min": 0, "max": 1, "unite": "phase_val"}
         ]
     },
     "Equalizer": {
@@ -211,8 +213,8 @@ CONFIG_EFFETS = {
         ]
     },
     "NoiseGate": {
-        "base_cc": 120,
-        "bypass_cc": 119,
+        "base_cc": 30,
+        "bypass_cc": 38,
         "params": [
             {"nom": "Thresh", "min": -60, "max": 0, "unite": "dB"},
             {"nom": "Attack", "min": 1, "max": 100, "unite": "ms"},
@@ -245,7 +247,7 @@ memoire_effets = {
 }
  
 chainage_slots = [[0, 0, 0] for _ in range(6)]
-EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Earth": 3, "Tremolo": 4, "Equalizer": 5, "NoiseGate": 6, "Compressor": 7}
+EFFETS_MAP = {"None": 0, "Delay": 1, "Distortion": 2, "Octaver": 3, "Tremolo": 4, "Equalizer": 5, "NoiseGate": 6, "Compressor": 7}
 EFFETS_LIST = list(EFFETS_MAP.keys())
 
 # endregion
@@ -264,6 +266,7 @@ slider_container_frames = {}
 sliders = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
 slider_labels = {nom_effet: [] for nom_effet in CONFIG_EFFETS.keys()}
 bypass_buttons = {}
+tremolo_cells = {}  # Cellules (label+slider) du Tremolo, indexées par param index, pour show/hide dynamique
 leds = []
 string_buttons = []
 btn_all = None  
@@ -281,7 +284,7 @@ def get_texte_label(param_info, val_midi):
        
     val_reelle = map_valeur_reelle(val_midi, param_info["min"], param_info["max"])
    
-    # --- LOGIQUE SPÉCIALE POUR L'AFFICHAGE DE L'OCTAVER EARTH ---
+    # --- LOGIQUE SPÉCIALE POUR L'AFFICHAGE DE L'OCTAVER ---
     if param_info["unite"] == "oct_mode":
         cran = int(round(val_reelle))
         if cran == 0:
@@ -301,6 +304,25 @@ def get_texte_label(param_info, val_midi):
             return f"{param_info['nom']}: Square"
         else:
             return f"{param_info['nom']}: Saw"
+
+    if param_info["unite"] == "phase_mode":
+        cran = int(round(val_reelle))
+        if cran == 0:
+            return f"{param_info['nom']} : Sync"
+        elif cran == 1:
+            return f"{param_info['nom']} : Dephased"
+        else:
+            return f"{param_info['nom']} : custom"
+
+    if param_info["unite"] == "phase_val":
+        phase_norm = val_midi / 127.0
+        if abs(phase_norm) < 0.01:            return f"{param_info['nom']} : 0"
+        elif abs(phase_norm - 0.25) < 0.02:   return f"{param_info['nom']} : PI/2"
+        elif abs(phase_norm - 0.5) < 0.02:    return f"{param_info['nom']} : PI"
+        elif abs(phase_norm - 0.75) < 0.02:   return f"{param_info['nom']} : 3PI/2"
+        elif abs(phase_norm - 1.0) < 0.02:    return f"{param_info['nom']} : 2PI"
+        else:
+            return f"{param_info['nom']} : {phase_norm:.2f}"
 
     if param_info["unite"] == "mode":
         cran = int(round(val_reelle))
@@ -355,6 +377,29 @@ def maj_delay_dynamic_ui():
         slider_labels["Delay"][3].pack_forget()
         sliders["Delay"][3].pack_forget()
 
+def maj_tremolo_dynamic_ui():
+    """Montre/cache le slider Phase Offset selon le mode Phase du Tremolo."""
+    if "Tremolo" not in sliders or not sliders["Tremolo"]: return
+    if not tremolo_cells: return
+    corde_ref = 0 if corde_active == "ALL" else corde_active
+    valeurs = memoire_effets["Tremolo"][corde_ref]
+    
+    # Index 4 = Phase Mode (0=Sync, 1=Dephased, 2=Custom)
+    phase_mode_val = valeurs[4] / 127.0
+    is_dephased = 0.33 <= phase_mode_val < 0.66
+    
+    # Index 6 = Phase Offset → visible seulement en mode Dephased
+    phase_cell = tremolo_cells.get(6)
+    if phase_cell:
+        if is_dephased:
+            phase_cell.grid()
+            # Mettre à jour le label
+            param_info = CONFIG_EFFETS["Tremolo"]["params"][6]
+            texte = get_texte_label(param_info, valeurs[6] if len(valeurs) > 6 else 0)
+            slider_labels["Tremolo"][6].configure(text=texte)
+        else:
+            phase_cell.grid_remove()
+
 def maj_sliders_visuels():
     texte_titre = f"CORDE ACTIVE : {noms_cordes[corde_active] if corde_active != 'ALL' else '[MODE ALL]'}"
     label_info_corde.configure(text=texte_titre, text_color="#0088FF" if corde_active == "ALL" else "white")
@@ -380,6 +425,8 @@ def maj_sliders_visuels():
 
     if "Delay" in sliders:
         maj_delay_dynamic_ui()
+    if "Tremolo" in sliders:
+        maj_tremolo_dynamic_ui()
 
 def button_callback(nom_effet, index):
     global tap_history, last_tap_time
@@ -453,6 +500,10 @@ def slider_callback(valeur, nom_effet, index):
            
     if nom_effet == "Delay" and index in (0, 1, 3):
         maj_delay_dynamic_ui()
+    elif nom_effet == "Tremolo" and index == 4:
+        texte = get_texte_label(param_info, v_int)
+        slider_labels[nom_effet][index].configure(text=texte)
+        maj_tremolo_dynamic_ui()
     else:
         texte = get_texte_label(param_info, v_int)
         slider_labels[nom_effet][index].configure(text=texte)
@@ -1094,27 +1145,40 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
     frame_potards_effet.pack(pady=5, padx=10)
     slider_container_frames[nom_effet] = frame_potards_effet
  
-    for j, param_info in enumerate(config["params"]):
+    # Déterminer l'ordre d'affichage (display_order ou séquentiel)
+    display_order = config.get("display_order", list(range(len(config["params"]))))
+    
+    # Pré-remplir les listes sliders et slider_labels avec des placeholders
+    # pour garantir l'indexation par param index
+    sliders[nom_effet] = [None] * len(config["params"])
+    slider_labels[nom_effet] = [None] * len(config["params"])
+    
+    for row_idx, j in enumerate(display_order):
+        param_info = config["params"][j]
         cellule = ctk.CTkFrame(frame_potards_effet, fg_color="transparent")
-        cellule.grid(row=j, column=0, padx=5, pady=4, sticky="w")
+        cellule.grid(row=row_idx, column=0, padx=5, pady=4, sticky="w")
+        
+        # Stocker les cellules Tremolo pour show/hide dynamique
+        if nom_effet == "Tremolo":
+            tremolo_cells[j] = cellule
        
         lbl = ctk.CTkLabel(cellule, text=f"{param_info['nom']}: --", font=("Arial", 12))
 
         if param_info.get("type") == "button":
             lbl.configure(text="")
             lbl.pack(anchor="w")
-            slider_labels[nom_effet].append(lbl)
+            slider_labels[nom_effet][j] = lbl
             
             btn = ctk.CTkButton(cellule, text=param_info["nom"], width=180,
                                 command=lambda ne=nom_effet, idx=j: button_callback(ne, idx))
             btn.pack(pady=2, anchor="w")
-            sliders[nom_effet].append(btn)
+            sliders[nom_effet][j] = btn
             continue
 
         lbl.pack(anchor="w")
-        slider_labels[nom_effet].append(lbl)
+        slider_labels[nom_effet][j] = lbl
        
-        # --- CONFIGURATION DES CRANS POUR L'OCTAVER ---
+        # --- CONFIGURATION DES CRANS ---
         nb_steps = param_info.get("steps", 0)
        
         if nb_steps > 0:
@@ -1127,11 +1191,15 @@ for i, (nom_effet, config) in enumerate(CONFIG_EFFETS.items()):
                              
         s.set(64)
         s.pack(pady=2, anchor="w")
-        sliders[nom_effet].append(s)
+        sliders[nom_effet][j] = s
  
         if param_info["nom"] == "--":
             lbl.configure(text="")
             s.pack_forget()
+    
+    # Masquer le Phase Offset du Tremolo par défaut (visible seulement en Dephased)
+    if nom_effet == "Tremolo" and 6 in tremolo_cells:
+        tremolo_cells[6].grid_remove()
 
 # --- Panneau Presets Factory (à droite des effets) ---
 frame_presets_panel = ctk.CTkFrame(frame_effets_container, border_width=2, width=180)

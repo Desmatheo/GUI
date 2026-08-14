@@ -30,7 +30,7 @@
                 0
             ],
             "effects": {
-                "Earth": {
+                "Octaver": {
                     "bypass": false,
                     "params": [
                         50,
@@ -130,7 +130,7 @@
                 0
             ],
             "effects": {
-                "Earth": {
+                "Octaver": {
                     "bypass": false,
                     "params": [
                         64,
@@ -151,7 +151,7 @@
                 0
             ],
             "effects": {
-                "Earth": {
+                "Octaver": {
                     "bypass": false,
                     "params": [
                         67,
